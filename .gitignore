@@ -1,0 +1,42 @@
+# IDE and Editor files
+.cursor*
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# TypeScript specific
+*.tsbuildinfo
+dist/
+build/
+lib/
+coverage/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Optional: JavaScript files if you're compiling TypeScript
+# Uncomment if you want to ignore compiled JS files
+# src/**/*.js
+# src/**/*.js.map
