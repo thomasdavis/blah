@@ -7,3 +7,15 @@ npm for mcp
 # slop
 
 # agents.json
+
+```
+{
+  "mcpServers": {
+    "blah": {
+      "command": "npx",
+      "args": ["-y" , "blah-mcp"],
+      "env": {}
+    }
+  }
+}
+```
