@@ -51,6 +51,8 @@ async function formatValTownResponse(response: ValTownExecuteResponse, server: S
     level: "info",
     data: `ValTown response: ${JSON.stringify(response)}`
   });
+
+
   
   // Handle error responses
   if (response.error) {
@@ -58,6 +60,7 @@ async function formatValTownResponse(response: ValTownExecuteResponse, server: S
       content: [{ type: "text", text: `Error: ${response.error}` }]
     };
   }
+
 
   // Extract the most relevant field from the response
   if (response.baby_name) {
