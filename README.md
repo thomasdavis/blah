@@ -1,95 +1,210 @@
 # BLAH - Barely Logical Agent Host
 
-requirements of a mcp registry;
+<div align="center">
+  <img src="https://via.placeholder.com/150?text=BLAH" alt="BLAH Logo" width="150" height="150">
+  <br>
+  <em>An open-source registry and ecosystem for Model Context Protocol (MCP) tools</em>
+  <br>
+  <br>
+</div>
 
-- CREDIT LISA AND WOMBAT
-- infrastructure code is ALL opensource
-- any system (such as ide's) should be able to connect to it
-- agentic systems should support 0, 1 or INFINITY
-  - tool selection / tool rag search
-- a registry that does not have malaligned incentives
-  - how has npm lasted this long? look at other package managers
-- speak of agent behavior (parallelism, recursive, branching, sequential, graph theory, sets of steps)
-- status checking monitoring of mcp servers
-- someone has to foot the bill
-  - the big cloud providers can, but they at best get a mention on the README, no influence over the integerity of the project, contractual bound if necessary
-- language agnostic fo sure bitches
-- signing release of mcp servers
-  - not mandatory, the user can use unsigned things
-- currently used valtown because I cannot be fucked building the registry
-  - how to build a sandbox, is deno the answer?
-- systems need to make documentation EXPLICIT about how they invoke tools, it doesn't have to be, but it should be
-- a tool at the end of the day is a function, but, that function, could be string of code, could be a restful endpoint, could be a local file, could be a standard manifest e.g. slop or agents.json #THISNEEDSALOTMORETHOUGHT
-- tool search
-  - usage agregation so the server can make informed decisions
-  - the actor should HOPEFULLY return the reasoning
-    - store that all on a public api
-- scope / resource / templates ?
-  - uri's
-  - versioning
-  - forking
-- cron?
-  - scheduled agents
-  - likely outside of scope
-- i don't want to steward this (figure that out)
-- arbiter / actor / executor / magician
-- accountability ?!?!? BE AUTISTIC (dangerous ideas are safe in civil minds)
-  - the registry will obey local laws
-  - put the stack trace on the blockchain (jokes but logs are important)
-- inspired by keybase
-- support of protocols/standards
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![npm version](https://img.shields.io/npm/v/blah-mcp.svg)](https://www.npmjs.com/package/blah-mcp)
 
-  - slop
-  - agents.json
-  - needs converters
+## What is BLAH?
 
-- tags (category is limiting)
+BLAH is an open-source ecosystem for managing, distributing, and executing AI agent tools using the Model Context Protocol (MCP). It provides a decentralized registry for MCP servers that doesn't suffer from misaligned incentives, promoting transparency, security, and community-driven development.
 
-  - #TOOLBELT
-  - UX
-    - No one cares if they have a list of six million tools
-    - It has to be semanticaly navigable
-    - metadata
-    - UX, character profiling
-      - these are ideas for the actors though
+**Key Features:**
+- Open-source infrastructure that any system (IDE, AI platform, etc.) can connect to
+- Language-agnostic tool registry supporting unlimited tool selection
+- Robust security through optional signing and verification of MCP servers
+- Comprehensive CLI for publishing, discovering, and managing tools
+- Support for various tool types: functions, REST endpoints, local files, or standard manifests
 
-- valtown is going to be the registry storage/backend/free-compute for now, wrapped, but maybe someone should build a valtown alternative focused on solving this problem only
-- blah somewhat needs it's own manifest e.g. blah.json
-  - this file can exist anywhere, project workspace, home directory, hosted in the cloud, a gist or ipfs
-- probably need to release a cli tool e.g. blah-cli
+## 🔍 Vision
 
-  - blah commands
-    - blah publish
-    - blah search
-    - blah install
-    - blah remove
-    - blah update
-    - blah list
-    - blah info
-    - blah config
-    - blah login
-    - blah logout
-    - blah whoami
-    - blah version
-    - blah help
+BLAH aims to be the foundation for a new generation of AI tools that can be easily shared, discovered, and composed. We envision a future where:
 
-- need to build a website
+1. **Anyone** can create and share tools that extend AI capabilities
+2. **Everyone** has access to a rich ecosystem of tools regardless of their technical background
+3. **Every system** can integrate with this ecosystem through standard protocols
 
-  - can't be fucked, README will be good enough
+## 🚀 Getting Started
 
-- need to figure out this projects relationship to mcp
-  - it implments an mcp server
-  - currently no standard/schema, ahh there should be, blah.json requires a schema
-    - the schema should be first principles, everything written after this point should be capable of being rebuilt and run up by anybody. (centralization is inevitable though)
--
+### Installation
 
-## Crazy ideas
+```bash
+npm install -g blah-mcp
+```
 
-- share user behavior, and recommend tools to users who are similar
+### Basic Usage
 
-TODO
+```bash
+# Search for tools
+blah search "image generation"
 
-- [ ] host the mcp server on workers (cf)
-- [ ] webpage example for running on
-- [ ] make debugging / developer experience at the frontier (DX)
-- [ ] make a tool that can create a tool
+# Install a tool
+blah install awesome-image-generator
+
+# List installed tools
+blah list
+
+# Get info about a tool
+blah info awesome-image-generator
+```
+
+## 📖 Core Concepts
+
+### The Registry
+
+BLAH's registry is designed with lessons learned from package managers like npm, focusing on:
+
+- **Transparency**: All infrastructure code is open-source
+- **Decentralization**: Storage options include local, cloud, IPFS, or gists
+- **Security**: Optional signing of MCP servers with verification
+- **Governance**: Community-driven with no single entity controlling the ecosystem
+
+### Agent Behavior
+
+BLAH supports various agent interaction patterns:
+- Parallel execution
+- Recursive tool calls
+- Branching workflows
+- Sequential processing
+- Complex graph-based workflows
+
+### Tool Definition
+
+A tool in BLAH is fundamentally a function, but can be represented as:
+- Code snippets
+- RESTful endpoints
+- Local executables
+- Standard manifests (SLOP, agents.json)
+
+Every tool should explicitly document how it's invoked, though this isn't mandatory.
+
+## 🛠️ CLI Commands
+
+BLAH comes with a comprehensive CLI:
+
+```
+blah publish    - Publish a tool to the registry
+blah search     - Search for tools by name, tag, or description
+blah install    - Install a tool
+blah remove     - Remove an installed tool
+blah update     - Update tools to latest versions
+blah list       - List installed tools
+blah info       - Display information about a tool
+blah config     - Configure BLAH settings
+blah login      - Authenticate with registry
+blah logout     - End authentication session
+blah whoami     - Show current authenticated user
+blah version    - Display version information
+blah help       - Show help information
+```
+
+## 📋 Manifests
+
+BLAH uses a manifest file (`blah.json`) to define tools and their dependencies. This manifest can exist:
+- In a project workspace
+- In the home directory
+- Hosted in the cloud
+- As a gist or on IPFS
+
+Example `blah.json`:
+```json
+{
+  "name": "awesome-image-generator",
+  "version": "1.0.0",
+  "description": "Tool for generating awesome images",
+  "entry": "./dist/index.js",
+  "tools": [
+    {
+      "name": "generate_image",
+      "description": "Generates an image from a text prompt",
+      "parameters": {
+        "prompt": {
+          "type": "string",
+          "description": "Text description of the desired image"
+        },
+        "style": {
+          "type": "string",
+          "enum": ["realistic", "cartoon", "abstract"],
+          "default": "realistic"
+        }
+      }
+    }
+  ],
+  "dependencies": {
+    "image-gen-lib": "^2.0.0"
+  },
+  "tags": ["image", "generation", "creative"]
+}
+```
+
+## 🔄 Standards Support
+
+BLAH supports and aims to be compatible with:
+- Model Context Protocol (MCP)
+- SLOP (Structure for Language Operator Protocols)
+- agents.json
+- [Your own custom protocols through converters]
+
+## 🌟 Discovery and Metadata
+
+Tools in BLAH are organized using:
+- Tags (e.g., #TOOLBELT)
+- Semantic metadata for intuitive navigation
+- Usage analytics for popularity-based recommendations
+- User-based recommendations (tools used by similar users)
+
+## 🏗️ Architecture
+
+BLAH consists of three main components:
+1. **Registry**: For tool storage and discovery
+2. **CLI**: For interacting with the registry and managing tools
+3. **MCP Server**: For executing tools within agent workflows
+
+Currently, [ValTown](https://www.val.town) serves as the primary backend for registry storage and compute, though alternative implementations are welcome.
+
+## 🔒 Security & Accountability
+
+BLAH takes security seriously:
+- Optional signing of MCP servers
+- Code execution in sandboxed environments
+- Comprehensive logging for accountability
+- Compliance with local laws and regulations
+
+## 🚧 Roadmap
+
+- [ ] Host the MCP server on cloud platforms (e.g., Cloudflare Workers)
+- [ ] Create a web-based tool explorer and documentation site
+- [ ] Improve debugging and developer experience
+- [ ] Develop a tool creation wizard/generator
+- [ ] Implement tool recommendation system
+
+## 🧠 Future Ideas
+
+- User behavior sharing for personalized tool recommendations
+- Scheduled agent execution through cron-like mechanisms
+- Decentralized governance model for registry management
+- Extension ecosystem for custom registry implementations
+
+## 🤝 Contributing
+
+Contributions are welcome! Check back soon for detailed contribution guidelines.
+
+## 👏 Credits
+
+Special thanks to Lisa and Wombat for their invaluable contributions to this project.
+
+## 📄 License
+
+BLAH is released under the MIT License. See the LICENSE file for details.
+
+---
+
+<div align="center">
+  <em>Build Logical Agents, Humanely</em>
+</div>
