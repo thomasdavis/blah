@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import fetch from "node-fetch";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
