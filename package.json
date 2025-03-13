@@ -12,6 +12,13 @@
   "bin": {
     "blah-mcp": "./build/index.js"
   },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomasdavis/blah.git"
+  },
   "files": [
     "build"
   ],
