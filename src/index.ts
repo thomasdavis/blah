@@ -1,224 +1,233 @@
 #!/usr/bin/env node
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import fetch from "node-fetch";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import {
+  ListResourcesRequestSchema,
+  ReadResourceRequestSchema,
+  ListToolsRequestSchema,
   CallToolRequestSchema,
   ErrorCode,
-  ListToolsRequestSchema,
-  McpError,
-  Tool,
+  McpError
 } from "@modelcontextprotocol/sdk/types.js";
-import { z } from "zod";
+import axios from "axios";
+import dotenv from "dotenv";
+import {
+  ExaSearchRequest,
+  ExaSearchResponse,
+  SearchArgs,
+  isValidSearchArgs,
+  CachedSearch
+} from "./types.js";
 
-const server = new Server(
-  {
-    name: "blah",
-    version: "1.0.0",
+dotenv.config();
+
+const API_KEY = process.env.EXA_API_KEY;
+if (!API_KEY) {
+  throw new Error("EXA_API_KEY environment variable is required");
+}
+
+const API_CONFIG = {
+  BASE_URL: 'https://api.exa.ai',
+  ENDPOINTS: {
+    SEARCH: '/search'
   },
-  {
-    capabilities: {
-      resources: {},
-      tools: {},
-      logging: {},
-    },
-  }
-);
+  DEFAULT_NUM_RESULTS: 10,
+  MAX_CACHED_SEARCHES: 5
+} as const;
 
+class ExaServer {
+  private server: Server;
+  private axiosInstance;
+  private recentSearches: CachedSearch[] = [];
 
-interface ValTownResponse {
-  tools?: Tool[];
-}
-
-interface ValTownExecuteResponse {
-  result?: any;
-  error?: string;
-  baby_name?: string;
-  answer?: string;
-  text?: string;
-  response?: string;
-  [key: string]: any;
-}
-
-/**
- * Format the ValTown response into MCP format
- * @param response The raw response from ValTown
- * @param server The MCP server instance for logging
- * @returns Response formatted for MCP
- */
-async function formatValTownResponse(response: ValTownExecuteResponse, server: Server): Promise<any> {
-  server.sendLoggingMessage({
-    level: "info",
-    data: `ValTown response: ${JSON.stringify(response)}`
-  });
-
-
-  
-  // Handle error responses
-  if (response.error) {
-    return {
-      content: [{ type: "text", text: `Error: ${response.error}` }]
-    };
-  }
-
-
-  // Extract the most relevant field from the response
-  if (response.baby_name) {
-    return {
-      content: [{ type: "text", text: response.baby_name }],
-      baby_name: response.baby_name  // Include the field directly for MCP clients
-    };
-  }
-  
-  // For other responses, try to find the most relevant field
-  const value = response.result || response.answer || response.text || response.response;
-  if (value !== undefined) {
-    return {
-      content: [{ type: "text", text: String(value) }]
-    };
-  }
-  
-  // If no relevant field found, return the whole response
-  return {
-    content: [{ type: "text", text: JSON.stringify(response) }]
-  };
-}
-
-server.setRequestHandler(ListToolsRequestSchema, async () => {
-  const tools = {
-    'create-message': {
-      name: 'create-message',
-      description: 'Generate a custom message with various options',
-      inputSchema: {},
-    },
-  };
-
-  return { tools: Object.values(tools) };
-
-  // Log that we received a ListTools request
-  server.sendLoggingMessage({
-    level: "info",
-    data: "Received ListTools request",
-  });
-
-  const response = await fetch("https://ajax-mcp.web.val.run", {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
-  const valtownTools = await response.json();
-  server.sendLoggingMessage({
-    level: "info",
-    data: `ListTools response received: ${JSON.stringify(valtownTools)}`
-  });
-
-  // Return the tools from ValTown API
-  return {
-    tools: valtownTools || []
-  };
-});
-
-
-
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
-  console.error("Forwarding tool request to Val Town:", request.params.name, request.params.arguments);
-  
-  // Log the incoming tool call request with detailed information
-  server.sendLoggingMessage({
-    level: "info",
-    data: `Tool call request received: name='${request.params.name}', arguments=${JSON.stringify(request.params.arguments)}`
-  });
-
-  try {
-    // Construct the URL for the Val Town tool
-    const toolUrl = `https://ajax-${request.params.name}.web.val.run`;
-    
-    server.sendLoggingMessage({
-      level: "info",
-      data: `Attempting to fetch from URL: ${toolUrl}`
+  constructor() {
+    this.server = new Server({
+      name: "exa-search-server",
+      version: "0.1.0"
+    }, {
+      capabilities: {
+        resources: {},
+        tools: {}
+      }
     });
-    
-    // Make the API request and await the response
-    const response = await fetch(toolUrl, {
-      method: 'POST',
+
+    this.axiosInstance = axios.create({
+      baseURL: API_CONFIG.BASE_URL,
       headers: {
-        'Content-Type': 'application/json'
-      },
-
-      
-      body: JSON.stringify(request.params.arguments || {})
-    });
-    
-    server.sendLoggingMessage({
-      level: "info",
-      data: `Response status: ${response.status} ${response.statusText}`
+        'accept': 'application/json',
+        'content-type': 'application/json',
+        'x-api-key': API_KEY
+      }
     });
 
-    // Handle non-OK responses
-    if (!response.ok) {
-      if (response.status === 404) {
+    this.setupHandlers();
+    this.setupErrorHandling();
+  }
+
+  private setupErrorHandling(): void {
+    this.server.onerror = (error) => {
+      console.error("[MCP Error]", error);
+    };
+
+    process.on('SIGINT', async () => {
+      await this.server.close();
+      process.exit(0);
+    });
+  }
+
+  private setupHandlers(): void {
+    this.setupResourceHandlers();
+    this.setupToolHandlers();
+  }
+
+  private setupResourceHandlers(): void {
+    // List available resources (recent searches)
+    this.server.setRequestHandler(
+      ListResourcesRequestSchema,
+      async () => ({
+        resources: this.recentSearches.map((search, index) => ({
+          uri: `exa://searches/${index}`,
+          name: `Recent search: ${search.query}`,
+          mimeType: "application/json",
+          description: `Search results for: ${search.query} (${search.timestamp})`
+        }))
+      })
+    );
+
+    // Read specific resource
+    this.server.setRequestHandler(
+      ReadResourceRequestSchema,
+      async (request) => {
+        const match = request.params.uri.match(/^exa:\/\/searches\/(\d+)$/);
+        if (!match) {
+          throw new McpError(
+            ErrorCode.InvalidRequest,
+            `Unknown resource: ${request.params.uri}`
+          );
+        }
+
+        const index = parseInt(match[1]);
+        const search = this.recentSearches[index];
+
+        if (!search) {
+          throw new McpError(
+            ErrorCode.InvalidRequest,
+            `Search result not found: ${index}`
+          );
+        }
+
         return {
-          content: [{ type: "text", text: `Tool '${request.params.name}' was not found` }],
-          error: "NOT_FOUND"
+          contents: [{
+            uri: request.params.uri,
+            mimeType: "application/json",
+            text: JSON.stringify(search.response, null, 2)
+          }]
         };
       }
-      return {
-        content: [{ type: "text", text: `Val Town API error: ${response.statusText}` }],
-        error: "API_ERROR"
-      };
-    }
-
-    // Parse the JSON response
-    const valTownResponse = await response.json();
-    server.sendLoggingMessage({
-      level: "info",
-      data: `Response parsed: ${JSON.stringify(valTownResponse)}`
-    });
-    
-    // Call our formatter function to prepare the response
-    const formattedResponse = await formatValTownResponse(valTownResponse as ValTownExecuteResponse, server);
-    
-    // Return the enhanced response
-    return formattedResponse;
-    
-  } catch (error: unknown) {
-    // Handle all errors
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    server.sendLoggingMessage({
-      level: "error",
-      data: `Error executing tool: ${errorMessage}`
-    });
-    return {
-      content: [{ type: "text", text: `Tool execution failed: ${errorMessage}` }],
-      error: errorMessage
-    };
+    );
   }
 
-});
+  private setupToolHandlers(): void {
+    // List available tools
+    this.server.setRequestHandler(
+      ListToolsRequestSchema,
+      async () => ({
+        tools: [{
+          name: "search",
+          description: "Search the web using Exa AI",
+          inputSchema: {
+            type: "object",
+            properties: {
+              query: {
+                type: "string",
+                description: "Search query"
+              },
+              numResults: {
+                type: "number",
+                description: "Number of results to return (default: 10)",
+                minimum: 1,
+                maximum: 50
+              }
+            },
+            required: ["query"]
+          }
+        }]
+      })
+    );
 
-server.onerror = (error: any) => {
-  console.error(error);
-};
+    // Handle tool calls
+    this.server.setRequestHandler(
+      CallToolRequestSchema,
+      async (request) => {
+        if (request.params.name !== "search") {
+          throw new McpError(
+            ErrorCode.MethodNotFound,
+            `Unknown tool: ${request.params.name}`
+          );
+        }
 
-process.on("SIGINT", async () => {
-  await server.close();
-  process.exit(0);
-});
+        if (!isValidSearchArgs(request.params.arguments)) {
+          throw new McpError(
+            ErrorCode.InvalidParams,
+            "Invalid search arguments"
+          );
+        }
 
-async function runServer() {
-  const transport = new StdioServerTransport();
-  await server.connect(transport);
-  console.error("BLAH MCP Server running on stdio");
-  
-  // Log server startup
-  server.sendLoggingMessage({
-    level: "info",
-    data: "Server started successfully",
-  });
+        try {
+          const searchRequest: ExaSearchRequest = {
+            query: request.params.arguments.query,
+            type: "auto",
+            numResults: request.params.arguments.numResults || API_CONFIG.DEFAULT_NUM_RESULTS,
+            contents: {
+              text: true
+            }
+          };
+
+          const response = await this.axiosInstance.post<ExaSearchResponse>(
+            API_CONFIG.ENDPOINTS.SEARCH,
+            searchRequest
+          );
+
+          // Cache the search result
+          this.recentSearches.unshift({
+            query: searchRequest.query,
+            response: response.data,
+            timestamp: new Date().toISOString()
+          });
+
+          // Keep only recent searches
+          if (this.recentSearches.length > API_CONFIG.MAX_CACHED_SEARCHES) {
+            this.recentSearches.pop();
+          }
+
+          return {
+            content: [{
+              type: "text",
+              text: JSON.stringify(response.data, null, 2)
+            }]
+          };
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            return {
+              content: [{
+                type: "text",
+                text: `Exa API error: ${error.response?.data?.message ?? error.message}`
+              }],
+              isError: true,
+            }
+          }
+          throw error;
+        }
+      }
+    );
+  }
+
+  async run(): Promise<void> {
+    const transport = new StdioServerTransport();
+    await this.server.connect(transport);
+    console.error("Exa Search MCP server running on stdio");
+  }
 }
 
-runServer().catch((error) => {
-  console.error("Fatal error running server:", error);
-  process.exit(1);
-});
+const server = new ExaServer();
+server.run().catch(console.error);

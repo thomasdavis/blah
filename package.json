@@ -1,6 +1,6 @@
 {
   "name": "blah-mcp",
-  "version": "1.15.6",
+  "version": "1.15.8",
   "type": "module",
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
@@ -34,6 +34,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.3",
     "commander": "^11.1.0",
+    "axios": "^1.7.8",
     "dotenv": "^16.3.1",
     "node-fetch": "^3.3.2",
     "openai": "^4.0.0",
