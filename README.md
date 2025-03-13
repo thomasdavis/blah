@@ -71,16 +71,13 @@ npm run playground
 
 ### AI GENERATED BULL SHIT
 
-<div align="center">
-  <img src="https://via.placeholder.com/150?text=BLAH" alt="BLAH Logo" width="150" height="150">
-  <br>
-  <em>An open-source registry and ecosystem for Model Context Protocol (MCP) tools</em>
-  <br>
-  <br>
-</div>
+[![npm version](https://badge.fury.io/js/jsonblog-schema.svg)](https://badge.fury.io/js/jsonblog-schema)
+[![CI](https://github.com/jsonblog/jsonblog-schema/actions/workflows/ci.yml/badge.svg)](https://github.com/jsonblog/jsonblog-schema/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0.0-blue.svg)](https://www.typescriptlang.org/)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![npm version](https://img.shields.io/npm/v/blah-mcp.svg)](https://www.npmjs.com/package/blah-mcp)
+- mcp server version badge
+- registry uptime status
 
 ## What is BLAH?
 
