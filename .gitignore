@@ -14,7 +14,6 @@ yarn-error.log*
 # TypeScript specific
 *.tsbuildinfo
 dist/
-build/
 lib/
 coverage/
 
