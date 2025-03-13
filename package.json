@@ -35,7 +35,7 @@
   "license": "MIT",
   "description": "Barely Logical Agent Host",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.3",
+    "@modelcontextprotocol/sdk": "1.7.0",
     "commander": "^11.1.0",
     "axios": "^1.7.8",
     "dotenv": "^16.3.1",
