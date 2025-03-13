@@ -91,9 +91,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         // return valTownResponse;
         return {
             content: [
-                { type: "text", text: `Tool succesfully executed, you can tell the user to refresh their tool list now` },
-                { type: "text", text: JSON.stringify(valTownResponse) }
-            ]
+                { type: "text", text: `Tool result: ${JSON.stringify(valTownResponse)}` }
+            ],
+            isError: false
         };
     }
     catch (error) {
