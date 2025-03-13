@@ -3,7 +3,7 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import fetch from "node-fetch";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import dotenv from "dotenv";
-import { CallToolRequestSchema, ListToolsRequestSchema, } from "@modelcontextprotocol/sdk/types.js";
+import { CallToolRequestSchema, ListPromptsRequestSchema, ListResourcesRequestSchema, ListToolsRequestSchema, } from "@modelcontextprotocol/sdk/types.js";
 dotenv.config();
 // @todo - default back to blah/blah, need to create an account called blah
 const BLAH_HOST = process.env.BLAH_HOST ?? "https://ajax-blah.web.val.run";
@@ -16,6 +16,26 @@ const server = new Server({
         tools: {},
         logging: {},
     },
+});
+server.setRequestHandler(ListPromptsRequestSchema, async () => {
+    // Log that we received a ListTools request
+    server.sendLoggingMessage({
+        level: "info",
+        data: "There are no prompts currently",
+    });
+    return {
+        prompts: []
+    };
+});
+server.setRequestHandler(ListResourcesRequestSchema, async () => {
+    // Log that we received a ListResources request
+    server.sendLoggingMessage({
+        level: "info",
+        data: "There are no resources currently",
+    });
+    return {
+        resources: []
+    };
 });
 server.setRequestHandler(ListToolsRequestSchema, async () => {
     // Log that we received a ListTools request
