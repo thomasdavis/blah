@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
-  Tool,
 } from "@modelcontextprotocol/sdk/types.js";
 
 dotenv.config();
@@ -30,17 +29,6 @@ const server = new Server(
     },
   }
 );
-
-interface ValTownExecuteResponse {
-  result?: any;
-  error?: string;
-  baby_name?: string;
-  answer?: string;
-  text?: string;
-  response?: string;
-  [key: string]: any;
-}
-
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
 
@@ -70,7 +58,8 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 
 
 
-server.setRequestHandler(CallToolRequestSchema, async (request) => {
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+server.setRequestHandler(CallToolRequestSchema, async (request): Promise<any> => {
   console.error("Forwarding tool request to Val Town:", request.params.name, request.params.arguments);
   
   // Log the incoming tool call request with detailed information
@@ -123,7 +112,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const valTownResponse = await response.json();
     server.sendLoggingMessage({
       level: "info",
-      data: `Response parsed: ${JSON.stringify(valTownResponse)}`
+      data: `Response parsed: ${JSON.stringify(response)}`
     });
     
     return valTownResponse;
@@ -143,6 +132,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
 });
 
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 server.onerror = (error: any) => {
   console.error(error);
 };
