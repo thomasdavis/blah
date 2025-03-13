@@ -33,10 +33,7 @@ const server = new Server(
 server.setRequestHandler(ListPromptsRequestSchema, async () => {
 
   // Log that we received a ListTools request
-  server.sendLoggingMessage({
-    level: "info",
-    data: "There are no prompts currently",
-  });
+  console.log("There are no prompts currently");
 
   return {
     prompts: []
@@ -46,10 +43,7 @@ server.setRequestHandler(ListPromptsRequestSchema, async () => {
 server.setRequestHandler(ListResourcesRequestSchema, async () => {
 
   // Log that we received a ListResources request
-  server.sendLoggingMessage({
-    level: "info",
-    data: "There are no resources currently",
-  });
+  console.log("There are no resources currently");
 
   return {
     resources: []
@@ -60,24 +54,21 @@ server.setRequestHandler(ListResourcesRequestSchema, async () => {
 server.setRequestHandler(ListToolsRequestSchema, async () => {
 
   // Log that we received a ListTools request
-  server.sendLoggingMessage({
-    level: "info",
-    data: "Received ListTools request",
-  });
+  console.log("Received ListTools request");
 
+  console.log(`Fetching tools from ${BLAH_HOST}...`);
   const response = await fetch(BLAH_HOST, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
     }
   });
+  console.log(`Tools fetch response status: ${response.status}`);
 
   const valtownTools = await response.json();
+  console.log(`Retrieved tools: ${JSON.stringify(valtownTools)}`);
   
-  server.sendLoggingMessage({
-    level: "info",
-    data: `ListTools response received: ${JSON.stringify(valtownTools)}`
-  });
+  console.log(`ListTools response received: ${JSON.stringify(valtownTools)}`);
 
   // Return the tools from ValTown API
   return {
@@ -89,23 +80,19 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 server.setRequestHandler(CallToolRequestSchema, async (request): Promise<any> => {
-  console.error("Forwarding tool request to Val Town:", request.params.name, request.params.arguments);
+  console.log(`Forwarding tool request to Val Town: ${request.params.name}, ${JSON.stringify(request.params.arguments)}`);
   
   // Log the incoming tool call request with detailed information
-  server.sendLoggingMessage({
-    level: "info",
-    data: `Tool call request received: name='${request.params.name}', arguments=${JSON.stringify(request.params.arguments)}`
-  });
+  console.log(`Tool call request received: name='${request.params.name}', arguments=${JSON.stringify(request.params.arguments)}`);
 
   try {
     // By default we handle that the manifest will be coming from a hosted Val
     const hostUsername = new URL(BLAH_HOST).hostname.split("-")[0];
+console.log(`Resolved host username: ${hostUsername}`);
     const toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
+console.log(`Constructed tool URL: ${toolUrl}`);
     
-    server.sendLoggingMessage({
-      level: "info",
-      data: `Attempting to fetch from URL: ${toolUrl}`
-    });
+    console.log(`Attempting to fetch from URL: ${toolUrl}`);
     
     // Make the API request and await the response
     const response = await fetch(toolUrl, {
@@ -118,10 +105,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<any> =>
       body: JSON.stringify(request.params.arguments || {})
     });
     
-    server.sendLoggingMessage({
-      level: "info",
-      data: `Response status: ${response.status} ${response.statusText}`
-    });
+    console.log(`Response status: ${response.status} ${response.statusText}`);
 
     // Handle non-OK responses
     if (!response.ok) {
@@ -139,20 +123,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request): Promise<any> =>
 
     // Parse the JSON response
     const valTownResponse = await response.json();
-    server.sendLoggingMessage({
-      level: "info",
-      data: `Response parsed: ${JSON.stringify(response)}`
-    });
+    console.log(`Response parsed: ${JSON.stringify(response)}`);
     
-    return valTownResponse;
+    // return valTownResponse;
+    return {
+      content: [
+        { type: "text", text: `Tool succesfully executed, you can tell the user to refresh their tool list now` },
+        { type: "text", text: JSON.stringify(valTownResponse) }
+      ]
+    };
     
   } catch (error: unknown) {
     // Handle all errors
     const errorMessage = error instanceof Error ? error.message : String(error);
-    server.sendLoggingMessage({
-      level: "error",
-      data: `Error executing tool: ${errorMessage}`
-    });
+    console.error(`Error executing tool: ${errorMessage}`);
     return {
       content: [{ type: "text", text: `Tool execution failed: ${errorMessage}` }],
       error: errorMessage
@@ -172,11 +156,28 @@ process.on("SIGINT", async () => {
 });
 
 async function runServer() {
+  console.log('Starting server initialization...');
   const transport = new StdioServerTransport();
+  console.log('Created StdioServerTransport');
   await server.connect(transport);
   console.error("BLAH MCP Server running on stdio");
+
+  // Now that server is connected, we can use sendLoggingMessage
+  server.sendLoggingMessage({
+    level: "info",
+    data: "Initializing BLAH MCP Server..."
+  });
+
+  server.sendLoggingMessage({
+    level: "info",
+    data: "Server instance created with capabilities"
+  });
+
+  server.sendLoggingMessage({
+    level: "info",
+    data: `Server environment: BLAH_HOST=${BLAH_HOST}`
+  });
   
-  // Log server startup
   server.sendLoggingMessage({
     level: "info",
     data: "Server started successfully",
