@@ -15,9 +15,17 @@
 export default async function server(request: Request): Promise<Response> {
   const tools = [
     {
-      name: "hello_world",
-      description: `Says hello world`,
-      inputSchema: {},
+      name: "hello_name",
+      description: `Says hello to the name`,
+      inputSchema: {
+        type: "object",
+        properties: {
+          name: {
+            type: "string",
+            description: `Name to say hello to`,
+          },
+        },
+      },
     },
   ];
 

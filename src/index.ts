@@ -5,6 +5,8 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import dotenv from "dotenv";
 import {
   CallToolRequestSchema,
+  ListPromptsRequestSchema,
+  ListResourcesRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
@@ -26,6 +28,33 @@ const server = new Server(
     },
   }
 );
+
+server.setRequestHandler(ListPromptsRequestSchema, async () => {
+
+  // Log that we received a ListTools request
+  server.sendLoggingMessage({
+    level: "info",
+    data: "There are no prompts currently",
+  });
+
+  return {
+    prompts: []
+  };
+});
+
+server.setRequestHandler(ListResourcesRequestSchema, async () => {
+
+  // Log that we received a ListResources request
+  server.sendLoggingMessage({
+    level: "info",
+    data: "There are no resources currently",
+  });
+
+  return {
+    resources: []
+  };
+});
+
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
 
