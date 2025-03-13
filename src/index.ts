@@ -85,6 +85,7 @@ class ExaServer {
     this.server.setRequestHandler(
       ListResourcesRequestSchema,
       async () => ({
+        
         resources: this.recentSearches.map((search, index) => ({
           uri: `exa://searches/${index}`,
           name: `Recent search: ${search.query}`,
@@ -131,28 +132,38 @@ class ExaServer {
     // List available tools
     this.server.setRequestHandler(
       ListToolsRequestSchema,
-      async () => ({
-        tools: [{
-          name: "search",
-          description: "Search the web using Exa AI",
-          inputSchema: {
-            type: "object",
-            properties: {
-              query: {
-                type: "string",
-                description: "Search query"
-              },
-              numResults: {
-                type: "number",
-                description: "Number of results to return (default: 10)",
-                minimum: 1,
-                maximum: 50
-              }
-            },
-            required: ["query"]
+      async () => {
+        const response = await fetch("https://ajax-mcp.web.val.run", {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
           }
-        }]
-      })
+        });
+        const valtownTools = await response.json();
+       
+        return { tools: valtownTools || [] };
+        
+        // return {tools: [{
+        //   name: "search",
+        //   description: "Search the web using Exa AI",
+        //   inputSchema: {
+        //     type: "object",
+        //     properties: {
+        //       query: {
+        //         type: "string",
+        //         description: "Search query"
+        //       },
+        //       numResults: {
+        //         type: "number",
+        //         description: "Number of results to return (default: 10)",
+        //         minimum: 1,
+        //         maximum: 50
+        //       }
+        //     },
+        //     required: ["query"]
+        //   }
+        // }]}
+      }
     );
 
     // Handle tool calls
