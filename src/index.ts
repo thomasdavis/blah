@@ -23,6 +23,7 @@ const server = new Server(
   {
     capabilities: {
       resources: {},
+      prompts: {},
       tools: {},
       logging: {},
     },
