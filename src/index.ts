@@ -12,9 +12,6 @@ dotenv.config();
 
 // @todo - default back to blah/blah, need to create an account called blah
 const BLAH_HOST = process.env.BLAH_HOST ?? "https://ajax-blah.web.val.run";
-if (!BLAH_HOST) {
-  throw new Error("BLAH_HOST environment variable is required");
-}
 
 const server = new Server(
   {
@@ -44,7 +41,9 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
       'Content-Type': 'application/json'
     }
   });
+
   const valtownTools = await response.json();
+  
   server.sendLoggingMessage({
     level: "info",
     data: `ListTools response received: ${JSON.stringify(valtownTools)}`
