@@ -38,6 +38,33 @@ export default async function server(request: Request): Promise<Response> {
 }
 ```
 
+### Adding to your Client
+
+- Claude
+  - Desktop
+  - Code (CLI)
+- Cursor
+- Cline
+- Windsurf
+- BLAH Client
+- Are there any nice web clients yet
+
+### Development
+
+I am still working on tools to make development not shit.
+
+### Logging
+
+While developing this, I want to send logs from everybodies clients to just figure out all the fucking errors the clients are throwing due to different configures.
+
+### Playground
+
+So far just a basic client that lists prompts, resources, and tools. Could be interactive later, and should also run against tests.
+
+```bash
+npm run playground
+```
+
 ### Needs improvement
 
 - [ ] Valtown is the current wrapper, need to be an alternative maybe using Vercel functions or some shit.
