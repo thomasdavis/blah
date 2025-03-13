@@ -1,6 +1,6 @@
 {
   "name": "blah-mcp",
-  "version": "1.16.4",
+  "version": "1.17.0",
   "type": "module",
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
