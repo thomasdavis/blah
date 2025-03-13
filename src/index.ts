@@ -85,6 +85,16 @@ async function formatValTownResponse(response: ValTownExecuteResponse, server: S
 }
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
+  const tools = {
+    'create-message': {
+      name: 'create-message',
+      description: 'Generate a custom message with various options',
+      inputSchema: {},
+    },
+  };
+
+  return { tools: Object.values(tools) };
+
   // Log that we received a ListTools request
   server.sendLoggingMessage({
     level: "info",

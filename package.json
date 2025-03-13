@@ -1,19 +1,19 @@
 {
   "name": "blah-mcp",
-  "version": "1.2.0",
+  "version": "1.15.4",
   "type": "module",
   "scripts": {
-    "build": "tsc && node -e \"require('fs').chmodSync('dist/index.js', '755')\"",
+    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "inspector": "npx @modelcontextprotocol/inspector dist/index.js",
+    "inspector": "npx @modelcontextprotocol/inspector build/index.js",
     "prepublishOnly": "npm run build"
   },
   "bin": {
-    "blah-mcp": "./dist/index.js"
+    "blah-mcp": "./build/index.js"
   },
   "files": [
-    "dist"
+    "build"
   ],
   "keywords": [
     "mcp",
