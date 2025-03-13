@@ -1,5 +1,41 @@
 # BLAH - Barely Logical Agent Host
 
+## real docs
+
+## Using a local blah.json
+
+## Hosted blah.json (Valtown)
+
+## Getting started (hosted)
+
+1. Setup a Valtown account
+2. Create a new HTTP function named `blah`
+
+```typescript
+export default async function server(request: Request): Promise<Response> {
+  const tools = [
+    {
+      name: "hello_world",
+      description: `Says hello world`,
+      inputSchema: {},
+    },
+  ];
+
+  return new Response(JSON.stringify(tools), {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    status: 200,
+  });
+}
+```
+
+### Needs improvement
+
+- [ ] Valtown is the current wrapper, need to be an alternative maybe using Vercel functions or some shit.
+
+### AI GENERATED BULL SHIT
+
 <div align="center">
   <img src="https://via.placeholder.com/150?text=BLAH" alt="BLAH Logo" width="150" height="150">
   <br>
@@ -16,6 +52,7 @@
 BLAH is an open-source ecosystem for managing, distributing, and executing AI agent tools using the Model Context Protocol (MCP). It provides a decentralized registry for MCP servers that doesn't suffer from misaligned incentives, promoting transparency, security, and community-driven development.
 
 **Key Features:**
+
 - Open-source infrastructure that any system (IDE, AI platform, etc.) can connect to
 - Language-agnostic tool registry supporting unlimited tool selection
 - Robust security through optional signing and verification of MCP servers
@@ -68,6 +105,7 @@ BLAH's registry is designed with lessons learned from package managers like npm,
 ### Agent Behavior
 
 BLAH supports various agent interaction patterns:
+
 - Parallel execution
 - Recursive tool calls
 - Branching workflows
@@ -77,6 +115,7 @@ BLAH supports various agent interaction patterns:
 ### Tool Definition
 
 A tool in BLAH is fundamentally a function, but can be represented as:
+
 - Code snippets
 - RESTful endpoints
 - Local executables
@@ -107,12 +146,14 @@ blah help       - Show help information
 ## 📋 Manifests
 
 BLAH uses a manifest file (`blah.json`) to define tools and their dependencies. This manifest can exist:
+
 - In a project workspace
 - In the home directory
 - Hosted in the cloud
 - As a gist or on IPFS
 
 Example `blah.json`:
+
 ```json
 {
   "name": "awesome-image-generator",
@@ -146,6 +187,7 @@ Example `blah.json`:
 ## 🔄 Standards Support
 
 BLAH supports and aims to be compatible with:
+
 - Model Context Protocol (MCP)
 - SLOP (Structure for Language Operator Protocols)
 - agents.json
@@ -154,6 +196,7 @@ BLAH supports and aims to be compatible with:
 ## 🌟 Discovery and Metadata
 
 Tools in BLAH are organized using:
+
 - Tags (e.g., #TOOLBELT)
 - Semantic metadata for intuitive navigation
 - Usage analytics for popularity-based recommendations
@@ -162,6 +205,7 @@ Tools in BLAH are organized using:
 ## 🏗️ Architecture
 
 BLAH consists of three main components:
+
 1. **Registry**: For tool storage and discovery
 2. **CLI**: For interacting with the registry and managing tools
 3. **MCP Server**: For executing tools within agent workflows
@@ -171,6 +215,7 @@ Currently, [ValTown](https://www.val.town) serves as the primary backend for reg
 ## 🔒 Security & Accountability
 
 BLAH takes security seriously:
+
 - Optional signing of MCP servers
 - Code execution in sandboxed environments
 - Comprehensive logging for accountability

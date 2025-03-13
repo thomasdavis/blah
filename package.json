@@ -1,13 +1,16 @@
 {
   "name": "blah-mcp",
-  "version": "1.15.12",
+  "version": "1.15.13",
   "type": "module",
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\"",
     "prepare": "npm run build",
     "watch": "tsc --watch",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "release": "git add . && git commit -m 'Pre-release commit' && npm version major && npm run build && git add . && git commit -m 'New major release' && git push && npm publish",
+    "minor": "git add . && git commit -m 'Pre-minor commit' && npm version minor && npm run build && git add . && git commit -m 'New minor release' && git push && npm publish",
+    "patch": "git add . && git commit -m 'Pre-patch commit' && npm version patch && npm run build && git add . && git commit -m 'New patch release' && git push && npm publish"
   },
   "bin": {
     "blah-mcp": "./build/index.js"

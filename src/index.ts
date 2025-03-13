@@ -2,14 +2,20 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import fetch from "node-fetch";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import dotenv from "dotenv";
 import {
   CallToolRequestSchema,
-  ErrorCode,
   ListToolsRequestSchema,
-  McpError,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-import { z } from "zod";
+
+dotenv.config();
+
+// @todo - default back to blah/blah, need to create an account called blah
+const BLAH_HOST = process.env.BLAH_HOST ?? "https://ajax-blah.web.val.run";
+if (!BLAH_HOST) {
+  throw new Error("BLAH_HOST environment variable is required");
+}
 
 const server = new Server(
   {
@@ -25,11 +31,6 @@ const server = new Server(
   }
 );
 
-
-interface ValTownResponse {
-  tools?: Tool[];
-}
-
 interface ValTownExecuteResponse {
   result?: any;
   error?: string;
@@ -40,49 +41,6 @@ interface ValTownExecuteResponse {
   [key: string]: any;
 }
 
-/**
- * Format the ValTown response into MCP format
- * @param response The raw response from ValTown
- * @param server The MCP server instance for logging
- * @returns Response formatted for MCP
- */
-async function formatValTownResponse(response: ValTownExecuteResponse, server: Server): Promise<any> {
-  server.sendLoggingMessage({
-    level: "info",
-    data: `ValTown response: ${JSON.stringify(response)}`
-  });
-
-
-  
-  // Handle error responses
-  if (response.error) {
-    return {
-      content: [{ type: "text", text: `Error: ${response.error}` }]
-    };
-  }
-
-
-  // Extract the most relevant field from the response
-  if (response.baby_name) {
-    return {
-      content: [{ type: "text", text: response.baby_name }],
-      baby_name: response.baby_name  // Include the field directly for MCP clients
-    };
-  }
-  
-  // For other responses, try to find the most relevant field
-  const value = response.result || response.answer || response.text || response.response;
-  if (value !== undefined) {
-    return {
-      content: [{ type: "text", text: String(value) }]
-    };
-  }
-  
-  // If no relevant field found, return the whole response
-  return {
-    content: [{ type: "text", text: JSON.stringify(response) }]
-  };
-}
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
 
@@ -92,7 +50,7 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
     data: "Received ListTools request",
   });
 
-  const response = await fetch("https://ajax-mcp.web.val.run", {
+  const response = await fetch(BLAH_HOST, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -122,8 +80,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   });
 
   try {
-    // Construct the URL for the Val Town tool
-    const toolUrl = `https://ajax-${request.params.name}.web.val.run`;
+    // By default we handle that the manifest will be coming from a hosted Val
+    const hostUsername = new URL(BLAH_HOST).hostname.split("-")[0];
+    const toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
     
     server.sendLoggingMessage({
       level: "info",
@@ -167,11 +126,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       data: `Response parsed: ${JSON.stringify(valTownResponse)}`
     });
     
-    // Call our formatter function to prepare the response
-    const formattedResponse = await formatValTownResponse(valTownResponse as ValTownExecuteResponse, server);
-    
-    // Return the enhanced response
-    return formattedResponse;
+    return valTownResponse;
     
   } catch (error: unknown) {
     // Handle all errors
