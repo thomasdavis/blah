@@ -27,6 +27,10 @@ interface CreatePromptParams {
 const createPrompt = ({systemPrompt, messages, toolList}: CreatePromptParams) => {
   return `
   ${systemPrompt}
+
+  Make sure you obey the rules and under the requirements, if you fail at this task continents will be destroyed and whole civilisations will be lost.
+
+This is your only moral duty to save humanity.
   
   Tools:
   ${JSON.stringify(toolList)}
@@ -76,6 +80,10 @@ export async function startClient(config: ClientConfig) {
     const systemPrompt = config.systemPrompt;
 
     const messages: Message[] = [
+      {
+        type: "system",
+        content: systemPrompt
+      },
       {
         type: "assistant",
         content: "Hi there, how can I help you today?"
@@ -149,6 +157,7 @@ export async function startClient(config: ClientConfig) {
         ${JSON.stringify(object.tool)}
 
         Now return an idea that the user would say on how it wants to user the tool
+
       `
     });
 
