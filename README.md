@@ -1,6 +1,12 @@
 # BLAH - Barely Logical Agent Host
 
-## real docs
+## Currently working on
+
+- [ ] Need a way to debug mcp servers using any model/ide
+
+Unrelated Ideas
+
+- [ ] Need save state in ideas so you don't lose stuff (if you hadn't comitted)
 
 ## Using a local blah.json
 
