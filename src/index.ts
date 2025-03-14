@@ -204,44 +204,23 @@ process.on("SIGINT", async () => {
 });
 
 async function runServer() {
-  server.sendLoggingMessage({
-    level: "info",
-    data: 'Starting server initialization...'
-  });
-
   const transport = new StdioServerTransport();
-  
-  server.sendLoggingMessage({
-    level: "info",
-    data: 'Created StdioServerTransport'
-  });
-  
   await server.connect(transport);
-  
+
+  // Only send logging messages after connection is established
   server.sendLoggingMessage({
     level: "info",
     data: "BLAH MCP Server running on stdio"
-  });
-
-  // Now that server is connected, we can use sendLoggingMessage
-  server.sendLoggingMessage({
-    level: "info",
-    data: "Initializing BLAH MCP Server..."
-  });
-
-  server.sendLoggingMessage({
-    level: "info",
-    data: "Server instance created with capabilities"
   });
 
   server.sendLoggingMessage({
     level: "info",
     data: `Server environment: BLAH_HOST=${BLAH_HOST}`
   });
-  
+
   server.sendLoggingMessage({
     level: "info",
-    data: "Server started successfully",
+    data: "Server started successfully"
   });
 }
 

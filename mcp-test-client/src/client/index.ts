@@ -8,17 +8,40 @@ import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult } fr
 
 export interface ClientConfig { 
   model: string;
-  systemPrompt: string;
+  systemPrompt: string; // Already required
   userPrompt?: string;
   blah: string;
 }
 
+interface Message {
+  type: string;
+  content: string;
+}
+
+interface CreatePromptParams {
+  systemPrompt: string;
+  messages: Message[];
+  toolList: McpTool[];
+}
+
+const createPrompt = ({systemPrompt, messages, toolList}: CreatePromptParams) => {
+  return `
+  ${systemPrompt}
+  
+  Tools:
+  ${JSON.stringify(toolList)}
+  
+  Conversation
+  ${JSON.stringify(messages)}
+  `
+}
 
 
 export async function startClient(config: ClientConfig) {
+
   const transport = new StdioClientTransport({
     command: "tsx",
-    args: ["../server/index.ts"],
+    args: ["./dist/server/index.js"],
     env: Object.fromEntries(
       Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined)
     ) as Record<string, string>
@@ -52,29 +75,18 @@ export async function startClient(config: ClientConfig) {
 
     const systemPrompt = config.systemPrompt;
 
-    const messages = [
+    const messages: Message[] = [
       {
         type: "assistant",
         content: "Hi there, how can I help you today?"
       },
       {
         type: "user",
-        content: config.userPrompt 
+        content: config.userPrompt || ""  // Provide default empty string
       }
     ];
 
-    const createPrompt = ({systemPrompt, messages}) => {
-      return `
-      ${systemPrompt}
-      
-      Tools:
-      ${JSON.stringify(toolList)}
-      
-      Conversation
-      ${JSON.stringify(messages)}
-      `
-    }
-
+ 
     logStep('Generating Tool Selection');
     const { object } = await generateObject({
       model: openai('gpt-4o-mini'),
@@ -84,7 +96,7 @@ export async function startClient(config: ClientConfig) {
           arguments: z.any().optional()
         }),
       }),
-      prompt: createPrompt({systemPrompt, messages})
+      prompt: createPrompt({systemPrompt, messages, toolList})
     });
 
     log('Tool selection complete', object);
@@ -95,13 +107,13 @@ export async function startClient(config: ClientConfig) {
 
     messages.push({
       type: "system",
-      content: result.content
+      content: result.content as string
     });
 
     logStep('Generating Response');
     const { text } = await generateText({
       model: openai('gpt-4o-mini'),
-      prompt: createPrompt({systemPrompt, messages})
+      prompt: createPrompt({systemPrompt, messages, toolList})
 
     });
 
@@ -154,7 +166,7 @@ export async function startClient(config: ClientConfig) {
           arguments: z.any().optional()
         }),
       }),
-      prompt: createPrompt({systemPrompt, messages})
+      prompt: createPrompt({systemPrompt, messages, toolList})
     });
 
     logStep(`Executing Tool: ${newTool.tool.name}`);
@@ -164,13 +176,13 @@ export async function startClient(config: ClientConfig) {
 
     messages.push({
       type: "system",
-      content: newToolResult.content
+      content: newToolResult.content as string
     });
 
     logStep('Generating Response');
     const { text: newText} = await generateText({
       model: openai('gpt-4o-mini'),
-      prompt: createPrompt({systemPrompt, messages})
+      prompt: createPrompt({systemPrompt, messages, toolList})
 
     });
 

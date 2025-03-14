@@ -15,7 +15,7 @@
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "build": "mkdir -p dist/server && mkdir -p src/server && cp ../src/index.ts ./src/server/index.ts && tsc",
-    "dev": "tsx src/cli.ts",
+    "dev": "npm run build && tsx src/cli.ts",
     "start": "node dist/cli.js",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
