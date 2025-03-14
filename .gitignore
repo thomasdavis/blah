@@ -39,3 +39,5 @@ Thumbs.db
 # Uncomment if you want to ignore compiled JS files
 # src/**/*.js
 # src/**/*.js.map
+
+mcp-test-client/src/server

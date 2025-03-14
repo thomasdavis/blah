@@ -1,22 +1,48 @@
 {
-  "name": "mcp-test-client",
+  "name": "blah-mcp-test",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "tsx index.ts"
-  },
+  "description": "CLI tool for running MCP test client with integrated server",
   "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "blah-mcp-test": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "build": "mkdir -p dist/server && mkdir -p src/server && cp ../src/index.ts ./src/server/index.ts && tsc",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "cli",
+    "mcp",
+    "ai",
+    "testing"
+  ],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@ai-sdk/openai": "^1.2.5",
+    "@modelcontextprotocol/sdk": "^0.0.1",
     "ai": "^4.1.61",
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.5",
+    "commander": "^11.1.0",
+    "cosmiconfig": "^9.0.0",
     "dotenv": "^16.4.7",
     "winston": "^3.17.0",
     "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.0.0"
   }
 }
