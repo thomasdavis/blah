@@ -1,5 +1,6 @@
 {
   "model": "gpt-4o-mini",
   "systemPrompt": "You are a helpful assistant",
-  "host": "https://ajax-blah.web.val.run"
+  "blah": "https://ajax-blah.web.val.run",
+  "prompt": "say hello to julie"
 }
