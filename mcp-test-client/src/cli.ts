@@ -9,6 +9,15 @@ import { log } from './utils/logger';
 // Load environment variables from .env file
 config();
 
+const DEFAULT_BLAH_CONFIG = `
+{
+  "model": "gpt-4o-mini",
+  "systemPrompt": "You are a coding assistant that when given a list of tools, you will call a tool from that list based off the conversation. Once you have enough information to respond to the user based off tool results, just give them a nice answer.If someone asks to create a tool, and then it does, the next time it should invoke the tool. Don't create tools if they already exist.",
+  "blah": "https://ajax-blah.web.val.run",
+  "prompt": "say hello to julie"
+}
+`;
+
 // Try to load config file
 let fileConfig = {};
 const configPath = join(process.cwd(), 'blah-mcp-test.json');
@@ -44,7 +53,7 @@ program
       if (!options.blah) {
         throw new Error('You need to provide blah with cli or in config e.g. https://ajax-blah.web.val.run');
       }
-      return
+
       await startMcpTest({
         model: options.model,
         systemPrompt: options.systemPrompt,

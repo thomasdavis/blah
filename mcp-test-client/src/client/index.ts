@@ -12,6 +12,8 @@ export interface ClientConfig {
   initialPrompt?: string;
 }
 
+
+
 export async function startClient(config: ClientConfig) {
   const transport = new StdioClientTransport({
     command: process.execPath,
