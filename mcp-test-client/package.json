@@ -33,12 +33,14 @@
     "@ai-sdk/openai": "^1.2.5",
     "@modelcontextprotocol/sdk": "1.7.0",
     "ai": "^4.1.61",
+    "boxen": "^8.0.1",
     "chalk": "^4.1.2",
     "cli-table3": "^0.6.5",
     "commander": "^11.1.0",
     "cosmiconfig": "^9.0.0",
     "dotenv": "^16.4.7",
     "winston": "^3.17.0",
+    "wrap-ansi": "^9.0.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
