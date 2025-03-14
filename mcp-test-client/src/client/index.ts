@@ -18,7 +18,7 @@ export interface ClientConfig {
 export async function startClient(config: ClientConfig) {
   const transport = new StdioClientTransport({
     command: process.execPath,
-    args: ["./dist/server/index.js"],
+    args: ["./dist/server/index.js", "--secondaryLogging"],
     cwd: process.cwd(),
     env: Object.fromEntries(
       Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined)
@@ -123,7 +123,8 @@ export async function startClient(config: ClientConfig) {
       log('New tools detected', newTools.tools);
     } else {
       log('No new tools. So ending experiment', newTools.tools);
-      process.exit();
+      return await client.close();
+      
     }
 
     logSection('New Tool Invocation');

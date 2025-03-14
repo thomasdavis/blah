@@ -35,11 +35,6 @@ program
   .name('blah-mcp-test')
   .description('CLI tool for running MCP test client with integrated server')
   .version('1.0.0')
-  .option('-m, --model <model>', 'OpenAI model to use', fileConfig.model || 'gpt-4o-mini')
-  .option('-s, --systemPrompt <prompt>', 'System prompt for the AI', fileConfig.systemPrompt || 'You are a helpful assistant')
-  .option('-p, --prompt <prompt>', 'User prompt to send', fileConfig.prompt || 'Say hello to Ajax')
-  .option('--blah <blah>', 'blah', fileConfig.blah)
-  .option('--openai-key <key>', 'OpenAI API key', process.env.OPENAI_API_KEY)
 
 program
   .command('init')
@@ -62,26 +57,42 @@ program
 program
   .command('run')
   .description('Runs the blah MCP test client')
-  .action(async () => {
-    const options = program.opts(); 
+  .option('-m, --model <model>', 'OpenAI model to use')
+  .option('-s, --systemPrompt <systemPrompt>', 'System prompt for the AI')
+  .option('-p, --prompt <prompt>', 'User prompt to send')
+  .option('--blah <blah>', 'The url to your blah manifest')
+
+  .action(async (cmdOptions) => {
+    const fileConfig = existsSync(configPath)
+      ? JSON.parse(readFileSync(configPath, 'utf-8'))
+      : {};
+
+    const mergedOptions = {
+      model: cmdOptions.model || fileConfig.model || 'gpt-4o-mini',
+      systemPrompt: cmdOptions.systemPrompt || fileConfig.systemPrompt,
+      userPrompt: cmdOptions.prompt || fileConfig.prompt,
+      blah: cmdOptions.blah || fileConfig.blah,
+    };
+
+    console.log({cmdOptions, fileConfig, mergedOptions})
 
     try {
       log('Running MCP test with options:', {
-        blah: options.blah,
-        model: options.model,
-        systemPrompt: options.systemPrompt,
-        userPrompt: options.prompt
+        blah: mergedOptions.blah,
+        model: mergedOptions.model,
+        systemPrompt: mergedOptions.systemPrompt,
+        userPrompt: mergedOptions.userPrompt
       });
 
-      if (!options.blah) {
+      if (!mergedOptions.blah) {
         throw new Error('You need to provide blah with cli or in config e.g. https://ajax-blah.web.val.run');
       }
 
       await startMcpTest({
-        model: options.model,
-        systemPrompt: options.systemPrompt,
-        userPrompt: options.prompt,
-        blah: options.blah
+        model: mergedOptions.model,
+        systemPrompt: mergedOptions.systemPrompt,
+        userPrompt: mergedOptions.userPrompt,
+        blah: mergedOptions.blah
       });
 
     } catch (error: unknown) {
