@@ -3,6 +3,7 @@
 ## Currently working on
 
 - [ ] Need a way to debug mcp servers using any model/ide
+- [ ] Think about portals
 
 Unrelated Ideas
 
