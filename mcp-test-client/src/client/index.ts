@@ -17,9 +17,8 @@ export interface ClientConfig {
 
 export async function startClient(config: ClientConfig) {
   const transport = new StdioClientTransport({
-    command: process.execPath,
-    args: ["./dist/server/index.js", "--secondaryLogging"],
-    cwd: process.cwd(),
+    command: "tsx",
+    args: ["../server/index.ts"],
     env: Object.fromEntries(
       Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined)
     ) as Record<string, string>
