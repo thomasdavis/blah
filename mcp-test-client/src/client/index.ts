@@ -83,8 +83,10 @@ export async function startClient(config: ClientConfig) {
     `);
 
     logStep('Fetching Tools');
+
     const tools = await client.listTools();
     const toolList = tools.tools as McpTool[];
+
     log('Available tools', toolList);
 
    
@@ -106,6 +108,24 @@ export async function startClient(config: ClientConfig) {
       }
     ];
 
+    logTutorial(`
+      Okay, this part is interesting, this is what AI-ENABLED-IDE-OR-A-SEX-ROBOT would do. They call their respective models or the ones specified in the config or provided by CLI arguments. 
+
+      Given the system prompt, and the list of respective tools returned by the mcp server or the blah manifest.
+
+      We shall pass it to a model, much like an AI-ENABLED-IDE-OR-A-SEX-ROBOT (auton) would do.
+
+      Once passed to a model that supports structured data, it will return a tool selection.
+
+      Tool selection is what all AI-ENABLED-IDE-OR-A-SEX-ROBOT (auton) struggle with.
+
+      Should an LLM answer the user question through it's own system prompt, or should it prioritize the "tools" the user has access to?
+
+      Regardless, in this debugging tool, if you re-read the default system prompt or analyze the one you provided, you will understand the precedence of the invocation of the tool in mind.
+
+      Next up, this debugging tool will identify the tool that will be chosen.
+
+    `);
  
     logStep('Generating Tool Selection');
     const { object } = await generateObject({
@@ -121,14 +141,49 @@ export async function startClient(config: ClientConfig) {
 
     log('Tool selection complete', object);
 
+    logTutorial(`
+      So the prompt generated a structured data response from the model that selected a tool from the list.
+
+      The schema passed generates the tool selection. 
+
+      From that tool that is selected, we are going to evaluate it. 
+
+      The evalation being via HTTP or whatever, the function hosted on VALTOWN.
+
+      WORST EXPLANTION EVER
+
+    `);
+
     logStep(`Executing Tool: ${object.tool.name}`);
     const result = await client.callTool(object.tool);
     log('Tool execution result', result);
+
+    // need to log the error state if the tool fails
+
+    // @todo - catch the error
+
+    logTutorial(`
+      So the tool that was selected was evaluated.
+
+      The evalation being via HTTP or whatever, the function hosted on VALTOWN.
+
+      WORST EXPLANTION EVER ALSO
+
+    `);
 
     messages.push({
       type: "system",
       content: result.content as string
     });
+
+
+
+    logTutorial(`
+      Here is what the AI-ENABLED-IDE-OR-A-SEX-ROBOT (auton) has seen over the life time of this simulated request.
+      This is what the AUTON does, it passes the conversation and the results of the MCP TOOLS etc 
+
+      And depending on their prompts passes a HUMANI-ish response, maybe, who knows, you are at this point at the whim of the AUTON's directive.
+      `);
 
     logStep('Generating Response');
     const { text } = await generateText({
@@ -141,6 +196,11 @@ export async function startClient(config: ClientConfig) {
       type: "assistant",
       content: text
     });
+
+
+    logTutorial(`
+      Oh wow, I hope you enjoyed that.
+      `);
 
     logSection('Conversation Summary');
     log('Final conversation state', messages);
@@ -158,6 +218,20 @@ export async function startClient(config: ClientConfig) {
       
     }
 
+
+    logTutorial(`
+     Given your prompt/userPrompt "${config.userPrompt}"
+     
+     At this point, the AI-ENABLED-IDE-OR-A-SEX-ROBOT (auton) was asked to create a tool, #toolception or some dumb shit.
+
+     And the AUTON has refreshed the tools, and can invoke the new tool that was created.
+
+     The new tool you asked to be created, will now be evaluated.
+
+     Before that we will ask a model to generate an example message that someone might ask given the new tool, it's name and it's input structure.
+     
+      `);
+
     logSection('New Tool Invocation');
 
     const { text: userRequest } = await generateText({
@@ -172,6 +246,12 @@ export async function startClient(config: ClientConfig) {
 
       `
     });
+
+    logTutorial(`
+      @todo - Comment on that we are going to push this message to the thread/conversation
+      and that now that we have requested that the mcp server refreshes its tools
+       (which none of the ai-editors (autons) don't support)
+      `);
 
     messages.push({
       type: "user",
@@ -189,6 +269,14 @@ export async function startClient(config: ClientConfig) {
       }),
       prompt: createPrompt({systemPrompt, messages, toolList})
     });
+
+    logTutorial(`
+      Now hopefully given the system prompt, and that we are somewhat emulating most AUTON's implementations. 
+
+      We will do a TOOL_SELECTION that AUTON's all implement. In our example, the system prompt governs the selection of the tool.
+      
+      `);
+
 
     logStep(`Executing Tool: ${newTool.tool.name}`);
 
