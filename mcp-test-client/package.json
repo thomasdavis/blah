@@ -13,7 +13,10 @@
   "dependencies": {
     "@ai-sdk/openai": "^1.2.5",
     "ai": "^4.1.61",
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.5",
     "dotenv": "^16.4.7",
+    "winston": "^3.17.0",
     "zod": "^3.24.2"
   }
 }
