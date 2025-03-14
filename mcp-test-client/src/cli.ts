@@ -4,7 +4,7 @@ import { config } from 'dotenv';
 import { startMcpTest } from './index.js';
 import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { log } from './utils/logger';
+import { log, logTutorial } from './utils/logger';
 
 // Load environment variables from .env file
 config();
@@ -77,7 +77,20 @@ program
     console.log({cmdOptions, fileConfig, mergedOptions})
 
     try {
-      log('Running MCP test with options:', {
+
+      logTutorial(`
+      Welcome!
+      
+      You have run the prototype of the MCP Test Client for BLAH
+
+      You should probaly run "blah-mcp-test init" first, which will create a file called "blah-mcp-test.json" in your current directory.
+
+      Those defaults will be loaded when you run "blah-mcp-test run".
+
+      Otherwise run "blah-mcp-test run" with the options you want to override.
+        
+      `)
+      log('Running BLAH MCP Test with options:', {
         blah: mergedOptions.blah,
         model: mergedOptions.model,
         systemPrompt: mergedOptions.systemPrompt,

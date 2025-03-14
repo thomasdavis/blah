@@ -4,6 +4,7 @@
 
 - [ ] Need a way to debug mcp servers using any model/ide
 - [ ] Think about portals
+- [ ] lisa watts came up with "auton", likely what i am going to suggest
 
 Unrelated Ideas
 

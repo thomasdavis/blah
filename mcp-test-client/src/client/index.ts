@@ -3,7 +3,7 @@ import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js"
 import { openai } from '@ai-sdk/openai';
 import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
-import { log, logError, logSection, logStep } from '../utils/logger.js';
+import { log, logError, logSection, logStep, logTutorial } from '../utils/logger.js';
 import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult } from '../types.js';
 
 export interface ClientConfig { 
@@ -69,6 +69,18 @@ export async function startClient(config: ClientConfig) {
     logStep('Initializing MCP Client');
     await client.connect(transport);
     log('Connected successfully');
+
+    logTutorial(`
+      Now in the context of BLAH, we will fetch the list of tools. At the moment, the tools are fetched from a hosted version of your BLAH manifest. 
+
+      BLAH stands for Barely Logical Agent Host this will make sense in the future. 
+
+      The tools are fetched from a hosted version of your BLAH manifest. 
+
+      Future versions will allow you to fetch the tools from your local BLAH manifest or whereever you store the cunt.
+
+      Currently fetching from: ${config.blah}
+    `);
 
     logStep('Fetching Tools');
     const tools = await client.listTools();

@@ -11,11 +11,16 @@ export interface McpTestConfig {
 
 export async function startMcpTest(config: McpTestConfig) {
   try {
+
+    logTutorial(`We are about to run what could be consider a simulation of what would happen when you invoke a tool in an AI-ENABLED-IDE-OR-A-SEX-ROBOT such as Cursor, Claude Desktop or Windsurf.
+      
+    AI-ENABLED-IDE-OR-A-SEX-ROBOT in MCP terminology is now the "CLIENT"
+    `);
+    
     logSection('Starting MCP Test');
     
     // Start the client
     logStep('Starting MCP Client');
-    logTutorial('You are a coding assistant that when given a list of tools, you will call a tool from that list based off the conversation. Once you have enough information to respond to the user based off tool results, just give them a nice answer.');
     await startClient({
       blah: config.blah,
       model: config.model,
