@@ -130,7 +130,6 @@ console.log(`Constructed tool URL: ${toolUrl}`);
       content: [
         { type: "text", text: `Tool result: ${JSON.stringify(valTownResponse)}` }
       ],
-      isError: false
     };
     
   } catch (error: unknown) {
