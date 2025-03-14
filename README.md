@@ -8,6 +8,9 @@
 Unrelated Ideas
 
 - [ ] Need save state in ideas so you don't lose stuff (if you hadn't comitted)
+- [ ] upvotes for social tooling
+- [ ] automatic error rate
+- [ ] share your tool combination results
 
 ## Using a local blah.json
 
@@ -75,7 +78,7 @@ npm run playground
 ### Needs improvement
 
 - [ ] Valtown is the current wrapper, need to be an alternative maybe using Vercel functions or some shit.
-- [ ] Need a nice strategy for composability 
+- [ ] Need a nice strategy for composability
 
 ### AI GENERATED BULL SHIT
 
