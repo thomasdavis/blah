@@ -93,7 +93,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
             content: [
                 { type: "text", text: `Tool result: ${JSON.stringify(valTownResponse)}` }
             ],
-            isError: false
         };
     }
     catch (error) {
