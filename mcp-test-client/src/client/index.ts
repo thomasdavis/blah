@@ -274,7 +274,7 @@ export async function startClient(config: ClientConfig) {
       Now hopefully given the system prompt, and that we are somewhat emulating most AUTON's implementations. 
 
       We will do a TOOL_SELECTION that AUTON's all implement. In our example, the system prompt governs the selection of the tool.
-      
+
       `);
 
 
@@ -282,6 +282,16 @@ export async function startClient(config: ClientConfig) {
 
     const newToolResult = await client.callTool(newTool.tool);
     log('Tool execution result', newToolResult);
+
+    logTutorial(`
+      At this point the call to the newly created tool was successful. 
+
+      @todo - talk some shit about it
+
+      The next thing we will do, is emulate what the AUTON does now, which is take the conversation and the results of the MCP TOOLS etc 
+      and pass it to a model that generates a response.
+
+      `);
 
     messages.push({
       type: "system",
@@ -301,6 +311,12 @@ export async function startClient(config: ClientConfig) {
     });
 
     log('Final conversation state', messages);
+
+    logTutorial(`
+      There's the final thread of what you may see in an AUTON.
+
+      @todo - talk some shit about it
+      `);
 
     await client.close();
   } catch (error: unknown) {
