@@ -81,7 +81,12 @@ npm run playground
 - [ ] Valtown is the current wrapper, need to be an alternative maybe using Vercel functions or some shit.
 - [ ] Need a nice strategy for composability
 
-### AI GENERATED BULL SHIT
+## Credits
+
+- Lisa Watts
+- Wombat
+
+### AI GENERATED BULL SHIT (the above is authentic)
 
 [![npm version](https://badge.fury.io/js/jsonblog-schema.svg)](https://badge.fury.io/js/jsonblog-schema)
 [![CI](https://github.com/jsonblog/jsonblog-schema/actions/workflows/ci.yml/badge.svg)](https://github.com/jsonblog/jsonblog-schema/actions/workflows/ci.yml)
