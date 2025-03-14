@@ -1,6 +1,6 @@
 {
   "name": "blah-mcp-test",
-  "version": "1.2.0",
+  "version": "1.80.2",
   "description": "CLI tool for running MCP test client with integrated server",
   "type": "module",
   "main": "dist/index.js",

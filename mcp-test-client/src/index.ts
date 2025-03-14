@@ -1,6 +1,5 @@
-import { startServer } from './server/index';
-import { startClient } from './client/index';
-import { log, logError, logSection, logStep, logTutorial } from './utils/logger';
+import { startClient } from './client/index.js';
+import { log, logError, logSection, logStep, logTutorial } from './utils/logger.js';
 
 export interface McpTestConfig {
   model: string;

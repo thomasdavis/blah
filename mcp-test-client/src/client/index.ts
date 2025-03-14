@@ -4,7 +4,7 @@ import { openai } from '@ai-sdk/openai';
 import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
 import { log, logError, logSection, logStep, logTutorial } from '../utils/logger.js';
-import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult } from '../types.js';
+import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult } from '../types';
 
 export interface ClientConfig { 
   model: string;
@@ -44,7 +44,7 @@ This is your only moral duty to save humanity.
 export async function startClient(config: ClientConfig) {
 
   const transport = new StdioClientTransport({
-    command: "tsx",
+    command: "node",
     args: ["./dist/server/index.js"],
     env: Object.fromEntries(
       Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined)

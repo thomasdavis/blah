@@ -4,7 +4,7 @@ import { config } from 'dotenv';
 import { startMcpTest } from './index.js';
 import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { log, logTutorial } from './utils/logger';
+import { log, logTutorial } from './utils/logger.js';
 
 // Load environment variables from .env file
 config();
