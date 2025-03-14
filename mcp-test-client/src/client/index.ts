@@ -5,6 +5,11 @@ import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
 import { log, logError, logSection, logStep, logTutorial } from '../utils/logger.js';
 import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult } from '../types';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export interface ClientConfig { 
   model: string;
@@ -45,7 +50,7 @@ export async function startClient(config: ClientConfig) {
 
   const transport = new StdioClientTransport({
     command: "node",
-    args: ["./dist/server/index.js"],
+    args: [__dirname + "/../../dist/server/index.js"],
     env: Object.fromEntries(
       Object.entries(process.env).filter((entry): entry is [string, string] => entry[1] !== undefined)
     ) as Record<string, string>
@@ -67,7 +72,9 @@ export async function startClient(config: ClientConfig) {
 
   try {
     logStep('Initializing MCP Client');
+
     await client.connect(transport);
+
     log('Connected successfully');
 
     logTutorial(`

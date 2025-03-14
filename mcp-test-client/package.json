@@ -1,6 +1,6 @@
 {
   "name": "blah-mcp-test",
-  "version": "1.80.2",
+  "version": "1.700.4",
   "description": "CLI tool for running MCP test client with integrated server",
   "type": "module",
   "main": "dist/index.js",
@@ -39,6 +39,7 @@
     "commander": "^11.1.0",
     "cosmiconfig": "^9.0.0",
     "dotenv": "^16.4.7",
+    "node-fetch": "^3.3.2",
     "winston": "^3.17.0",
     "wrap-ansi": "^9.0.0",
     "zod": "^3.24.2"
