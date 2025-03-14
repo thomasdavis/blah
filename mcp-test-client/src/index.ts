@@ -6,6 +6,7 @@ export interface McpTestConfig {
   model: string;
   systemPrompt: string;
   userPrompt?: string;
+  blah: string;
 }
 
 export async function startMcpTest(config: McpTestConfig) {
@@ -15,9 +16,10 @@ export async function startMcpTest(config: McpTestConfig) {
     // Start the client
     logStep('Starting MCP Client');
     await startClient({
+      blah: config.blah,
       model: config.model,
       systemPrompt: config.systemPrompt,
-      initialPrompt: config.userPrompt
+      userPrompt: config.userPrompt
     });
     log('MCP Client completed successfully');
 

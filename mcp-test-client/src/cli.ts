@@ -2,7 +2,7 @@
 import { Command } from 'commander';
 import { config } from 'dotenv';
 import { startMcpTest } from './index.js';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { log } from './utils/logger';
 
@@ -41,7 +41,30 @@ program
   .option('--blah <blah>', 'blah', fileConfig.blah)
   .option('--openai-key <key>', 'OpenAI API key', process.env.OPENAI_API_KEY)
 
-  .action(async (options) => {
+program
+  .command('init')
+  .description('Initialize a new blah-mcp-test.json configuration file')
+  .action(() => {
+    if (existsSync(configPath)) {
+      console.error('Error: blah-mcp-test.json already exists');
+      process.exit(1);
+    }
+    try {
+      const config = JSON.stringify(JSON.parse(DEFAULT_BLAH_CONFIG), null, 2);
+      writeFileSync(configPath, config);
+      console.log('Created blah-mcp-test.json with default configuration');
+    } catch (error) {
+      console.error('Error creating config file:', error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  })
+
+program
+  .command('run')
+  .description('Runs the blah MCP test client')
+  .action(async () => {
+    const options = program.opts(); 
+
     try {
       log('Running MCP test with options:', {
         blah: options.blah,

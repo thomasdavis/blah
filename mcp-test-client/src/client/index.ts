@@ -6,10 +6,11 @@ import { z } from 'zod';
 import { log, logError, logSection, logStep } from '../utils/logger.js';
 import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult } from '../types.js';
 
-export interface ClientConfig {
+export interface ClientConfig { 
   model: string;
   systemPrompt: string;
-  initialPrompt?: string;
+  userPrompt?: string;
+  blah: string;
 }
 
 
@@ -50,12 +51,7 @@ export async function startClient(config: ClientConfig) {
 
    
 
-    const systemPrompt = `You are a coding assistant that when given a list of tools, you will call a tool from that list based off the conversation. Once you have enough information to respond to the user based off tool results, just give them a nice answer.
-
-    If someone asks to create a tool, and then it does, the next time it should invoke the tool.
-
-    Don't create tools if they already exist.
-    `;
+    const systemPrompt = config.systemPrompt;
 
     const messages = [
       {
@@ -64,7 +60,7 @@ export async function startClient(config: ClientConfig) {
       },
       {
         type: "user",
-        content: `I would like to create a tool that comes up with new twitch integration ideas and what ever the user provides as inspiration`
+        content: config.userPrompt 
       }
     ];
 
@@ -119,13 +115,14 @@ export async function startClient(config: ClientConfig) {
     log('Final conversation state', messages);
 
     // This part is only for experimenting with  dynamic tool creation 
+    log('Experimental: Running a check for new tools (dynamic tool creation)');
 
     const newTools = await client.listTools();
 
     if (newTools.tools.length > toolList.length) {
       log('New tools detected', newTools.tools);
     } else {
-      logWarn('No new tools available');
+      log('No new tools. So ending experiment', newTools.tools);
       process.exit();
     }
 
