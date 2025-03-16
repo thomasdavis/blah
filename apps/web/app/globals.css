@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -47,4 +51,37 @@ a {
   .imgDark {
     display: unset;
   }
+}
+
+/* Code block styling */
+code {
+  @apply rounded bg-gray-100 px-1 py-0.5 font-mono text-sm;
+}
+
+pre {
+  @apply overflow-auto rounded-lg p-4;
+}
+
+pre code {
+  @apply bg-transparent p-0;
+}
+
+/* Table styling */
+table {
+  @apply w-full border-collapse;
+}
+
+th, td {
+  @apply p-2 text-left;
+}
+
+/* Link styling */
+.link {
+  @apply text-blue-600 underline hover:text-blue-800;
+}
+
+/* Custom container max widths */
+.container {
+  @apply mx-auto px-4;
+  max-width: 1200px;
 }

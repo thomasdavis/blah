@@ -1,0 +1,64 @@
+{
+  "name": "blah",
+  "version": "0.34.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc && shx cp src/server/mcp-entry.js build/server/",
+    "watch": "tsc --watch",
+    "dev": "tsx src/index.ts",
+    "mcp": "tsx src/index.ts mcp",
+    "simulate": "tsx src/index.ts simulate",
+    "prepublishOnly": "npm run build",
+    "release": "git add . && git commit -m 'Pre-release commit' && npm version major && npm run build && git add . && git commit --allow-empty -m 'New major release' && git push && npm publish",
+    "minor": "git add . && git commit -m 'Pre-minor commit' && npm version minor && npm run build && git add . && git commit --allow-empty -m 'New minor release' && git push && npm publish",
+    "patch": "git add . && git commit -m 'Pre-patch commit' && npm version patch && npm run build && git add . && git commit --allow-empty -m 'New patch release' && git push && npm publish"
+  },
+  "bin": {
+    "blah": "./build/index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomasdavis/blah.git"
+  },
+  "files": [
+    "build"
+  ],
+  "keywords": [
+    "mcp",
+    "modelcontextprotocol",
+    "agent",
+    "host"
+  ],
+  "author": "Ajax",
+  "license": "MIT",
+  "description": "Barely Logical Agent Host",
+  "dependencies": {
+    "@ai-sdk/openai": "^1.2.5",
+    "@modelcontextprotocol/sdk": "1.7.0",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "ai": "^2.2.37",
+    "axios": "^1.7.8",
+    "boxen": "^7.1.1",
+    "chalk": "^5.4.1",
+    "cli-table3": "^0.6.5",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2",
+    "openai": "^4.0.0",
+    "wrap-ansi": "^9.0.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/boxen": "^3.0.5",
+    "@types/node": "^22.13.5",
+    "@types/wrap-ansi": "^8.1.0",
+    "shx": "^0.3.4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.7.1",
+    "typescript": "^5.7.3"
+  }
+}

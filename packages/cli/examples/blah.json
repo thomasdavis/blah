@@ -1,0 +1,137 @@
+{
+  "name": "example-blah-manifest",
+  "version": "1.0.0",
+  "description": "Example BLAH manifest with various tools for demonstration",
+  "author": "BLAH Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thomasdavis/blah"
+  },
+  "tools": [
+    {
+      "name": "hello_world",
+      "description": "A simple hello world tool that greets the user",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name to greet"
+          }
+        },
+        "required": ["name"]
+      }
+    },
+    {
+      "name": "generate_image",
+      "description": "Generates an image based on a text prompt",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "The text prompt describing the image to generate"
+          },
+          "style": {
+            "type": "string",
+            "description": "The style of the image",
+            "enum": ["realistic", "cartoon", "abstract", "sketch"],
+            "default": "realistic"
+          },
+          "width": {
+            "type": "number",
+            "description": "The width of the image in pixels",
+            "default": 512
+          },
+          "height": {
+            "type": "number",
+            "description": "The height of the image in pixels",
+            "default": 512
+          }
+        },
+        "required": ["prompt"]
+      }
+    },
+    {
+      "name": "weather_forecast",
+      "description": "Gets the weather forecast for a specific location",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "The location to get the weather forecast for (city name or coordinates)"
+          },
+          "days": {
+            "type": "number",
+            "description": "Number of days for the forecast",
+            "default": 1
+          },
+          "units": {
+            "type": "string",
+            "description": "Temperature units",
+            "enum": ["celsius", "fahrenheit"],
+            "default": "celsius"
+          }
+        },
+        "required": ["location"]
+      }
+    },
+    {
+      "name": "search_web",
+      "description": "Searches the web for a given query",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "The search query"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Maximum number of results to return",
+            "default": 5
+          }
+        },
+        "required": ["query"]
+      }
+    }
+  ],
+  "prompts": [
+    {
+      "name": "code_review",
+      "description": "A prompt for reviewing code",
+      "content": "Review the following code for bugs, performance issues, and adherence to best practices. Provide specific feedback and suggestions for improvement."
+    },
+    {
+      "name": "brainstorm_features",
+      "description": "A prompt for brainstorming product features",
+      "content": "Generate a list of potential features for the described product. Consider user needs, market trends, and competitive differentiation. For each feature, explain its benefit and implementation complexity."
+    }
+  ],
+  "resources": [
+    {
+      "name": "api_documentation",
+      "description": "API documentation for the BLAH system",
+      "url": "https://example.com/api-docs",
+      "type": "text/html"
+    },
+    {
+      "name": "logo_image",
+      "description": "BLAH logo image",
+      "url": "https://example.com/blah-logo.png",
+      "type": "image/png"
+    }
+  ],
+  "tags": ["example", "demo", "tutorial"],
+  "endpoints": {
+    "base": "https://api.example.com/tools",
+    "prefix": "v1"
+  },
+  "config": {
+    "rateLimit": 60,
+    "timeout": 10000,
+    "debug": false
+  }
+}

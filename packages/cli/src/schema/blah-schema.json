@@ -1,0 +1,206 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "BLAH Manifest Schema",
+  "description": "Schema for defining BLAH (Barely Logical Agent Host) manifests",
+  "type": "object",
+  "required": ["name", "version", "tools"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the BLAH manifest"
+    },
+    "version": {
+      "type": "string",
+      "description": "The version of the BLAH manifest in semver format",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)(?:-((?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0|[1-9]\\d*|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$"
+    },
+    "description": {
+      "type": "string",
+      "description": "A description of the BLAH manifest"
+    },
+    "author": {
+      "type": "string",
+      "description": "The author of the BLAH manifest"
+    },
+    "license": {
+      "type": "string",
+      "description": "The license of the BLAH manifest"
+    },
+    "repository": {
+      "type": "object",
+      "description": "Repository information",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "The type of repository (e.g., git)"
+        },
+        "url": {
+          "type": "string",
+          "description": "The URL of the repository",
+          "format": "uri"
+        }
+      }
+    },
+    "tools": {
+      "type": "array",
+      "description": "An array of tools available through this BLAH manifest",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the tool (should be unique and use underscores for spaces)",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of what the tool does"
+          },
+          "inputSchema": {
+            "type": "object",
+            "description": "The JSON Schema for the tool's input",
+            "required": ["type", "properties"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["object"],
+                "description": "The type of the input schema (always 'object')"
+              },
+              "properties": {
+                "type": "object",
+                "description": "The properties of the input schema",
+                "additionalProperties": {
+                  "type": "object",
+                  "required": ["type"],
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["string", "number", "boolean", "array", "object"],
+                      "description": "The type of the property"
+                    },
+                    "description": {
+                      "type": "string",
+                      "description": "A description of the property"
+                    },
+                    "enum": {
+                      "type": "array",
+                      "description": "An enumeration of possible values",
+                      "items": {
+                        "type": ["string", "number", "boolean"]
+                      }
+                    },
+                    "default": {
+                      "description": "The default value for the property"
+                    },
+                    "format": {
+                      "type": "string",
+                      "description": "The format of the property (e.g., date-time, email)"
+                    },
+                    "items": {
+                      "type": "object",
+                      "description": "Schema for array items",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": ["string", "number", "boolean", "object"],
+                          "description": "The type of array items"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "required": {
+                "type": "array",
+                "description": "An array of required property names",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "prompts": {
+      "type": "array",
+      "description": "An array of prompts available through this BLAH manifest",
+      "items": {
+        "type": "object",
+        "required": ["name", "content"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the prompt (should be unique and use underscores for spaces)",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of what the prompt is for"
+          },
+          "content": {
+            "type": "string",
+            "description": "The content of the prompt"
+          }
+        }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "description": "An array of resources available through this BLAH manifest",
+      "items": {
+        "type": "object",
+        "required": ["name", "url"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the resource (should be unique and use underscores for spaces)",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of what the resource is"
+          },
+          "url": {
+            "type": "string",
+            "description": "The URL of the resource",
+            "format": "uri"
+          },
+          "type": {
+            "type": "string",
+            "description": "The MIME type of the resource",
+            "default": "text/plain"
+          }
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "description": "Tags associated with this BLAH manifest",
+      "items": {
+        "type": "string"
+      }
+    },
+    "endpoints": {
+      "type": "object",
+      "description": "Custom endpoints configuration",
+      "properties": {
+        "base": {
+          "type": "string",
+          "description": "Base URL for tool endpoints",
+          "format": "uri"
+        },
+        "prefix": {
+          "type": "string",
+          "description": "Prefix for tool endpoints"
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "description": "Additional configuration options for the BLAH manifest",
+      "additionalProperties": true
+    }
+  }
+}
