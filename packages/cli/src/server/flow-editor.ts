@@ -1,4 +1,5 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
+
 import cors from 'cors';
 import { createServer } from 'http';
 import chalk from 'chalk';
@@ -69,50 +70,52 @@ export function serveFlowEditor(port: number = 3333): void {
   });
 
   // API endpoint to save flows data
-  app.post('/api/flows', (req, res) => {
-    try {
-      const { flows } = req.body;
-      
-      if (!Array.isArray(flows)) {
-        return res.status(400).json({ error: 'Invalid flows data. Expected an array.' });
-      }
+  // app.post('/api/flows', (req: Request<{}, {}, { flows: any[] }>, res: Response) => {
 
-      if (!blahManifest) {
-        // Create a new manifest if none exists
-        blahManifest = {
-          name: "blah-manifest",
-          version: "1.0.0",
-          description: "BLAH manifest with agent workflows",
-          tools: [],
-          flows: flows
-        };
-      } else {
-        // Update existing manifest
-        blahManifest.flows = flows;
-      }
 
-      // Make sure directory exists
-      const directoryPath = path.dirname(blahJsonPath);
-      console.log(chalk.blue(`Checking if directory exists: ${directoryPath}`));
+  //   try {
+  //     const { flows } = req.body;
       
-      if (!fs.existsSync(directoryPath)) {
-        console.log(chalk.yellow(`Directory doesn't exist, creating: ${directoryPath}`));
-        fs.mkdirSync(directoryPath, { recursive: true });
-        console.log(chalk.green(`Created directory: ${directoryPath}`));
-      } else {
-        console.log(chalk.green(`Directory exists: ${directoryPath}`));
-      }
+  //     if (!Array.isArray(flows)) {
+  //       return res.status(400).json({ error: 'Invalid flows data. Expected an array.' });
+  //     }
 
-      // Write to blah.json
-      fs.writeFileSync(blahJsonPath, JSON.stringify(blahManifest, null, 2), 'utf8');
+  //     if (!blahManifest) {
+  //       // Create a new manifest if none exists
+  //       blahManifest = {
+  //         name: "blah-manifest",
+  //         version: "1.0.0",
+  //         description: "BLAH manifest with agent workflows",
+  //         tools: [],
+  //         flows: flows
+  //       };
+  //     } else {
+  //       // Update existing manifest
+  //       blahManifest.flows = flows;
+  //     }
+
+  //     // Make sure directory exists
+  //     const directoryPath = path.dirname(blahJsonPath);
+  //     console.log(chalk.blue(`Checking if directory exists: ${directoryPath}`));
       
-      console.log(chalk.green(`✓ Saved ${flows.length} flows to ${blahJsonPath}`));
-      return res.json({ success: true, message: `Saved ${flows.length} flows to blah.json` });
-    } catch (error) {
-      console.error(chalk.red('Error saving flows:'), error);
-      return res.status(500).json({ error: 'Failed to save flows data' });
-    }
-  });
+  //     if (!fs.existsSync(directoryPath)) {
+  //       console.log(chalk.yellow(`Directory doesn't exist, creating: ${directoryPath}`));
+  //       fs.mkdirSync(directoryPath, { recursive: true });
+  //       console.log(chalk.green(`Created directory: ${directoryPath}`));
+  //     } else {
+  //       console.log(chalk.green(`Directory exists: ${directoryPath}`));
+  //     }
+
+  //     // Write to blah.json
+  //     fs.writeFileSync(blahJsonPath, JSON.stringify(blahManifest, null, 2), 'utf8');
+      
+  //     console.log(chalk.green(`✓ Saved ${flows.length} flows to ${blahJsonPath}`));
+  //     return res.json({ success: true, message: `Saved ${flows.length} flows to blah.json` });
+  //   } catch (error) {
+  //     console.error(chalk.red('Error saving flows:'), error);
+  //     return res.status(500).json({ error: 'Failed to save flows data' });
+  //   }
+  // });
   
   // Serve the flow editor page
   app.get('/', (req, res) => {
