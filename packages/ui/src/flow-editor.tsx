@@ -182,11 +182,12 @@ interface FlowEditorProps {
     nodes: Node[];
     edges: Edge[];
   };
-  onSave?: (flowData: { nodes: Node[]; edges: Edge[] }) => void;
+  onSave?: (flowData: { nodes: Node[]; edges: Edge[]; id?: string; name?: string; description?: string }) => void;
   className?: string;
+  blahManifestPath?: string;
 }
 
-export function FlowEditor({ initialFlowData, onSave, className }: FlowEditorProps) {
+export function FlowEditor({ initialFlowData, onSave, className, blahManifestPath }: FlowEditorProps) {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   
   const [nodes, setNodes, onNodesChange] = useNodesState(initialFlowData?.nodes || initialNodes);
@@ -194,6 +195,8 @@ export function FlowEditor({ initialFlowData, onSave, className }: FlowEditorPro
   const [reactFlowInstance, setReactFlowInstance] = useState<any>(null);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [nodeName, setNodeName] = useState<string>('');
+  const [flowName, setFlowName] = useState<string>('my_workflow');
+  const [flowDescription, setFlowDescription] = useState<string>('A workflow created with the BLAH Flow Editor');
 
   // Setup node selection handlers
   useEffect(() => {
@@ -224,14 +227,23 @@ export function FlowEditor({ initialFlowData, onSave, className }: FlowEditorPro
   const onSaveClick = useCallback(() => {
     if (onSave) {
       onSave({
+        id: `flow_${Date.now()}`,
+        name: flowName,
+        description: flowDescription,
         nodes,
         edges,
       });
     } else {
-      console.log('Flow data:', { nodes, edges });
+      console.log('Flow data:', { 
+        id: `flow_${Date.now()}`,
+        name: flowName,
+        description: flowDescription,
+        nodes, 
+        edges 
+      });
       alert('Flow saved to console. Implement onSave to handle the data.');
     }
-  }, [nodes, edges, onSave]);
+  }, [nodes, edges, flowName, flowDescription, onSave]);
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -329,11 +341,40 @@ export function FlowEditor({ initialFlowData, onSave, className }: FlowEditorPro
 
   return (
     <div className={cn("w-full h-[600px] border border-gray-300 rounded-lg flex flex-col", className)}>
-      <div className="flex justify-between items-center p-2 border-b">
-        <div className="text-lg font-bold">Flow Editor</div>
+      <div className="flex justify-between items-center p-3 border-b">
+        <div className="flex flex-col">
+          <div className="flex items-center gap-2">
+            <div className="text-lg font-bold">Flow Editor</div>
+            {blahManifestPath && (
+              <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
+                {blahManifestPath}
+              </div>
+            )}
+          </div>
+          <div className="mt-2 flex gap-3">
+            <div>
+              <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Flow Name</label>
+              <input 
+                type="text" 
+                className="px-2 py-1 text-sm border rounded w-48"
+                value={flowName}
+                onChange={(e) => setFlowName(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Description</label>
+              <input 
+                type="text" 
+                className="px-2 py-1 text-sm border rounded w-64"
+                value={flowDescription}
+                onChange={(e) => setFlowDescription(e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
         <div className="flex space-x-2">
-          <Button size="sm" variant="outline" onClick={onSaveClick}>Save</Button>
           <Button size="sm" variant="outline" onClick={onExport}>Export</Button>
+          <Button size="sm" onClick={onSaveClick}>Save Flow</Button>
         </div>
       </div>
       

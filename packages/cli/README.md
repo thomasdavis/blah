@@ -72,6 +72,15 @@ Options:
 - `-h, --host <url>` - The URL of the BLAH manifest (default: process.env.BLAH_HOST or https://ajax-blah.web.val.run)
 - `-c, --config <path>` - Path to a config file (default: ./blah-simulation.json)
 
+### Flow Editor (`blah flows`)
+
+Launch a visual editor for creating and editing agent workflows.
+
+Options:
+- `-p, --port <number>` - Port to run the server on (default: 3333)
+
+The flow editor automatically reads from and writes to your `blah.json` file. If the file doesn't exist, it will be created when you save a flow.
+
 ## Creating a BLAH Manifest
 
 A BLAH manifest is a JSON file that defines the tools available through your MCP server. You can host it on ValTown:
@@ -108,6 +117,8 @@ export default async function server(request: Request): Promise<Response> {
 
 ## Configuration
 
+### Simulation Config
+
 Create a `blah-simulation.json` file for default simulation settings:
 
 ```json
@@ -118,6 +129,66 @@ Create a `blah-simulation.json` file for default simulation settings:
   "prompt": "say hello to julie"
 }
 ```
+
+### Flow Configuration
+
+Flows are stored in the `flows` array of your `blah.json` file. Each flow has the following structure:
+
+```json
+{
+  "flows": [
+    {
+      "id": "flow_1",
+      "name": "image_workflow",
+      "description": "A workflow for image generation",
+      "nodes": [
+        {
+          "id": "start1",
+          "type": "start",
+          "position": { "x": 250, "y": 50 },
+          "data": {},
+          "retry": { "maxAttempts": 0, "delay": 0 },
+          "errorHandling": { "onError": "log" }
+        },
+        {
+          "id": "agent1",
+          "type": "ai_agent",
+          "position": { "x": 250, "y": 150 },
+          "data": {
+            "name": "ImageGenerator",
+            "configuration": { 
+              "prompt": "Generate image based on description" 
+            }
+          },
+          "retry": { "maxAttempts": 3, "delay": 5 },
+          "errorHandling": { "onError": "log" }
+        },
+        {
+          "id": "end1",
+          "type": "end",
+          "position": { "x": 250, "y": 250 },
+          "data": {},
+          "retry": { "maxAttempts": 0, "delay": 0 },
+          "errorHandling": { "onError": "log" }
+        }
+      ],
+      "edges": [
+        { "source": "start1", "target": "agent1" },
+        { "source": "agent1", "target": "end1" }
+      ]
+    }
+  ]
+}
+```
+
+The flow editor supports the following node types:
+- `start`: Entry point for the flow
+- `end`: Exit point for the flow
+- `ai_agent`: AI agent node that can process information
+- `decision`: Decision node that routes the flow based on conditions
+- `action`: Action node that performs a specific task
+- `input`: Node that collects input from users
+- `output`: Node that provides output to users
 
 ## MCP Integration
 
@@ -132,7 +203,8 @@ BLAH works with any system that supports the Model Context Protocol:
 
 ## Development Roadmap
 
-- [ ] Support for local manifest files
+- [x] Support for local manifest files
+- [x] Visual flow editor for agent workflows
 - [ ] Better error handling and logging
 - [ ] Tool composition
 - [ ] Alternative hosting options beyond ValTown

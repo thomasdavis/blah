@@ -1,0 +1,38 @@
+{
+  "flows": [
+    {
+      "id": "flow_test",
+      "name": "sample_workflow",
+      "description": "A sample workflow for testing purposes",
+      "nodes": [
+        {
+          "id": "start1",
+          "type": "start",
+          "position": { "x": 250, "y": 50 },
+          "data": {}
+        },
+        {
+          "id": "agent1",
+          "type": "ai_agent",
+          "position": { "x": 250, "y": 150 },
+          "data": {
+            "name": "TestAgent",
+            "configuration": { 
+              "prompt": "Test prompt" 
+            }
+          }
+        },
+        {
+          "id": "end1",
+          "type": "end",
+          "position": { "x": 250, "y": 250 },
+          "data": {}
+        }
+      ],
+      "edges": [
+        { "source": "start1", "target": "agent1", "id": "e1-2" },
+        { "source": "agent1", "target": "end1", "id": "e2-3" }
+      ]
+    }
+  ]
+}

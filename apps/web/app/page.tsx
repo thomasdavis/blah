@@ -12,24 +12,24 @@ export default function Home() {
   return (
     <div className="bg-white dark:bg-slate-950">
       {/* Hero Section */}
-      <div className="bg-mesh-gradient text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]"></div>
+      <div className="bg-mesh-gradient text-white relative overflow-hidden" style={{ backgroundImage: 'url(/path/to/your/new/background-image.jpg)', backgroundSize: 'cover' }}>
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
         <div className="container mx-auto px-4 py-24 relative z-10">
           <div className="flex flex-col md:flex-row items-center">
             <div className="md:w-1/2 mb-10 md:mb-0 animate-slide-up">
-              <h1 className="text-6xl font-bold mb-6">BLAH</h1>
-              <h2 className="text-3xl font-bold mb-6">Barely Logical Agent Host</h2>
+              <h1 className="text-7xl font-extrabold mb-6 text-shadow">BLAH</h1>
+              <h2 className="text-4xl font-bold mb-6 text-shadow">Barely Logical Agent Host</h2>
               <p className="text-xl mb-8 text-slate-100">
                 An open-source ecosystem for managing, distributing, and executing AI agent tools using the Model Context Protocol (MCP).
               </p>
               <div className="flex flex-wrap gap-4">
-                <Button variant="secondary" size="lg" asChild className="gap-2 font-medium">
+                <Button variant="secondary" size="lg" asChild className="gap-2 font-medium transition-transform duration-300 transform hover:scale-105">
                   <Link href="/schema">
                     Explore Schema
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button variant="outline" size="lg" asChild className="gap-2 font-medium bg-white/10 backdrop-blur-sm hover:bg-white/20">
+                <Button variant="outline" size="lg" asChild className="gap-2 font-medium bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
                   <a href="https://github.com/thomasdavis/blah" target="_blank" rel="noopener noreferrer">
                     <Github className="h-4 w-4" />
                     GitHub
@@ -46,8 +46,6 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
-        {/* Decorative pattern */}
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-white dark:bg-slate-950" style={{ clipPath: "polygon(0 100%, 100% 100%, 100% 0, 0 100%)" }}></div>
       </div>
 
@@ -56,7 +54,6 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 dark:text-white">Key Features</h2>
           <p className="text-slate-600 dark:text-slate-400 text-center max-w-2xl mx-auto mb-16">Build, share, and execute agent tools with our powerful ecosystem</p>
-          
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="transform hover:-translate-y-1 transition-transform duration-300">
               <CardHeader>
@@ -84,7 +81,6 @@ export default function Home() {
                 </ul>
               </CardFooter>
             </Card>
-            
             <Card className="transform hover:-translate-y-1 transition-transform duration-300">
               <CardHeader>
                 <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center mb-4">
@@ -111,7 +107,6 @@ export default function Home() {
                 </ul>
               </CardFooter>
             </Card>
-            
             <Card className="transform hover:-translate-y-1 transition-transform duration-300">
               <CardHeader>
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-4">
@@ -147,7 +142,6 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 dark:text-white">Getting Started</h2>
           <p className="text-slate-600 dark:text-slate-400 text-center max-w-2xl mx-auto mb-12">Quick installation and usage guide</p>
-          
           <div className="max-w-3xl mx-auto">
             <Card className="overflow-hidden border-0 shadow-xl">
               <div className="bg-slate-800 px-4 py-2 flex items-center gap-2">
@@ -164,18 +158,15 @@ export default function Home() {
                 <Code className="language-bash">npm install -g blah-mcp</Code>
               </Pre>
             </Card>
-            
             <p className="my-8 text-center text-slate-500 dark:text-slate-400">
               After installation, you can search for tools, install them, and use them in your AI workflows.
             </p>
-            
             <Tabs defaultValue="cli" className="w-full">
               <TabsList className="w-full grid grid-cols-3 mb-6">
                 <TabsTrigger value="cli">CLI Usage</TabsTrigger>
                 <TabsTrigger value="schema">Schema</TabsTrigger>
                 <TabsTrigger value="flows">Flows</TabsTrigger>
               </TabsList>
-              
               <TabsContent value="cli" className="space-y-6">
                 <Card>
                   <CardHeader>
@@ -213,7 +204,6 @@ export default function Home() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
               <TabsContent value="schema" className="space-y-6">
                 <Card>
                   <CardHeader>
@@ -246,7 +236,6 @@ export default function Home() {
                           </Pre>
                         </AccordionContent>
                       </AccordionItem>
-                      
                       <AccordionItem value="prompts">
                         <AccordionTrigger>Prompts</AccordionTrigger>
                         <AccordionContent>
@@ -264,7 +253,6 @@ export default function Home() {
                           </Pre>
                         </AccordionContent>
                       </AccordionItem>
-                      
                       <AccordionItem value="flows">
                         <AccordionTrigger>Flows</AccordionTrigger>
                         <AccordionContent>
@@ -291,7 +279,6 @@ export default function Home() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
               <TabsContent value="flows" className="space-y-6">
                 <Card>
                   <CardHeader>
@@ -327,7 +314,6 @@ export default function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-4 dark:text-white">How it Works</h2>
           <p className="text-slate-600 dark:text-slate-400 text-center max-w-2xl mx-auto mb-16">BLAH's architecture explained</p>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div>
               <h3 className="text-2xl font-bold mb-4 dark:text-white">The BLAH Ecosystem</h3>
@@ -335,7 +321,6 @@ export default function Home() {
                 <p className="text-slate-500 dark:text-slate-400">
                   BLAH provides a decentralized registry for MCP servers that doesn't suffer from misaligned incentives, promoting transparency, security, and community-driven development.
                 </p>
-                
                 <h4 className="text-lg font-semibold dark:text-white">Core Components:</h4>
                 <div className="space-y-3">
                   <div className="flex items-start space-x-3">
@@ -347,7 +332,6 @@ export default function Home() {
                       <p className="text-sm text-slate-500 dark:text-slate-400">For tool storage and discovery</p>
                     </div>
                   </div>
-                  
                   <div className="flex items-start space-x-3">
                     <div className="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-purple-700 dark:text-purple-300 text-sm font-bold">2</span>
@@ -357,7 +341,6 @@ export default function Home() {
                       <p className="text-sm text-slate-500 dark:text-slate-400">For interacting with the registry and managing tools</p>
                     </div>
                   </div>
-                  
                   <div className="flex items-start space-x-3">
                     <div className="w-6 h-6 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <span className="text-green-700 dark:text-green-300 text-sm font-bold">3</span>
@@ -370,7 +353,6 @@ export default function Home() {
                 </div>
               </div>
             </div>
-            
             <div className="flex justify-center">
               <Card className="w-full overflow-hidden">
                 <Image 
@@ -393,7 +375,7 @@ export default function Home() {
 
       {/* CTA Section */}
       <div className="bg-mesh-gradient text-white py-16 relative">
-        <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]"></div>
         <div className="container mx-auto px-4 text-center relative z-10">
           <div className="max-w-3xl mx-auto">
             <h2 className="text-4xl font-bold mb-6">Ready to Get Started?</h2>
@@ -401,13 +383,13 @@ export default function Home() {
               Join the BLAH community and start building and sharing your AI tools today.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <Button variant="secondary" size="lg" asChild className="gap-2 font-medium">
+              <Button variant="secondary" size="lg" asChild className="gap-2 font-medium transition-transform duration-300 transform hover:scale-105">
                 <a href="https://github.com/thomasdavis/blah" target="_blank" rel="noopener noreferrer">
                   <Github className="h-5 w-5" />
                   GitHub Repository
                 </a>
               </Button>
-              <Button variant="outline" size="lg" asChild className="gap-2 font-medium bg-white/10 backdrop-blur-sm hover:bg-white/20">
+              <Button variant="outline" size="lg" asChild className="gap-2 font-medium bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300">
                 <Link href="/examples">
                   <ArrowRight className="h-5 w-5" />
                   View Examples

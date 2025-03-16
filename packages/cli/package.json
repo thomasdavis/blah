@@ -8,6 +8,8 @@
     "dev": "tsx src/index.ts",
     "mcp": "tsx src/index.ts mcp",
     "simulate": "tsx src/index.ts simulate",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "prepublishOnly": "npm run build",
     "release": "git add . && git commit -m 'Pre-release commit' && npm version major && npm run build && git add . && git commit --allow-empty -m 'New major release' && git push && npm publish",
     "minor": "git add . && git commit -m 'Pre-minor commit' && npm version minor && npm run build && git add . && git commit --allow-empty -m 'New minor release' && git push && npm publish",
@@ -63,6 +65,7 @@
     "shx": "^0.3.4",
     "ts-node": "^10.9.2",
     "tsx": "^4.7.1",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.8"
   }
 }

@@ -1,0 +1,81 @@
+{
+  "name": "test-manifest",
+  "version": "1.0.0",
+  "description": "Test manifest for Flow Editor",
+  "author": "Test User",
+  "tools": [],
+  "flows": [
+    {
+      "id": "flow_test",
+      "name": "test_workflow",
+      "description": "A test workflow",
+      "nodes": [
+        {
+          "id": "start1",
+          "type": "start",
+          "position": {
+            "x": 250,
+            "y": 50
+          },
+          "data": {},
+          "retry": {
+            "maxAttempts": 0,
+            "delay": 0
+          },
+          "errorHandling": {
+            "onError": "log"
+          }
+        },
+        {
+          "id": "agent1",
+          "type": "ai_agent",
+          "position": {
+            "x": 250,
+            "y": 150
+          },
+          "data": {
+            "name": "TestAgent",
+            "configuration": {
+              "prompt": "Test prompt"
+            }
+          },
+          "retry": {
+            "maxAttempts": 3,
+            "delay": 5
+          },
+          "errorHandling": {
+            "onError": "log"
+          }
+        },
+        {
+          "id": "end1",
+          "type": "end",
+          "position": {
+            "x": 250,
+            "y": 250
+          },
+          "data": {},
+          "retry": {
+            "maxAttempts": 0,
+            "delay": 0
+          },
+          "errorHandling": {
+            "onError": "log"
+          }
+        }
+      ],
+      "edges": [
+        {
+          "source": "start1",
+          "target": "agent1",
+          "id": "e1-2"
+        },
+        {
+          "source": "agent1",
+          "target": "end1",
+          "id": "e2-3"
+        }
+      ]
+    }
+  ]
+}
