@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 import { startMcpServer } from './server/index.js';
 import { startSimulation } from './simulator/index.js';
 import { validateBlahManifestFile } from './utils/validator.js';
+import { serveFlowEditor } from './server/flow-editor.js';
 import chalk from 'chalk';
 
 // Load environment variables from .env file
@@ -71,8 +72,25 @@ program
       if (manifest.resources) {
         console.log(chalk.yellow('Resources:'), manifest.resources.length);
       }
+      if (manifest.flows) {
+        console.log(chalk.yellow('Flows:'), manifest.flows.length);
+      }
     } catch (error) {
       console.error(chalk.red('✗ Invalid BLAH manifest:'), error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('flows')
+  .description('Launch the Flow Editor server')
+  .option('-p, --port <number>', 'Port to run the server on', '3333')
+  .action((options) => {
+    try {
+      const port = parseInt(options.port, 10);
+      serveFlowEditor(port);
+    } catch (error) {
+      console.error(chalk.red('Error starting flow editor server:'), error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   });

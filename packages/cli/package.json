@@ -46,7 +46,9 @@
     "chalk": "^5.4.1",
     "cli-table3": "^0.6.5",
     "commander": "^11.1.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
+    "express": "^4.21.2",
     "node-fetch": "^3.3.2",
     "openai": "^4.0.0",
     "wrap-ansi": "^9.0.0",
@@ -54,6 +56,8 @@
   },
   "devDependencies": {
     "@types/boxen": "^3.0.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.13.5",
     "@types/wrap-ansi": "^8.1.0",
     "shx": "^0.3.4",

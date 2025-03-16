@@ -9,6 +9,116 @@
       "type": "string",
       "description": "The name of the BLAH manifest"
     },
+    "flows": {
+      "type": "array",
+      "description": "An array of flows that define agent workflows",
+      "items": {
+        "type": "object",
+        "required": ["name", "nodes", "edges"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the flow"
+          },
+          "description": {
+            "type": "string",
+            "description": "A description of what the flow does"
+          },
+          "nodes": {
+            "type": "array",
+            "description": "An array of nodes in the flow",
+            "items": {
+              "type": "object",
+              "required": ["id", "type", "position", "data"],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique identifier for the node"
+                },
+                "type": {
+                  "type": "string",
+                  "description": "The type of node",
+                  "enum": ["start", "end", "ai_agent", "decision", "action", "input", "output"]
+                },
+                "position": {
+                  "type": "object",
+                  "description": "Position of the node in the flow editor",
+                  "required": ["x", "y"],
+                  "properties": {
+                    "x": {
+                      "type": "number",
+                      "description": "X coordinate"
+                    },
+                    "y": {
+                      "type": "number",
+                      "description": "Y coordinate"
+                    }
+                  }
+                },
+                "data": {
+                  "type": "object",
+                  "description": "Node-specific data",
+                  "additionalProperties": true
+                },
+                "retry": {
+                  "type": "object",
+                  "description": "Retry configuration for the node",
+                  "properties": {
+                    "maxAttempts": {
+                      "type": "integer",
+                      "description": "Maximum number of retry attempts",
+                      "minimum": 0
+                    },
+                    "delay": {
+                      "type": "integer",
+                      "description": "Delay between retries in seconds",
+                      "minimum": 0
+                    }
+                  }
+                },
+                "errorHandling": {
+                  "type": "object",
+                  "description": "Error handling configuration",
+                  "properties": {
+                    "onError": {
+                      "type": "string",
+                      "description": "Action to take on error",
+                      "enum": ["log", "fail", "continue"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "edges": {
+            "type": "array",
+            "description": "An array of edges connecting nodes",
+            "items": {
+              "type": "object",
+              "required": ["source", "target"],
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "description": "ID of the source node"
+                },
+                "target": {
+                  "type": "string",
+                  "description": "ID of the target node"
+                },
+                "label": {
+                  "type": "string",
+                  "description": "Optional label for the edge"
+                },
+                "condition": {
+                  "type": "string",
+                  "description": "Optional condition for the edge"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "version": {
       "type": "string",
       "description": "The version of the BLAH manifest in semver format",
