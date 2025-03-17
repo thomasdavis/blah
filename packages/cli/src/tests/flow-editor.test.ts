@@ -131,6 +131,19 @@ describe('Flow Editor Server', () => {
   });
   
   it('should handle API endpoints for flows', () => {
+    // Setup mock app with proper methods
+    mockApp.get.mockImplementation((path, handler) => {
+      // Store the handler for testing
+      mockApp.getHandler = handler;
+      return mockApp;
+    });
+    
+    mockApp.post.mockImplementation((path, handler) => {
+      // Store the handler for testing
+      mockApp.postHandler = handler;
+      return mockApp;
+    });
+    
     serveFlowEditor();
     
     // Check that the endpoints are set up
@@ -145,9 +158,15 @@ describe('Flow Editor Server', () => {
       return true; // Directory exists
     });
     
-    // Get the POST handler
+    // Setup mock app with proper methods
+    mockApp.post.mockImplementation((path, handler) => {
+      // Store the handler for testing
+      mockApp.postHandler = handler;
+      return mockApp;
+    });
+    
+    // Call serveFlowEditor to set up the handlers
     serveFlowEditor();
-    const postHandler = mockApp.post.mock.calls[0][1];
     
     // Mock request and response
     const req = { body: { flows: testFlows } };
@@ -156,8 +175,8 @@ describe('Flow Editor Server', () => {
       json: vi.fn()
     };
     
-    // Call the handler
-    postHandler(req, res);
+    // Call the handler directly using the stored reference
+    mockApp.postHandler(req, res);
     
     // Verify the file is written
     expect(fs.writeFileSync).toHaveBeenCalledWith(
@@ -172,9 +191,15 @@ describe('Flow Editor Server', () => {
     // Mock fs.existsSync to return false for both file and directory
     (fs.existsSync as any).mockReturnValue(false);
     
-    // Get the POST handler
+    // Setup mock app with proper methods
+    mockApp.post.mockImplementation((path, handler) => {
+      // Store the handler for testing
+      mockApp.postHandler = handler;
+      return mockApp;
+    });
+    
+    // Call serveFlowEditor to set up the handlers
     serveFlowEditor();
-    const postHandler = mockApp.post.mock.calls[0][1];
     
     // Mock request and response
     const req = { body: { flows: testFlows } };
@@ -183,8 +208,8 @@ describe('Flow Editor Server', () => {
       json: vi.fn()
     };
     
-    // Call the handler
-    postHandler(req, res);
+    // Call the handler directly using the stored reference
+    mockApp.postHandler(req, res);
     
     // Verify directory is created
     expect(fs.mkdirSync).toHaveBeenCalledWith(expect.any(String), { recursive: true });

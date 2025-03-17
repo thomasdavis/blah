@@ -1,4 +1,4 @@
-# BLAH - Barely Logical Agent Host
+# @blah/cli - Barely Logical Agent Host
 
 A CLI tool for working with the Model Context Protocol (MCP) to create and test AI tools.
 
@@ -12,12 +12,13 @@ A CLI tool for working with the Model Context Protocol (MCP) to create and test 
 ### Installation
 
 ```bash
-# Clone the repo and install dependencies
+# Install from npm
+npm install @blah/cli --global
+
+# Or install from the repo
 git clone https://github.com/thomasdavis/blah.git
 cd blah
 pnpm install
-
-# Build the project
 pnpm run build
 ```
 
@@ -32,17 +33,23 @@ BLAH_HOST=https://ajax-blah.web.val.run
 
 ### Basic Usage
 
-There are two main commands:
+If installed globally:
 
 ```bash
 # Start the MCP server
-npm run mcp
+blah mcp
 
 # Run a simulation of an MCP client interacting with the server
-npm run simulate
+blah simulate
+
+# Validate a BLAH manifest file
+blah validate path/to/blah.json
+
+# Launch the Flow Editor
+blah flows
 ```
 
-Or use the CLI directly:
+Or if using from the repo:
 
 ```bash
 # Start the MCP server
@@ -59,6 +66,7 @@ npx tsx src/index.ts simulate --model gpt-4o-mini --prompt "create a tool that w
 The MCP server connects to a BLAH manifest (e.g., on ValTown) and exposes tools via the Model Context Protocol.
 
 Options:
+
 - `-h, --host <url>` - The URL of the BLAH manifest (default: process.env.BLAH_HOST or https://ajax-blah.web.val.run)
 
 ### Simulation (`blah simulate`)
@@ -66,6 +74,7 @@ Options:
 Run a simulated interaction between an AI model and the MCP server to test tool selection and execution.
 
 Options:
+
 - `-m, --model <model>` - OpenAI model to use (default: gpt-4o-mini)
 - `-s, --system-prompt <prompt>` - System prompt for the simulation
 - `-p, --prompt <prompt>` - User prompt to send
@@ -77,6 +86,7 @@ Options:
 Launch a visual editor for creating and editing agent workflows.
 
 Options:
+
 - `-p, --port <number>` - Port to run the server on (default: 3333)
 
 The flow editor automatically reads from and writes to your `blah.json` file. If the file doesn't exist, it will be created when you save a flow.
@@ -156,8 +166,8 @@ Flows are stored in the `flows` array of your `blah.json` file. Each flow has th
           "position": { "x": 250, "y": 150 },
           "data": {
             "name": "ImageGenerator",
-            "configuration": { 
-              "prompt": "Generate image based on description" 
+            "configuration": {
+              "prompt": "Generate image based on description"
             }
           },
           "retry": { "maxAttempts": 3, "delay": 5 },
@@ -182,6 +192,7 @@ Flows are stored in the `flows` array of your `blah.json` file. Each flow has th
 ```
 
 The flow editor supports the following node types:
+
 - `start`: Entry point for the flow
 - `end`: Exit point for the flow
 - `ai_agent`: AI agent node that can process information

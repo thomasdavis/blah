@@ -1,5 +1,5 @@
 {
-  "name": "blah",
+  "name": "@blah/cli",
   "version": "0.34.0",
   "type": "module",
   "scripts": {
@@ -11,12 +11,15 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "prepublishOnly": "npm run build",
-    "release": "git add . && git commit -m 'Pre-release commit' && npm version major && npm run build && git add . && git commit --allow-empty -m 'New major release' && git push && npm publish",
-    "minor": "git add . && git commit -m 'Pre-minor commit' && npm version minor && npm run build && git add . && git commit --allow-empty -m 'New minor release' && git push && npm publish",
-    "patch": "git add . && git commit -m 'Pre-patch commit' && npm version patch && npm run build && git add . && git commit --allow-empty -m 'New patch release' && git push && npm publish"
+    "release": "git add . && git commit -m 'Pre-release commit' && npm version major && npm run build && git add . && git commit --allow-empty -m 'New major release' && git push && npm publish --access public",
+    "minor": "git add . && git commit -m 'Pre-minor commit' && npm version minor && npm run build && git add . && git commit --allow-empty -m 'New minor release' && git push && npm publish --access public",
+    "patch": "git add . && git commit -m 'Pre-patch commit' && npm version patch && npm run build && git add . && git commit --allow-empty -m 'New patch release' && git push && npm publish --access public"
   },
   "bin": {
     "blah": "./build/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "engines": {
     "node": ">=18.0.0"

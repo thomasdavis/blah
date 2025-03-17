@@ -15,7 +15,8 @@ const program = new Command();
 program
   .name('blah')
   .description('BLAH - Barely Logical Agent Host CLI')
-  .version('0.34.0');
+  .version('0.34.0')
+  .usage('<command> [options]');
 
 program
   .command('mcp')
