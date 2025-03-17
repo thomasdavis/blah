@@ -2,7 +2,8 @@
 import { Command } from 'commander';
 import { config } from 'dotenv';
 import { startMcpServer } from './server/index.js';
-import { startSimulation } from './simulator/index.js';
+// Dynamic import for simulator to avoid loading OpenAI client unnecessarily
+// import { startSimulation } from './simulator/index.js';
 import { validateBlahManifestFile } from './utils/validator.js';
 import { serveFlowEditor } from './server/flow-editor.js';
 import chalk from 'chalk';
@@ -15,7 +16,7 @@ const program = new Command();
 program
   .name('blah')
   .description('BLAH - Barely Logical Agent Host CLI')
-  .version('0.34.0')
+  .version('0.34.5')
   .usage('<command> [options]');
 
 program
@@ -42,6 +43,8 @@ program
   .option('-c, --config <path>', 'Path to a config file', './blah-simulation.json')
   .action(async (options) => {
     try {
+      // Dynamically import the simulator module only when needed
+      const { startSimulation } = await import('./simulator/index.js');
       await startSimulation({
         model: options.model,
         systemPrompt: options.systemPrompt,

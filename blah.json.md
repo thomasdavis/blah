@@ -57,18 +57,17 @@
     {
       "name": "hello_world_slop_compute",
       "description": "You can invoke any SLOP functions, that run from a slop server",
-      "command": "blah mcp slop",
-      "command": "blah slop"
+      "command": "npx @blai/cli mcp slop",
       // might have to build blah-mcp-slop-server
     },
     // ==== AGENTS.JSON ====
     {
       "name": "hello_world_agent_compute",
       "description": "You can invoke any agent functions, think a local database or file system",
-      "command": "npx blah mcp agents.json"
+      "command": "npx @blai/cli mcp agents.json"
     }
   ],
-  "flows": [{
+  "flows": [{ // fuck this - we gonna use AGNT flow protocol
     "name": "say_hello_and_then_goodbye",
     "steps": [
       {

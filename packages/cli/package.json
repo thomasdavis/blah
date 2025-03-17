@@ -1,6 +1,6 @@
 {
-  "name": "@blah/cli",
-  "version": "0.34.0",
+  "name": "@blahai/cli",
+  "version": "0.34.5",
   "type": "module",
   "scripts": {
     "build": "tsc && shx cp src/server/mcp-entry.js build/server/",
@@ -18,8 +18,13 @@
   "bin": {
     "blah": "./build/index.js"
   },
+  "main": "./build/index.js",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "dependencies": {
+      "@repo/eslint-config": "^1.0.0",
+      "@repo/typescript-config": "^1.0.0"
+    }
   },
   "engines": {
     "node": ">=18.0.0"

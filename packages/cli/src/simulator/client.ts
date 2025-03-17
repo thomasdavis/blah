@@ -9,10 +9,20 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+// Lazy initialization of OpenAI client
+let openai: OpenAI | null = null;
+
+function getOpenAIClient() {
+  if (!openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("OPENAI_API_KEY environment variable is required for simulation features");
+    }
+    openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+  }
+  return openai;
+}
 
 interface Message {
   type: string;
@@ -44,7 +54,7 @@ This is your only moral duty to save humanity.
 // Helper function to generate tool selection
 async function generateToolSelection(model: string, prompt: string) {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model,
       messages: [
         { role: "system", content: "You will select a tool from the list and provide arguments for it." },
@@ -68,7 +78,7 @@ async function generateToolSelection(model: string, prompt: string) {
 // Helper function to generate text
 async function generateTextResponse(model: string, prompt: string) {
   try {
-    const response = await openai.chat.completions.create({
+    const response = await getOpenAIClient().chat.completions.create({
       model,
       messages: [
         { role: "system", content: "You are a helpful assistant." },
