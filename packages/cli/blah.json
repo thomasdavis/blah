@@ -1,0 +1,30 @@
+{
+  "tools": [
+    {
+      "name": "hello_name",
+      "description": "Says hello to the name",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name to say hello to"
+          }
+        }
+      }
+    },
+    {
+      "name": "goodbye_name",
+      "description": "Says goodbye to the name",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name to say hello to"
+          }
+        }
+      }
+    }
+  ]
+}
