@@ -85,3 +85,17 @@
   "config": {}
 }
 ```
+
+```js
+{
+  "mcpServers": {
+    "blah": {
+      "command": "npx",
+      "args": ["-y", "blah-mcp"],
+      "env": {
+        "BLAH_HOST": "https://ajax-blah.web.val.run"
+      }
+    }
+  }
+}
+```
