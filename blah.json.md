@@ -91,7 +91,7 @@
   "mcpServers": {
     "blah": {
       "command": "npx",
-      "args": ["-y", "blah-mcp"],
+      "args": ["-y", "@blai/cli mcp"],
       "env": {
         "BLAH_HOST": "https://ajax-blah.web.val.run"
       }
