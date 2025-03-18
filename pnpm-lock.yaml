@@ -134,7 +134,7 @@ importers:
         specifier: ^1.2.5
         version: 1.2.5(zod@3.24.2)
       '@blahai/schema':
-        specifier: workspace:^0.1.0
+        specifier: workspace:*
         version: link:../schema
       '@modelcontextprotocol/sdk':
         specifier: 1.7.0
