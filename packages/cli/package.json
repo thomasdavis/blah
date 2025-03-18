@@ -1,17 +1,17 @@
 {
   "name": "@blahai/cli",
-  "version": "0.35.0",
+  "version": "0.36.0",
   "type": "module",
   "scripts": {
-    "build": "tsc && shx cp src/server/mcp-entry.js build/server/ && shx cp -r src/templates build/templates",
-    "watch": "tsc --watch",
+    "build": "tsup src/index.ts --format cjs,esm --dts && shx mkdir -p dist/server && shx cp src/server/mcp-entry.js dist/server/ && shx cp -r src/templates dist/templates",
+    "watch": "tsup src/index.ts --format cjs,esm --dts --watch",
     "dev": "tsx src/index.ts --help",
     "mcp": "tsx src/index.ts mcp",
     "simulate": "tsx src/index.ts simulate",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
-    "clean": "rm -rf build",
+    "clean": "rm -rf dist",
     "prepublishOnly": "pnpm run build",
     "preversion": "pnpm run lint && pnpm run test",
     "version": "pnpm run build && git add -A",
@@ -20,9 +20,11 @@
     "validate": "tsx src/index.ts validate"
   },
   "bin": {
-    "blah": "./build/index.js"
+    "blah": "./dist/index.js"
   },
-  "main": "./build/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
@@ -34,7 +36,7 @@
     "url": "git+https://github.com/thomasdavis/blah.git"
   },
   "files": [
-    "build",
+    "dist",
     "src/templates"
   ],
   "keywords": [
@@ -48,8 +50,8 @@
   "description": "Barely Logical Agent Host",
   "dependencies": {
     "@ai-sdk/openai": "^1.2.5",
-    "@modelcontextprotocol/sdk": "1.7.0",
     "@blahai/schema": "workspace:*",
+    "@modelcontextprotocol/sdk": "1.7.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "ai": "^2.2.37",
@@ -74,6 +76,7 @@
     "@types/wrap-ansi": "^8.1.0",
     "shx": "^0.3.4",
     "ts-node": "^10.9.2",
+    "tsup": "^8.4.0",
     "tsx": "^4.7.1",
     "typescript": "^5.7.3",
     "vitest": "^3.0.8"
