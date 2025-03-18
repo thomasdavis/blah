@@ -3,7 +3,7 @@
   "version": "0.34.5",
   "type": "module",
   "scripts": {
-    "build": "tsc && shx cp src/server/mcp-entry.js build/server/",
+    "build": "tsc && shx cp src/server/mcp-entry.js build/server/ && shx cp -r src/templates build/templates",
     "watch": "tsc --watch",
     "dev": "tsx src/index.ts",
     "mcp": "tsx src/index.ts mcp",
@@ -34,7 +34,8 @@
     "url": "git+https://github.com/thomasdavis/blah.git"
   },
   "files": [
-    "build"
+    "build",
+    "src/templates"
   ],
   "keywords": [
     "mcp",

@@ -1,0 +1,22 @@
+{
+  "name": "my-blah-project",
+  "version": "0.1.0",
+  "description": "My BLAH project configuration",
+  "tools": [
+    {
+      "name": "example_tool",
+      "description": "Example tool configuration",
+      "command": "echo 'Hello from example tool!'"
+    }
+  ],
+  "flows": [
+    {
+      "name": "example_flow",
+      "steps": [
+        {
+          "tool": "example_tool"
+        }
+      ]
+    }
+  ]
+}

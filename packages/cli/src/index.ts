@@ -8,7 +8,7 @@ import { validateBlahManifestFile } from './utils/validator.js';
 import { serveFlowEditor } from './server/flow-editor.js';
 import { loadBlahConfig } from './utils/config-loader.js';
 import { writeFileSync, existsSync } from 'fs';
-import { join } from 'path';
+import { sampleManifest } from '@blahai/schema';
 import chalk from 'chalk';
 
 // Load environment variables from .env file
@@ -172,16 +172,8 @@ program
       process.exit(1);
     }
 
-    // Create a basic blah.json template
-    const template = {
-      "name": "my-blah-project",
-      "version": "0.1.0",
-      "description": "My BLAH project configuration",
-      "tools": [],
-      "prompts": [],
-      "resources": [],
-      "flows": []
-    };
+    // Use the sample manifest from the schema package
+    const template = sampleManifest;
 
     try {
       writeFileSync(targetPath, JSON.stringify(template, null, 2));

@@ -1,15 +1,4 @@
-import { createRequire } from 'module';
-
-// Set up require for ES modules
-const require = createRequire(import.meta.url);
-const AjvModule = require('ajv');
-const Ajv = AjvModule.default;
-
-// Import schema
-const schema = require('./schema.json');
-
-// Sample manifest for new blah.json files
-export const sampleManifest = {
+{
   "name": "sample-blah-manifest",
   "version": "1.0.0",
   "alias": "sample-tools",
@@ -47,30 +36,4 @@ export const sampleManifest = {
       ]
     }
   ]
-} as const;
-
-export interface ValidationResult {
-  valid: boolean;
-  errors: any[] | null;
 }
-
-export class BlahValidator {
-  private validateFn: any;
-
-  constructor() {
-    const ajv = new Ajv({ allErrors: true });
-    this.validateFn = ajv.compile(schema);
-  }
-
-  validate(data: any): ValidationResult {
-    const valid = this.validateFn(data);
-    return {
-      valid,
-      errors: this.validateFn.errors || null
-    };
-  }
-}
-
-// Export schema, validator, and sample manifest
-export { schema };
-export default BlahValidator;

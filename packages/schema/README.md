@@ -10,14 +10,6 @@ npm install @blahai/schema
 
 ## Usage
 
-### As a CLI Tool
-
-```bash
-npx blah-validate ./path/to/blah.json
-```
-
-### As a Library
-
 ```typescript
 import { BlahValidator } from "@blahai/schema";
 
