@@ -47,6 +47,7 @@
   "description": "Barely Logical Agent Host",
   "dependencies": {
     "@ai-sdk/openai": "^1.2.5",
+    "@blahai/schema": "workspace:^0.1.0",
     "@modelcontextprotocol/sdk": "1.7.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",

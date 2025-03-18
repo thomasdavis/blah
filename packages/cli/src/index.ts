@@ -7,6 +7,8 @@ import { startMcpServer } from './server/index.js';
 import { validateBlahManifestFile } from './utils/validator.js';
 import { serveFlowEditor } from './server/flow-editor.js';
 import { loadBlahConfig } from './utils/config-loader.js';
+import { writeFileSync, existsSync } from 'fs';
+import { join } from 'path';
 import chalk from 'chalk';
 
 // Load environment variables from .env file
@@ -153,6 +155,43 @@ program
       serveFlowEditor(port);
     } catch (error) {
       console.error(chalk.red('Error starting flow editor server:'), error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+  });
+
+program
+  .command('init')
+  .description('Initialize a new blah.json configuration file')
+  .argument('[file]', 'Path to create the blah.json file (defaults to ./blah.json)')
+  .action(async (file) => {
+    const targetPath = file || './blah.json';
+
+    // Check if file already exists
+    if (existsSync(targetPath)) {
+      console.error(chalk.red(`✗ Error: File ${targetPath} already exists`));
+      process.exit(1);
+    }
+
+    // Create a basic blah.json template
+    const template = {
+      "name": "my-blah-project",
+      "version": "0.1.0",
+      "description": "My BLAH project configuration",
+      "tools": [],
+      "prompts": [],
+      "resources": [],
+      "flows": []
+    };
+
+    try {
+      writeFileSync(targetPath, JSON.stringify(template, null, 2));
+      console.log(chalk.green(`✓ Created new blah.json at ${targetPath}`));
+      console.log(chalk.blue('Next steps:'));
+      console.log(chalk.yellow('1.'), 'Edit the configuration to add your tools, prompts, and flows');
+      console.log(chalk.yellow('2.'), 'Run', chalk.cyan('blah validate'), 'to verify your configuration');
+      console.log(chalk.yellow('3.'), 'Run', chalk.cyan('blah mcp'), 'to start the MCP server');
+    } catch (error) {
+      console.error(chalk.red('✗ Error creating blah.json:'), error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   });
