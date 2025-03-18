@@ -1,5 +1,18 @@
 # @blahai/cli
 
+## 0.38.0
+
+### Minor Changes
+
+- 77e1cdd: sda
+
+### Patch Changes
+
+- Updated dependencies [77e1cdd]
+  - @repo/eslint-config@0.2.0
+  - @blahai/schema@0.3.0
+  - @repo/typescript-config@0.2.0
+
 ## 0.37.0
 
 ### Minor Changes
