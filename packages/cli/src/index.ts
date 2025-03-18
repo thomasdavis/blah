@@ -2,8 +2,6 @@
 import { Command } from 'commander';
 import { config } from 'dotenv';
 import { startMcpServer } from './server/index.js';
-// Dynamic import for simulator to avoid loading OpenAI client unnecessarily
-// import { startSimulation } from './simulator/index.js';
 import { validateBlahManifestFile } from './utils/validator.js';
 import { serveFlowEditor } from './server/flow-editor.js';
 import { loadBlahConfig } from './utils/config-loader.js';

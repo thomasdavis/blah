@@ -1,6 +1,6 @@
 {
   "name": "@blahai/cli",
-  "version": "0.34.5",
+  "version": "0.34.7",
   "type": "module",
   "scripts": {
     "build": "tsc && shx cp src/server/mcp-entry.js build/server/ && shx cp -r src/templates build/templates",
