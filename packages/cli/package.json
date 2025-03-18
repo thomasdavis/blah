@@ -1,6 +1,6 @@
 {
   "name": "@blahai/cli",
-  "version": "0.36.0",
+  "version": "0.37.0",
   "type": "module",
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts && shx mkdir -p dist/server && shx cp src/server/mcp-entry.js dist/server/ && shx cp -r src/templates dist/templates",
@@ -26,7 +26,8 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "engines": {
     "node": ">=18.0.0"
