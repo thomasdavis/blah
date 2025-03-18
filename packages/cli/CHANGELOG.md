@@ -1,5 +1,14 @@
 # @blahai/cli
 
+## 0.40.0
+
+### Minor Changes
+
+- Added changeset and proper publish
+- Wip
+- Fixed build
+- wip
+
 ## 0.39.0
 
 ### Minor Changes

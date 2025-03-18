@@ -6,8 +6,9 @@ import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult, Sim
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname('./');
+// const __dirname = path.dirname(__filename);
 
 // Lazy initialization of OpenAI client
 let openai: OpenAI | null = null;

@@ -1,6 +1,6 @@
 {
   "name": "@blahai/cli",
-  "version": "0.39.0",
+  "version": "0.40.0",
   "type": "module",
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts && shx mkdir -p dist/server && shx cp src/server/mcp-entry.js dist/server/ && shx cp -r src/templates dist/templates",
@@ -50,10 +50,8 @@
   "description": "Barely Logical Agent Host",
   "dependencies": {
     "@ai-sdk/openai": "^1.2.5",
-    "@blahai/schema": "workspace:*",
+    "@blahai/schema": "0.4.0",
     "@modelcontextprotocol/sdk": "1.7.0",
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
     "ai": "^2.2.37",
     "axios": "^1.7.8",
     "boxen": "^7.1.1",
@@ -70,6 +68,8 @@
   },
   "devDependencies": {
     "@types/boxen": "^3.0.5",
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.5",
