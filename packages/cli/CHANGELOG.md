@@ -1,5 +1,18 @@
 # @blahai/cli
 
+## 0.39.0
+
+### Minor Changes
+
+- 8f71006: wip
+
+### Patch Changes
+
+- Updated dependencies [8f71006]
+  - @repo/eslint-config@0.3.0
+  - @blahai/schema@0.4.0
+  - @repo/typescript-config@0.3.0
+
 ## 0.38.0
 
 ### Minor Changes
