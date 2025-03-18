@@ -1,0 +1,51 @@
+{
+  "name": "sample-blah-manifest",
+  "version": "1.0.0",
+  "alias": "sample-tools",
+  "description": "A sample blah manifest demonstrating various tool types and configurations",
+  "env": {
+    "OPENAI_API_KEY": "your-openai-api-key-here"
+  },
+  "tools": [
+    {
+      "name": "hello_world_registry",
+      "description": "Example of a public compute registry tool",
+      "alias": "hello"
+    },
+    {
+      "name": "@myorg/local_tool",
+      "description": "Example of a local compute tool",
+      "command": "node ./scripts/local-tool.js"
+    },
+    {
+      "name": "mcp_example",
+      "description": "Example of an MCP tool using npx",
+      "command": "npx @myorg/mcp-tool"
+    }
+  ],
+  "flows": [
+    {
+      "name": "sample_flow",
+      "steps": [
+        {
+          "tool": "hello_world_registry"
+        },
+        {
+          "tool": "@myorg/local_tool"
+        }
+      ]
+    }
+  ],
+  "tags": ["sample", "example"],
+  "config": {
+    "mcpServers": {
+      "default": {
+        "command": "npx",
+        "args": ["-y", "@blai/cli mcp"],
+        "env": {
+          "BLAH_HOST": "https://example.com"
+        }
+      }
+    }
+  }
+}

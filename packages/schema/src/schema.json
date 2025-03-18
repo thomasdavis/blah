@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Blah Configuration",
+  "type": "object",
+  "required": ["name", "version"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the blah manifest"
+    },
+    "version": {
+      "type": "string",
+      "description": "Version of the manifest"
+    },
+    "alias": {
+      "type": "string",
+      "description": "Alias used when an auton lists out tools"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the blah manifest"
+    },
+    "env": {
+      "type": "object",
+      "description": "Environment variables that can be passed to tools and flows",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the tool"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of what the tool does"
+          },
+          "alias": {
+            "type": "string",
+            "description": "Optional alias for the tool"
+          },
+          "command": {
+            "type": "string",
+            "description": "Command to execute for local, inline, MCP, or SLOP tools"
+          }
+        }
+      }
+    },
+    "flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "steps"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the flow"
+          },
+          "steps": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["tool"],
+              "properties": {
+                "tool": {
+                  "type": "string",
+                  "description": "Name of the tool to execute"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "prompts": {
+      "type": "array",
+      "description": "Reserved for future use"
+    },
+    "resources": {
+      "type": "array",
+      "description": "Reserved for future use"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "config": {
+      "type": "object",
+      "description": "Additional configuration options"
+    }
+  }
+}
