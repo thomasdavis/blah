@@ -5,7 +5,6 @@ import { createServer } from 'http';
 import chalk from 'chalk';
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
 
 interface BlahManifest {
   name: string;

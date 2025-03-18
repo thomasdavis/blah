@@ -5,15 +5,19 @@
   "scripts": {
     "build": "tsc && shx cp src/server/mcp-entry.js build/server/ && shx cp -r src/templates build/templates",
     "watch": "tsc --watch",
-    "dev": "tsx src/index.ts",
+    "dev": "tsx src/index.ts --help",
     "mcp": "tsx src/index.ts mcp",
     "simulate": "tsx src/index.ts simulate",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prepublishOnly": "npm run build",
-    "release": "git add . && git commit -m 'Pre-release commit' && npm version major && npm run build && git add . && git commit --allow-empty -m 'New major release' && git push && npm publish --access public",
-    "minor": "git add . && git commit -m 'Pre-minor commit' && npm version minor && npm run build && git add . && git commit --allow-empty -m 'New minor release' && git push && npm publish --access public",
-    "patch": "git add . && git commit -m 'Pre-patch commit' && npm version patch && npm run build && git add . && git commit --allow-empty -m 'New patch release' && git push && npm publish --access public"
+    "lint": "eslint .",
+    "clean": "rm -rf build",
+    "prepublishOnly": "pnpm run build",
+    "preversion": "pnpm run lint && pnpm run test",
+    "version": "pnpm run build && git add -A",
+    "release": "pnpm run clean && changeset publish",
+    "init": "tsx src/index.ts init",
+    "validate": "tsx src/index.ts validate"
   },
   "bin": {
     "blah": "./build/index.js"
