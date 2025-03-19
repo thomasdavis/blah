@@ -2,6 +2,7 @@ import { startClient } from './client.js';
 import { log, logError, logSection, logStep, logTutorial } from './logger.js';
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import { SimulationConfig } from './types.js';
+import { startMcpServer } from '../server/index.js';
 
 const DEFAULT_CONFIG = {
   model: "gpt-4o-mini",
@@ -46,10 +47,7 @@ export async function startSimulation(options: {
     
     logSection('Starting MCP Test');
     
-    // Start the client
-    logStep('Starting MCP Client');
     await startClient(config);
-    log('MCP Client completed successfully');
 
     // Clean exit
     process.exit(0);

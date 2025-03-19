@@ -40,13 +40,13 @@ If installed globally:
 blah mcp
 
 # Run a simulation of an MCP client interacting with the server
-blah simulate
+blah mcp simulate
 
 # Validate a BLAH manifest file
 blah validate path/to/blah.json
 
 # Launch the Flow Editor
-blah flows
+blah mcp flows
 ```
 
 Or if using from the repo:
@@ -56,7 +56,7 @@ Or if using from the repo:
 npx tsx src/index.ts mcp
 
 # Run a simulation with options
-npx tsx src/index.ts simulate --model gpt-4o-mini --prompt "create a tool that writes poetry"
+npx tsx src/index.ts mcp simulate --model gpt-4o-mini --prompt "create a tool that writes poetry"
 ```
 
 ## Command Options
@@ -69,7 +69,7 @@ Options:
 
 - `-h, --host <url>` - The URL of the BLAH manifest (default: process.env.BLAH_HOST or https://ajax-blah.web.val.run)
 
-### Simulation (`blah simulate`)
+### Simulation (`blah mcp simulate`)
 
 Run a simulated interaction between an AI model and the MCP server to test tool selection and execution.
 
@@ -81,7 +81,7 @@ Options:
 - `-h, --host <url>` - The URL of the BLAH manifest (default: process.env.BLAH_HOST or https://ajax-blah.web.val.run)
 - `-c, --config <path>` - Path to a config file (default: ./blah-simulation.json)
 
-### Flow Editor (`blah flows`)
+### Flow Editor (`blah mcp flows`)
 
 Launch a visual editor for creating and editing agent workflows.
 

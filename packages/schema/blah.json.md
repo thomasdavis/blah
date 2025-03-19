@@ -8,7 +8,8 @@
 - do i bring in the name bridge?
 - need to build the mcp server rock solid, add tests so that it works on all the ide's on all platforms
   - just shoot me now
--
+- triggers
+- look up all defined variables before running a test etc
 
 ```js
 {
@@ -75,7 +76,7 @@
       },
       {
         "tool": "say_goodbye",
-      }
+      },
     ]
   }],
   "prompts": [], // @TODO - need to think more about this

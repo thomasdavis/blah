@@ -5,9 +5,8 @@
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts && shx mkdir -p dist/server && shx cp src/server/mcp-entry.js dist/server/ && shx cp -r src/templates dist/templates",
     "watch": "tsup src/index.ts --format cjs,esm --dts --watch",
-    "dev": "tsx src/index.ts --help",
+    "dev": "tsx src/index.ts",
     "mcp": "tsx src/index.ts mcp",
-    "simulate": "tsx src/index.ts simulate",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",

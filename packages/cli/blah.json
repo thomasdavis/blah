@@ -1,5 +1,5 @@
 {
-  "name": "sample-blah-manifest",
+  "name": "local-testing",
   "version": "1.0.0",
   "alias": "sample-tools",
   "description": "A sample blah manifest demonstrating various tool types and configurations",
@@ -8,7 +8,7 @@
   },
   "tools": [
     {
-      "name": "hello_world_registry",
+      "name": "hello_world_registrya",
       "description": "Example of a public compute registry tool",
       "alias": "hello"
     },
