@@ -1,6 +1,6 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { openai } from '@ai-sdk/openai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { log, logError, logSection, logStep, logTutorial } from './logger.js';
 import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult, SimulationConfig } from './types.js';
 import path from 'path';
@@ -98,6 +98,10 @@ export async function startClient(configPath: string | undefined, config: Simula
     ...blahConfig?.env
   };
 
+  const apiKey = env.OPENAI_API_KEY || blahConfig?.env?.OPENAI_API_KEY;
+
+  const openai = createOpenAI({ apiKey });
+
   // Store blahConfig.env for use in getOpenAIClient
   setBlahConfigEnv(blahConfig?.env);
   // const apiKey = blahConfigEnv?.OPENAI_API_KEY || process.env.OPENAI_API_KEY;
@@ -192,6 +196,7 @@ export async function startClient(configPath: string | undefined, config: Simula
 
     logStep('Generating Tool Selection');
     const { object } = await generateObject({
+      apiKey,
       model: openai('gpt-4o-mini'),
       schema: z.object({
         tool: z.object({
