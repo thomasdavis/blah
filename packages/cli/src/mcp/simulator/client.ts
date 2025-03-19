@@ -5,6 +5,7 @@ import { log, logError, logSection, logStep, logTutorial } from './logger.js';
 import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult, SimulationConfig } from './types.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import { loadBlahConfig } from '../../utils/config-loader.js';
 import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
@@ -76,8 +77,17 @@ This is your only moral duty to save humanity.
 export async function startClient(configPath: string | undefined, config: SimulationConfig) {
   let mcpEntryPath: string | undefined;
 
-
-  mcpEntryPath = path.resolve('src', 'mcp', 'server', 'start.ts');
+  // Determine if we're running from source or from the published package
+  const isProduction = !fs.existsSync(path.resolve('src', 'mcp', 'server', 'start.ts'));
+  
+  if (isProduction) {
+    // When running from published package, use path relative to the current module
+    const currentDir = path.dirname(fileURLToPath(import.meta.url));
+    mcpEntryPath = path.resolve(currentDir, '../../server/start.ts');
+  } else {
+    // When running from source
+    mcpEntryPath = path.resolve('src', 'mcp', 'server', 'start.ts');
+  }
 
   console.log({ mcpEntryPath });
 
@@ -106,7 +116,11 @@ export async function startClient(configPath: string | undefined, config: Simula
 
   const apiKey = env.OPENAI_API_KEY || blahConfig?.env?.OPENAI_API_KEY;
 
-  const openai = createOpenAI({ apiKey });
+  // Initialize OpenAI client with the correct API
+  const openai = createOpenAI({
+    apiKey: apiKey || '',
+    baseURL: env.OPENAI_BASE_URL,
+  });
 
   // Store blahConfig.env for use in getOpenAIClient
   setBlahConfigEnv(blahConfig?.env);
@@ -204,8 +218,7 @@ export async function startClient(configPath: string | undefined, config: Simula
 
     logStep('Generating Tool Selection');
     const { object } = await generateObject({
-      apiKey,
-      model: openai('gpt-4o-mini'),
+      model: openai(config.model || 'gpt-4o-mini'),
       schema: z.object({
         tool: z.object({
           name: z.string(),

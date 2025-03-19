@@ -16,16 +16,38 @@ for (let i = 0; i < args.length; i++) {
 }
 
 // Dynamically determine if we're running in development or production mode
-let startMcpServer;
+let startMcpServer: (configPath: string) => Promise<void>;
 
 try {
   // First try to import from the current directory (for development with tsx)
   const serverModule = await import('./index.js');
   startMcpServer = serverModule.startMcpServer;
   console.log('Running MCP server in development mode');
-} catch (error) {
-  console.error('Error importing from source, trying dist:', error.message);
-  process.exit(1);
+} catch (error: unknown) {
+  try {
+    // If that fails, try multiple possible paths for the production environment
+    let serverModule;
+    
+    try {
+      // First try the path relative to dist/mcp/server
+      serverModule = await import('../server/index.js');
+    } catch (importError) {
+      try {
+        // Then try a path that might work in the published package
+        serverModule = await import('../index.js');
+      } catch (nestedError) {
+        // Finally try a direct import which might work if the file has been moved
+        serverModule = { startMcpServer: (await import('../../index.js')).startMcpServer };
+      }
+    }
+    
+    startMcpServer = serverModule.startMcpServer;
+    console.log('Running MCP server in production mode');
+  } catch (secondError: unknown) {
+    console.error('Error importing server module:', error instanceof Error ? error.message : String(error));
+    console.error('Second error:', secondError instanceof Error ? secondError.message : String(secondError));
+    process.exit(1);
+  }
 }
 
 // Use config path if provided, otherwise fall back to BLAH_HOST environment variable
