@@ -1,9 +1,3 @@
-## GETTING LISA STARTED
-
-- i need to make sure there is an up to date cli that works
-- I need it to be configured to point at her valtown
-- write instructions on to install
-
 # @blah/cli - Barely Logical Agent Host
 
 A CLI tool for working with the Model Context Protocol (MCP) to create and test AI tools.
