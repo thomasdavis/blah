@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.43.0
+
+### Minor Changes
+
+- 5a92769: wip"
+
 ## 0.42.0
 
 ### Minor Changes
