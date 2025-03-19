@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.44.0
+
+### Minor Changes
+
+- 6dde61c: asda
+
 ## 0.43.0
 
 ### Minor Changes
