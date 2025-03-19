@@ -80,20 +80,24 @@ export async function startMcpServer(configPath: string) {
       data: `Tools fetch response status: ${response.status}`
     });
 
-    const valtownTools = await response.json();
+
+    const blahConfig = await response.json();
+
+    const { tools } = blahConfig;
+
     server.sendLoggingMessage({
       level: "info",
-      data: `Retrieved tools: ${JSON.stringify(valtownTools)}`
+      data: `Retrieved tools: ${JSON.stringify(tools)}`
     });
     
     server.sendLoggingMessage({
       level: "info",
-      data: `ListTools response received: ${JSON.stringify(valtownTools)}`
+      data: `ListTools response received: ${JSON.stringify(tools)}`
     });
 
     // Return the tools from ValTown API
     return {
-      tools: valtownTools || []
+      tools: tools || []
     };
   });
 
