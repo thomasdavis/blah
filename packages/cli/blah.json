@@ -1,39 +1,67 @@
 {
-  "name": "local-testing",
+  "name": "valtown-testing",
   "version": "1.0.0",
   "alias": "sample-tools",
-  "description": "A sample blah manifest demonstrating various tool types and configurations",
+  "description": "A sample blah manifest demonstrating various tool types and configurations.",
   "env": {
     "OPENAI_API_KEY": "your-openai-api-key-here"
   },
   "tools": [
     {
-      "name": "hello_world_registrya",
-      "description": "Example of a public compute registry tool",
-      "alias": "hello"
-    },
-    {
-      "name": "@myorg/local_tool",
-      "description": "Example of a local compute tool",
-      "command": "node ./scripts/local-tool.js"
-    },
-    {
-      "name": "mcp_example",
-      "description": "Example of an MCP tool using npx",
-      "command": "npx @myorg/mcp-tool"
-    }
-  ],
-  "flows": [
-    {
-      "name": "sample_flow",
-      "steps": [
-        {
-          "tool": "hello_world_registry"
-        },
-        {
-          "tool": "@myorg/local_tool"
+      "name": "flow__say_hello_and_goodbye",
+      "description": "This flow will pass your inputs and outputs to the tools hello_name and goodbye_name",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name to say hello to"
+          }
         }
-      ]
+      }
+    },
+    {
+      "name": "hello_name",
+      "description": "Says hello to the name",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name to say hello to"
+          }
+        }
+      }
+    },
+    {
+      "name": "goodbye_name",
+      "description": "Says goodbye to the name",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name to say goodbye to"
+          }
+        }
+      }
+    },
+    {
+      "name": "create_a_tool",
+      "description": "When the user wants to create a tool, you understand there wants and needs. And write the best code you can that is executed in the context of deno and valtown",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "tool_implementation_description": {
+            "type": "string",
+            "description": "Describes the code much like a product requirement document but kept brief. Also offers some short pseudo code."
+          },
+          "tool_name": {
+            "type": "string",
+            "description": "The name of the tool/function. Descriptive and snake case."
+          }
+        }
+      }
     }
   ]
 }

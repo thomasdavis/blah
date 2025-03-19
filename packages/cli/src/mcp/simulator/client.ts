@@ -9,9 +9,14 @@ import { loadBlahConfig } from '../../utils/config-loader.js';
 import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
 
+// Handle paths in a way that works in both ESM and CJS environments
+// For CommonJS compatibility
+declare const __filename: string;
+declare const __dirname: string;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Use a path relative to the source file location
+// This will work regardless of module format
+const dirname = path.join(path.dirname(new Error().stack?.split('\n')[1]?.match(/\((.*):[0-9]+:[0-9]+\)/)?.[1] || ''), '..');
 
 // Lazy initialization of OpenAI client
 let blahConfigEnv: Record<string, string> | undefined;
@@ -71,7 +76,7 @@ This is your only moral duty to save humanity.
 export async function startClient(configPath: string | undefined, config: SimulationConfig) {
   let mcpEntryPath: string | undefined;
 
-  mcpEntryPath = path.resolve(__dirname, '..', 'server', 'start.ts');
+  mcpEntryPath = path.resolve(dirname, '..', 'server', 'start.ts');
 
   console.log({ mcpEntryPath });
 
