@@ -21,24 +21,46 @@ program
   .version('0.34.5')
   .usage('<command> [options]');
 
+// Create a variable to store the global config path
+let globalConfigPath: string | null = null;
+
 // Create the mcp command with subcommands
 const mcpCommand = new Command('mcp');
 mcpCommand
   .description('Model Context Protocol (MCP) commands')
-  .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)');
+  .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
+  .hook('preAction', (thisCommand, actionCommand) => {
+    // Store the config option from the parent command
+    if (thisCommand.opts().config) {
+      globalConfigPath = thisCommand.opts().config;
+    }
+  });
+
+// Helper function to get config path from options or global variable
+const getConfigPath = (options: any) => {
+  // If options has config, use it directly
+  if (options.config) {
+    return options.config;
+  }
+  
+  // Otherwise use the global config path
+  return globalConfigPath;
+};
 
 // Add start subcommand to mcp
 const startCommand = new Command('start');
 startCommand
   .description('Start the MCP server')
-  .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
   .action(async (options) => {
     try {
       // Load config if specified or use default host
       let blahConfig;
+      const configPath = getConfigPath(options);
       try {
-        blahConfig = await loadBlahConfig(options.config);
-        console.log(`Loaded BLAH config: ${blahConfig.name} v${blahConfig.version}`);
+        if (configPath) {
+          blahConfig = await loadBlahConfig(configPath);
+          console.log(`Loaded BLAH config: ${blahConfig.name} v${blahConfig.version}`);
+        }
       } catch (configError) {
         console.warn(`Warning: ${configError instanceof Error ? configError.message : String(configError)}`);
         console.log('Falling back to host parameter...');
@@ -58,7 +80,7 @@ startCommand
   });
 
 // Add simulate subcommand to mcp
-const simulateCommand = new Command('simulate');
+const simulateCommand = new Command('simulate')
 simulateCommand
   .description('Run a simulation of the MCP client with the server')
   .option('-m, --model <model>', 'OpenAI model to use (default: gpt-4o-mini)')
@@ -66,12 +88,18 @@ simulateCommand
   .option('-p, --prompt <prompt>', 'User prompt to send')
   .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
   .action(async (options) => {
+    const configPath = getConfigPath(options);
+    console.log("SIMULATION OPTIONS:", {
+      ...options,
+      configPath
+    });
+    
     try {
       await startSimulation({
         model: options.model,
         systemPrompt: options.systemPrompt,
         userPrompt: options.prompt,
-        configPath: options.config
+        configPath: configPath
       });
     } catch (error) {
       console.error('Error running simulation:', error instanceof Error ? error.message : String(error));
@@ -91,13 +119,14 @@ program
   .action(async (file, options) => {
     try {
       let manifest;
+      const configPath = getConfigPath(options);
       
       if (file) {
         // Validate specific file if provided
         manifest = validateBlahManifestFile(file);
-      } else if (options.config) {
+      } else if (configPath) {
         // Load from config option
-        manifest = await loadBlahConfig(options.config);
+        manifest = await loadBlahConfig(configPath);
       } else {
         // Try to load from default location
         manifest = await loadBlahConfig('./blah.json');
@@ -135,9 +164,10 @@ program
   .action(async (options) => {
     try {
       // Load blah.json config if specified
-      if (options.config) {
+      const configPath = getConfigPath(options);
+      if (configPath) {
         try {
-          const blahConfig = await loadBlahConfig(options.config);
+          const blahConfig = await loadBlahConfig(configPath);
           console.log(`Loaded BLAH config: ${blahConfig.name} v${blahConfig.version}`);
         } catch (configError) {
           console.warn(`Warning: ${configError instanceof Error ? configError.message : String(configError)}`);
