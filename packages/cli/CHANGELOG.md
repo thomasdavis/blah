@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.42.0
+
+### Minor Changes
+
+- b714868: lisa is awesome
+
 ## 0.41.1
 
 ### Patch Changes
