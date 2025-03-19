@@ -3,6 +3,18 @@
 // It needs to work both when run directly by tsx (development)
 // and when run from the dist directory (production)
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+let configPath = null;
+
+// Look for --config parameter
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--config' && i + 1 < args.length) {
+    configPath = args[i + 1];
+    break;
+  }
+}
+
 // Dynamically determine if we're running in development or production mode
 let startMcpServer;
 
@@ -16,10 +28,11 @@ try {
   process.exit(1);
 }
 
-const blahHost = process.env.BLAH_HOST || "https://ajax-blah.web.val.run";
-console.log(`Starting MCP server with BLAH_HOST: ${blahHost}`);
+// Use config path if provided, otherwise fall back to BLAH_HOST environment variable
+const blahConfig = configPath || process.env.BLAH_CONFIG || "https://ajax-blah.web.val.run";
+console.log(`Starting MCP server with config path: ${blahConfig}`);
 
-startMcpServer(blahHost)
+startMcpServer(blahConfig)
   .catch((error) => {
     console.error(`Fatal error running server: ${error}`);
     process.exit(1);
