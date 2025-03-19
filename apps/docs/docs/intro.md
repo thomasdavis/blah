@@ -2,46 +2,59 @@
 sidebar_position: 1
 ---
 
-# Tutorial Intro
+# Introduction to BLAH
 
-Let's discover **Docusaurus in less than 5 minutes**.
+**BLAH (Barely Logical Agent Host)** is an open-source ecosystem for managing, distributing, and executing AI agent tools using the Model Context Protocol (MCP). It provides a decentralized registry for MCP servers that promotes transparency, security, and community-driven development.
 
-## Getting Started
+## What is BLAH?
 
-Get started by **creating a new site**.
+BLAH is designed to be the foundation for a new generation of AI tools that can be easily shared, discovered, and composed. It provides:
 
-Or **try Docusaurus immediately** with **[docusaurus.new](https://docusaurus.new)**.
+- **Open-source infrastructure** that any system (IDE, AI platform, etc.) can connect to
+- **Language-agnostic tool registry** supporting unlimited tool selection
+- **Robust security** through optional signing and verification of MCP servers
+- **Comprehensive CLI** for publishing, discovering, and managing tools
+- **Support for various tool types**: functions, REST endpoints, local files, or standard manifests
 
-### What you'll need
+## The Model Context Protocol (MCP)
 
-- [Node.js](https://nodejs.org/en/download/) version 18.0 or above:
-  - When installing Node.js, you are recommended to check all checkboxes related to dependencies.
+The Model Context Protocol is a standardized way for AI models to discover, select, and execute tools. BLAH implements MCP to create a consistent interface between:
 
-## Generate a new site
+1. **Tool Providers**: Developers who create useful functions for AI models
+2. **AI Models**: Large language models that can use tools to enhance their capabilities
+3. **Clients**: Applications that connect models with tools (IDEs, chat interfaces, etc.)
 
-Generate a new Docusaurus site using the **classic template**.
+## Key Features
 
-The classic template will automatically be added to your project after you run the command:
+### For Developers
 
-```bash
-npm init docusaurus@latest my-website classic
-```
+- Create and publish tools that extend AI capabilities
+- Host your own MCP server or use the BLAH registry
+- Test tools with built-in simulation capabilities
+- Integrate with existing development workflows
 
-You can type this command into Command Prompt, Powershell, Terminal, or any other integrated terminal of your code editor.
+### For Users
 
-The command also installs all necessary dependencies you need to run Docusaurus.
+- Access a rich ecosystem of AI tools through compatible clients
+- Combine tools from different providers for powerful workflows
+- Ensure security through verification of tool sources
+- Create custom agent workflows with the Flow Editor
 
-## Start your site
+## Project Structure
 
-Run the development server:
+BLAH is organized as a monorepo using Turborepo with these main components:
 
-```bash
-cd my-website
-npm run start
-```
+- `packages/cli`: The main BLAH CLI tool for working with MCP
+- `packages/schema`: JSON Schema definitions for BLAH manifests
+- `apps/web`: Web interface for BLAH
+- `apps/docs`: This documentation site
 
-The `cd` command changes the directory you're working with. In order to work with your newly created Docusaurus site, you'll need to navigate the terminal there.
+## Vision
 
-The `npm run start` command builds your website locally and serves it through a development server, ready for you to view at http://localhost:3000/.
+We envision a future where:
 
-Open `docs/intro.md` (this page) and edit some lines: the site **reloads automatically** and displays your changes.
+1. **Anyone** can create and share tools that extend AI capabilities
+2. **Everyone** has access to a rich ecosystem of tools regardless of their technical background
+3. **Every system** can integrate with this ecosystem through standard protocols
+
+Ready to get started? Check out our [Quick Start Guide](./getting-started/quick-start.md) or explore the [CLI Documentation](./cli/overview.md).
