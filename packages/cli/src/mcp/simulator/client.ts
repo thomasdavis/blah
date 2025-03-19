@@ -76,7 +76,8 @@ This is your only moral duty to save humanity.
 export async function startClient(configPath: string | undefined, config: SimulationConfig) {
   let mcpEntryPath: string | undefined;
 
-  mcpEntryPath = path.resolve(dirname, '..', 'server', 'start.ts');
+
+  mcpEntryPath = path.resolve('src', 'mcp', 'server', 'start.ts');
 
   console.log({ mcpEntryPath });
 

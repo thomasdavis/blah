@@ -66,13 +66,7 @@ startCommand
         console.log('Falling back to host parameter...');
       }
 
-      // Use host from options, or from loaded config, or default
-      const host = options.host || 
-                  (blahConfig?.host) || 
-                  process.env.BLAH_HOST || 
-                  "https://ajax-blah.web.val.run";
-      
-      await startMcpServer(host);
+      await startMcpServer(configPath);
     } catch (error) {
       console.error('Error starting MCP server:', error instanceof Error ? error.message : String(error));
       process.exit(1);

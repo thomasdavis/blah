@@ -8,7 +8,14 @@ import {
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 
-export async function startMcpServer(blahHost: string) {
+export async function startMcpServer(configPath: string) {
+
+  console.log("==================================");
+  console.log("==================================");
+  console.log("==================================");
+  console.log("==================================");
+  console.log("==================================");
+  console.log({configPath});
   // Create server instance
   const server = new Server(
     {
@@ -58,10 +65,10 @@ export async function startMcpServer(blahHost: string) {
 
     server.sendLoggingMessage({
       level: "info",
-      data: `Fetching tools from ${blahHost}...`
+      data: `Fetching tools from ${configPath}...`
     });
     
-    const response = await fetch(blahHost, {
+    const response = await fetch(configPath, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -105,7 +112,7 @@ export async function startMcpServer(blahHost: string) {
 
     try {
       // By default we handle that the manifest will be coming from a hosted Val
-      const hostUsername = new URL(blahHost).hostname.split("-")[0];
+      const hostUsername = new URL(configPath).hostname.split("-")[0];
       server.sendLoggingMessage({
         level: "info",
         data: `Resolved host username: ${hostUsername}`
@@ -200,11 +207,6 @@ export async function startMcpServer(blahHost: string) {
   server.sendLoggingMessage({
     level: "info",
     data: "BLAH MCP Server running on stdio"
-  });
-
-  server.sendLoggingMessage({
-    level: "info",
-    data: `Server environment: BLAH_HOST=${blahHost}`
   });
 
   server.sendLoggingMessage({
