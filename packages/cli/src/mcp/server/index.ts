@@ -7,6 +7,9 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import path from 'path';
+import fs from 'fs';
+
 
 export async function startMcpServer(configPath: string) {
 
@@ -58,30 +61,60 @@ export async function startMcpServer(configPath: string) {
 
   // Handle tools requests
   server.setRequestHandler(ListToolsRequestSchema, async () => {
+    console.log("------------asdasdasd");
     server.sendLoggingMessage({
       level: "info",
       data: "Received ListTools request"
     });
+
+    console.log("asdA");
 
     server.sendLoggingMessage({
       level: "info",
       data: `Fetching tools from ${configPath}...`
     });
     
-    const response = await fetch(configPath, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
+    let blahConfig: Record<string, unknown> | undefined;
+
+    // Check if configPath is a URL or a local file path
+    if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
+      // Handle as URL
+      const response = await fetch(configPath, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      server.sendLoggingMessage({
+        level: "info",
+        data: `Tools fetch response status: ${response.status}`
+      });
+      
+      blahConfig = await response.json();
+    } else {
+      // Handle as local file path
+      
+      // Resolve path if it's relative
+      const resolvedPath = path.resolve(configPath);
+      
+      server.sendLoggingMessage({
+        level: "info",
+        data: `Reading local config file from: ${resolvedPath}`
+      });
+      
+      try {
+        const fileContent = fs.readFileSync(resolvedPath, 'utf8');
+        blahConfig = JSON.parse(fileContent);
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        server.sendLoggingMessage({
+          level: "error",
+          data: `Error reading config file: ${errorMessage}`
+        });
+        throw new Error(`Failed to read config file: ${errorMessage}`);
       }
-    });
-    
-    server.sendLoggingMessage({
-      level: "info",
-      data: `Tools fetch response status: ${response.status}`
-    });
-
-
-    const blahConfig = await response.json();
+    }
 
     const { tools } = blahConfig;
 

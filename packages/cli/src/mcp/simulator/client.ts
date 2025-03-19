@@ -113,11 +113,15 @@ export async function startClient(configPath: string | undefined, config: Simula
   // const apiKey = blahConfigEnv?.OPENAI_API_KEY || process.env.OPENAI_API_KEY;
   log("Using env vars:", blahConfig?.env);
 
-  const transport = new StdioClientTransport({
+  const transportConfig = {
     command: "tsx",
     args: mcpEntryPath ? [mcpEntryPath, "--config", configPath] : [],
     env
-  });
+  }
+
+  console.log({transportConfig});
+
+  const transport = new StdioClientTransport(transportConfig);
 
   const client = new Client(
     {
@@ -155,14 +159,15 @@ export async function startClient(configPath: string | undefined, config: Simula
       Currently fetching from: ${configPath}
     `);
 
-    logStep('Fetching Tools');
+    logStep('Fetching Tools aaaa');
+    logStep('Fetching Tools bbbb');
+
+    client.close();
 
     const tools = await client.listTools();
     const toolList = tools.tools as McpTool[];
 
     log('Available tools', toolList);
-
-
 
     const systemPrompt = config.systemPrompt;
 
