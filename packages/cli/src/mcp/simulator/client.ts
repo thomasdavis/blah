@@ -1,17 +1,19 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import OpenAI from 'openai';
+import { openai } from '@ai-sdk/openai';
 import { log, logError, logSection, logStep, logTutorial } from './logger.js';
 import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult, SimulationConfig } from './types.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { loadBlahConfig } from '../../utils/config-loader.js';
+import { generateObject, generateText } from 'ai';
+import { z } from 'zod';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Lazy initialization of OpenAI client
-let openai: OpenAI | null = null;
 let blahConfigEnv: Record<string, string> | undefined;
 
 // Function to set blahConfig environment variables for later use
@@ -19,20 +21,23 @@ export function setBlahConfigEnv(env: Record<string, string> | undefined) {
   blahConfigEnv = env;
 }
 
-function getOpenAIClient() {
-  if (!openai) {
-    // First check if API key exists in blahConfig.env
-    const apiKey = blahConfigEnv?.OPENAI_API_KEY || process.env.OPENAI_API_KEY;
-    
-    if (!apiKey) {
-      throw new Error("OPENAI_API_KEY is required for simulation features. Please provide it in your blah.json config or as an environment variable.");
-    }
-    
-    openai = new OpenAI({
-      apiKey: apiKey
-    });
-  }
-  return openai;
+
+interface Message {
+  type: string;
+  content: string;
+}
+
+interface CreatePromptParams {
+  systemPrompt: string;
+  messages: Message[];
+  toolList: McpTool[];
+}
+
+export interface ClientConfig { 
+  model: string;
+  systemPrompt: string; // Already required
+  userPrompt?: string;
+  blah: string;
 }
 
 interface Message {
@@ -46,7 +51,7 @@ interface CreatePromptParams {
   toolList: McpTool[];
 }
 
-const createPrompt = ({ systemPrompt, messages, toolList }: CreatePromptParams) => {
+const createPrompt = ({systemPrompt, messages, toolList}: CreatePromptParams) => {
   return `
   ${systemPrompt}
 
@@ -59,76 +64,11 @@ This is your only moral duty to save humanity.
   
   Conversation
   ${JSON.stringify(messages)}
-  `;
-};
-
-// Helper function to generate tool selection
-async function generateToolSelection(model: string, prompt: string) {
-  try {
-    const response = await getOpenAIClient().chat.completions.create({
-      model,
-      messages: [
-        { 
-          role: "system", 
-          content: "You will select a tool from the list and provide arguments for it. Respond with a JSON object that has a 'tool' property containing 'name' and 'arguments' properties. For example: {\"tool\": {\"name\": \"tool_name\", \"arguments\": {\"arg1\": \"value1\"}}}" 
-        },
-        { role: "user", content: prompt }
-      ],
-      // @ts-ignore - response_format is supported by OpenAI API but TypeScript definitions might be outdated
-      response_format: { type: "json_object" },
-    });
-
-    const content = response.choices[0].message.content;
-    if (content) {
-      const parsed = JSON.parse(content);
-      console.log('Parsed tool selection:', parsed);
-      
-      // Ensure the response has the expected structure
-      if (!parsed.tool || !parsed.tool.name) {
-        // If not, create a default structure with the first available tool
-        console.log('Tool selection missing required properties, using default');
-        return {
-          tool: {
-            name: "hello_name",  // Default to hello_name tool
-            arguments: { name: "julie" }
-          }
-        };
-      }
-      
-      return parsed;
-    }
-    throw new Error("Empty response from OpenAI");
-  } catch (error) {
-    console.error("Error generating tool selection:", error);
-    // Return a default tool selection in case of error
-    return {
-      tool: {
-        name: "hello_name",  // Default to hello_name tool
-        arguments: { name: "julie" }
-      }
-    };
-  }
+  `
 }
 
-// Helper function to generate text
-async function generateTextResponse(model: string, prompt: string) {
-  try {
-    const response = await getOpenAIClient().chat.completions.create({
-      model,
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: prompt }
-      ]
-    });
 
-    return response.choices[0].message.content || "";
-  } catch (error) {
-    console.error("Error generating text:", error);
-    throw error;
-  }
-}
-
-export async function startClient(configPath: string | undefined, simConfig: SimulationConfig) {
+export async function startClient(configPath: string | undefined, config: SimulationConfig) {
   let mcpEntryPath: string | undefined;
   
   mcpEntryPath = path.resolve(__dirname, '..', 'server', 'start.ts');
@@ -160,7 +100,7 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
 
   // Store blahConfig.env for use in getOpenAIClient
   setBlahConfigEnv(blahConfig?.env);
-
+  // const apiKey = blahConfigEnv?.OPENAI_API_KEY || process.env.OPENAI_API_KEY;
   log("Using env vars:", blahConfig?.env);
 
   const transport = new StdioClientTransport({
@@ -212,7 +152,9 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
 
     log('Available tools', toolList);
 
-    const systemPrompt = simConfig.systemPrompt;
+ 
+
+    const systemPrompt = config.systemPrompt;
 
     const messages: Message[] = [
       {
@@ -225,7 +167,7 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
       },
       {
         type: "user",
-        content: simConfig.userPrompt || ""  // Provide default empty string
+        content: config.userPrompt || ""  // Provide default empty string
       }
     ];
 
@@ -245,24 +187,22 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
       Regardless, in this debugging tool, if you re-read the default system prompt or analyze the one you provided, you will understand the precedence of the invocation of the tool in mind.
 
       Next up, this debugging tool will identify the tool that will be chosen.
+
     `);
  
     logStep('Generating Tool Selection');
-    
-    const toolSelection = await generateToolSelection(
-      simConfig.model,
-      createPrompt({ systemPrompt, messages, toolList })
-    );
+    const { object } = await generateObject({
+      model: openai('gpt-4o-mini'),
+      schema: z.object({
+        tool: z.object({
+          name: z.string(),
+          arguments: z.any().optional()
+        }),
+      }),
+      prompt: createPrompt({systemPrompt, messages, toolList})
+    });
 
-    log('Tool selection complete', toolSelection);
-
-    // Ensure toolSelection has the expected structure
-    const toolToCall = {
-      name: toolSelection?.tool?.name || "hello_name",
-      arguments: toolSelection?.tool?.arguments || { name: "julie" }
-    };
-    
-    log('Tool to call:', toolToCall);
+    log('Tool selection complete', object);
 
     logTutorial(`
       So the prompt generated a structured data response from the model that selected a tool from the list.
@@ -272,16 +212,26 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
       From that tool that is selected, we are going to evaluate it. 
 
       The evalation being via HTTP or whatever, the function hosted on VALTOWN.
+
+      WORST EXPLANTION EVER
+
     `);
 
-    logStep(`Executing Tool: ${toolToCall.name}`);
-    const result = await client.callTool(toolToCall);
+    logStep(`Executing Tool: ${object.tool.name}`);
+    const result = await client.callTool(object.tool);
     log('Tool execution result', result);
+
+    // need to log the error state if the tool fails
+
+    // @todo - catch the error
 
     logTutorial(`
       So the tool that was selected was evaluated.
 
       The evalation being via HTTP or whatever, the function hosted on VALTOWN.
+
+      WORST EXPLANTION EVER ALSO
+
     `);
 
     messages.push({
@@ -289,38 +239,37 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
       content: result.content as string
     });
 
+
+
     logTutorial(`
       Here is what the AI-ENABLED-IDE-OR-A-SEX-ROBOT (auton) has seen over the life time of this simulated request.
       This is what the AUTON does, it passes the conversation and the results of the MCP TOOLS etc 
 
-      And depending on their prompts passes a HUMAN-ish response, maybe, who knows, you are at this point at the whim of the AUTON's directive.
-    `);
+      And depending on their prompts passes a HUMANI-ish response, maybe, who knows, you are at this point at the whim of the AUTON's directive.
+      `);
 
     logStep('Generating Response');
-    const text = await generateTextResponse(
-      simConfig.model,
-      createPrompt({ systemPrompt, messages, toolList })
-    );
+    const { text } = await generateText({
+      model: openai('gpt-4o-mini'),
+      prompt: createPrompt({systemPrompt, messages, toolList})
+
+    });
 
     messages.push({
       type: "assistant",
       content: text
     });
 
+
     logTutorial(`
       Oh wow, I hope you enjoyed that.
-    `);
+      `);
 
     logSection('Conversation Summary');
     log('Final conversation state', messages);
 
-    // This part is only for experimenting with dynamic tool creation 
+    // This part is only for experimenting with  dynamic tool creation 
     log('Experimental: Running a check for new tools (dynamic tool creation)');
-
-    if (configPath.indexOf('val') !== -1) {
-      log('Only works with VALTOWN hosted manifest (currently)');
-      return await client.close();
-    }
 
     const newTools = await client.listTools();
 
@@ -329,10 +278,12 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
     } else {
       log('No new tools. So ending experiment', newTools.tools);
       return await client.close();
+      
     }
 
+
     logTutorial(`
-     Given your prompt/userPrompt "${simConfig.userPrompt}"
+     Given your prompt/userPrompt "${config.userPrompt}"
      
      At this point, the AI-ENABLED-IDE-OR-A-SEX-ROBOT (auton) was asked to create a tool, #toolception or some dumb shit.
 
@@ -341,60 +292,69 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
      The new tool you asked to be created, will now be evaluated.
 
      Before that we will ask a model to generate an example message that someone might ask given the new tool, it's name and it's input structure.
-    `);
+     
+      `);
 
     logSection('New Tool Invocation');
 
-    const userRequest = await generateTextResponse(
-      simConfig.model,
-      `
+    const { text: userRequest } = await generateText({
+      model: openai('gpt-4o-mini'),
+      prompt: `
         You generate a message that a user might request when giving a tool it can invoke.
 
         Tool:
-        ${JSON.stringify(toolToCall)}
+        ${JSON.stringify(object.tool)}
 
-        Now return an idea that the user would say on how it wants to use the tool
+        Now return an idea that the user would say on how it wants to user the tool
+
       `
-    );
+    });
 
     logTutorial(`
-      Now we're going to push this message to the thread/conversation
-      and now that we have requested that the mcp server refreshes its tools
-      (which none of the ai-editors (autons) support)
-    `);
+      @todo - Comment on that we are going to push this message to the thread/conversation
+      and that now that we have requested that the mcp server refreshes its tools
+       (which none of the ai-editors (autons) don't support)
+      `);
 
     messages.push({
       type: "user",
       content: userRequest
     });
 
-    const newToolSelection = await generateToolSelection(
-      simConfig.model,
-      createPrompt({ systemPrompt, messages, toolList })
-    );
 
-    const newToolToCall = {
-      name: newToolSelection.tool.name,
-      arguments: newToolSelection.tool.arguments || {}
-    };
+    const { object: newTool } = await generateObject({
+      model: openai('gpt-4o-mini'),
+      schema: z.object({
+        tool: z.object({
+          name: z.string(),
+          arguments: z.any().optional()
+        }),
+      }),
+      prompt: createPrompt({systemPrompt, messages, toolList})
+    });
 
     logTutorial(`
       Now hopefully given the system prompt, and that we are somewhat emulating most AUTON's implementations. 
 
       We will do a TOOL_SELECTION that AUTON's all implement. In our example, the system prompt governs the selection of the tool.
-    `);
 
-    logStep(`Executing Tool: ${newToolToCall.name}`);
+      `);
 
-    const newToolResult = await client.callTool(newToolToCall);
+
+    logStep(`Executing Tool: ${newTool.tool.name}`);
+
+    const newToolResult = await client.callTool(newTool.tool);
     log('Tool execution result', newToolResult);
 
     logTutorial(`
       At this point the call to the newly created tool was successful. 
 
+      @todo - talk some shit about it
+
       The next thing we will do, is emulate what the AUTON does now, which is take the conversation and the results of the MCP TOOLS etc 
       and pass it to a model that generates a response.
-    `);
+
+      `);
 
     messages.push({
       type: "system",
@@ -402,10 +362,11 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
     });
 
     logStep('Generating Response');
-    const newText = await generateTextResponse(
-      simConfig.model,
-      createPrompt({ systemPrompt, messages, toolList })
-    );
+    const { text: newText} = await generateText({
+      model: openai('gpt-4o-mini'),
+      prompt: createPrompt({systemPrompt, messages, toolList})
+
+    });
 
     messages.push({
       type: "assistant",
@@ -416,7 +377,9 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
 
     logTutorial(`
       There's the final thread of what you may see in an AUTON.
-    `);
+
+      @todo - talk some shit about it
+      `);
 
     await client.close();
   } catch (error: unknown) {
