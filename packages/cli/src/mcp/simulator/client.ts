@@ -102,8 +102,9 @@ export async function startClient(configPath: string | undefined, config: Simula
     console.log('Falling back to host parameter...');
   }
 
+  // Only use the default URL if no config path was provided
   if (!configPath) {
-    // @todo 
+    console.log('No config path provided, using default URL');
     configPath = "https://ajax-blah.web.val.run";
   }
 
@@ -114,11 +115,19 @@ export async function startClient(configPath: string | undefined, config: Simula
     ...blahConfig?.env
   };
 
-  const apiKey = env.OPENAI_API_KEY || blahConfig?.env?.OPENAI_API_KEY;
+  // Ensure we have the API key from the blah.json file
+  const apiKey = blahConfig?.env?.OPENAI_API_KEY || env.OPENAI_API_KEY;
+  
+  if (!apiKey || apiKey === 'your-openai-api-key-here') {
+    console.error('ERROR: No valid OpenAI API key found. Please check your blah.json file or environment variables.');
+    process.exit(1);
+  }
+
+  console.log('Using API key:', apiKey.substring(0, 7) + '...' + apiKey.substring(apiKey.length - 4));
 
   // Initialize OpenAI client with the correct API
   const openai = createOpenAI({
-    apiKey: apiKey || '',
+    apiKey: apiKey,
     baseURL: env.OPENAI_BASE_URL,
   });
 
@@ -218,6 +227,7 @@ export async function startClient(configPath: string | undefined, config: Simula
 
     logStep('Generating Tool Selection');
     const { object } = await generateObject({
+      // Use the OpenAI client with the model from config or default
       model: openai(config.model || 'gpt-4o-mini'),
       schema: z.object({
         tool: z.object({

@@ -33,6 +33,12 @@ mcpCommand
     // Store the config option from the parent command
     if (thisCommand.opts().config) {
       globalConfigPath = thisCommand.opts().config;
+      
+      // Also set it on the actionCommand if it supports config option
+      if (actionCommand.opts && typeof actionCommand.opts === 'function' && 
+          actionCommand.setOptionValue && typeof actionCommand.setOptionValue === 'function') {
+        actionCommand.setOptionValue('config', thisCommand.opts().config);
+      }
     }
   });
 
@@ -46,6 +52,29 @@ const getConfigPath = (options: any) => {
   // Otherwise use the global config path
   return globalConfigPath;
 };
+
+// Process any -- arguments that might be in the args
+const processArgs = () => {
+  const args = process.argv.slice(2);
+  const processedArgs: string[] = [];
+  
+  for (let i = 0; i < args.length; i++) {
+    // Skip standalone -- arguments as they're just separators
+    if (args[i] === '--' && (i === 0 || i === args.length - 1)) {
+      continue;
+    }
+    // Don't add -- if it's followed by a command or option
+    if (args[i] === '--' && args[i+1] && (args[i+1].startsWith('-') || !args[i+1].includes(' '))) {
+      continue;
+    }
+    processedArgs.push(args[i]);
+  }
+  
+  return processedArgs;
+};
+
+// Replace process.argv with processed args
+process.argv = [...process.argv.slice(0, 2), ...processArgs()];
 
 // Add start subcommand to mcp
 const startCommand = new Command('start');
