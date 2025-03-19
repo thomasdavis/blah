@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.41.1
+
+### Patch Changes
+
+- b58b8d4: h
+
 ## 0.41.0
 
 ### Minor Changes
