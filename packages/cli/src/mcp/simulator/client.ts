@@ -160,7 +160,6 @@ export async function startClient(configPath: string | undefined, config: Simula
     `);
 
     logStep('Fetching Tools aaaa');
-    logStep('Fetching Tools bbbb');
 
     const tools = await client.listTools();
     const toolList = tools.tools as McpTool[];
@@ -275,10 +274,6 @@ export async function startClient(configPath: string | undefined, config: Simula
     });
 
 
-    logTutorial(`
-      Oh wow, I hope you enjoyed that.
-      `);
-
     logSection('Conversation Summary');
     log('Final conversation state', messages);
 
@@ -291,6 +286,8 @@ export async function startClient(configPath: string | undefined, config: Simula
       log('New tools detected', newTools.tools);
     } else {
       log('No new tools. So ending experiment', newTools.tools);
+      await client.close();
+      return;
     }
     
     logTutorial(`

@@ -148,14 +148,33 @@ export async function startMcpServer(configPath: string) {
     });
 
     try {
-      // By default we handle that the manifest will be coming from a hosted Val
-      const hostUsername = new URL(configPath).hostname.split("-")[0];
-      server.sendLoggingMessage({
-        level: "info",
-        data: `Resolved host username: ${hostUsername}`
-      });
+      let toolUrl;
       
-      const toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
+      // Check if configPath is a URL or a local file path
+      if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
+        // For remote configurations, construct the ValTown URL
+        const hostUsername = new URL(configPath).hostname.split("-")[0];
+        server.sendLoggingMessage({
+          level: "info",
+          data: `Resolved host username: ${hostUsername}`
+        });
+        
+        toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
+      } else {
+        // For local configurations, use a mock response
+        server.sendLoggingMessage({
+          level: "info",
+          data: `Using local tool simulation for: ${request.params.name}`
+        });
+        
+        // Return a mock response directly without making a network request
+        return {
+          content: [{ 
+            type: "text", 
+            text: `Tool result: ${JSON.stringify({message: `Hello from local tool: ${request.params.name}`})}`
+          }],
+        };
+      }
       server.sendLoggingMessage({
         level: "info",
         data: `Constructed tool URL: ${toolUrl}`
