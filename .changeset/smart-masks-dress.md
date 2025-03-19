@@ -1,0 +1,5 @@
+---
+"@blahai/cli": patch
+---
+
+h
