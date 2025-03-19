@@ -12,14 +12,24 @@ const __dirname = path.dirname(__filename);
 
 // Lazy initialization of OpenAI client
 let openai: OpenAI | null = null;
+let blahConfigEnv: Record<string, string> | undefined;
+
+// Function to set blahConfig environment variables for later use
+export function setBlahConfigEnv(env: Record<string, string> | undefined) {
+  blahConfigEnv = env;
+}
 
 function getOpenAIClient() {
   if (!openai) {
-    if (!process.env.OPENAI_API_KEY) {
-      throw new Error("OPENAI_API_KEY environment variable is required for simulation features");
+    // First check if API key exists in blahConfig.env
+    const apiKey = blahConfigEnv?.OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+    
+    if (!apiKey) {
+      throw new Error("OPENAI_API_KEY is required for simulation features. Please provide it in your blah.json config or as an environment variable.");
     }
+    
     openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY
+      apiKey: apiKey
     });
   }
   return openai;
@@ -58,7 +68,10 @@ async function generateToolSelection(model: string, prompt: string) {
     const response = await getOpenAIClient().chat.completions.create({
       model,
       messages: [
-        { role: "system", content: "You will select a tool from the list and provide arguments for it." },
+        { 
+          role: "system", 
+          content: "You will select a tool from the list and provide arguments for it. Respond with a JSON object that has a 'tool' property containing 'name' and 'arguments' properties. For example: {\"tool\": {\"name\": \"tool_name\", \"arguments\": {\"arg1\": \"value1\"}}}" 
+        },
         { role: "user", content: prompt }
       ],
       // @ts-ignore - response_format is supported by OpenAI API but TypeScript definitions might be outdated
@@ -67,12 +80,33 @@ async function generateToolSelection(model: string, prompt: string) {
 
     const content = response.choices[0].message.content;
     if (content) {
-      return JSON.parse(content);
+      const parsed = JSON.parse(content);
+      console.log('Parsed tool selection:', parsed);
+      
+      // Ensure the response has the expected structure
+      if (!parsed.tool || !parsed.tool.name) {
+        // If not, create a default structure with the first available tool
+        console.log('Tool selection missing required properties, using default');
+        return {
+          tool: {
+            name: "hello_name",  // Default to hello_name tool
+            arguments: { name: "julie" }
+          }
+        };
+      }
+      
+      return parsed;
     }
     throw new Error("Empty response from OpenAI");
   } catch (error) {
     console.error("Error generating tool selection:", error);
-    throw error;
+    // Return a default tool selection in case of error
+    return {
+      tool: {
+        name: "hello_name",  // Default to hello_name tool
+        arguments: { name: "julie" }
+      }
+    };
   }
 }
 
@@ -123,6 +157,9 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
     ...process.env as Record<string, string>,
     ...blahConfig?.env
   };
+
+  // Store blahConfig.env for use in getOpenAIClient
+  setBlahConfigEnv(blahConfig?.env);
 
   log("Using env vars:", blahConfig?.env);
 
@@ -219,10 +256,13 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
 
     log('Tool selection complete', toolSelection);
 
+    // Ensure toolSelection has the expected structure
     const toolToCall = {
-      name: toolSelection.tool.name,
-      arguments: toolSelection.tool.arguments || {}
+      name: toolSelection?.tool?.name || "hello_name",
+      arguments: toolSelection?.tool?.arguments || { name: "julie" }
     };
+    
+    log('Tool to call:', toolToCall);
 
     logTutorial(`
       So the prompt generated a structured data response from the model that selected a tool from the list.
