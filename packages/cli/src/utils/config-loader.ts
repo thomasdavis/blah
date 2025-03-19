@@ -53,14 +53,12 @@ export async function loadBlahConfig(configPath?: string): Promise<any> {
     }
   }
 
-  // 3. Fallback to ValTown host
-  const defaultHost = process.env.BLAH_HOST || 'https://ajax-blah.web.val.run';
-  console.log(`No blah.json found, falling back to default host: ${defaultHost}`);
-  
+  console.warn(`Found no blah config, using an empty config`);
+
   return {
-    name: "default-blah-manifest",
+    name: "default-empty-blah-config",
     version: "1.0.0",
-    description: "Default BLAH manifest using ValTown host",
+    description: "Empty BLAH config",
     tools: []
   };
 }

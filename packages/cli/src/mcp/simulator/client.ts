@@ -5,6 +5,7 @@ import { log, logError, logSection, logStep, logTutorial } from './logger.js';
 import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult, SimulationConfig } from './types.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { loadBlahConfig } from '../../utils/config-loader.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,21 +94,35 @@ async function generateTextResponse(model: string, prompt: string) {
   }
 }
 
-export async function startClient(config: SimulationConfig) {
+export async function startClient(configPath: string | undefined, simConfig: SimulationConfig) {
   let mcpEntryPath: string | undefined;
   
   mcpEntryPath = path.resolve(__dirname, '..', 'server', 'start.ts');
 
   console.log({mcpEntryPath});
 
-  
+  // Load blah.json config if specified
+  let blahConfig;
+  try {
+    blahConfig = await loadBlahConfig(configPath);
+    console.log(`Loaded BLAH config: ${blahConfig.name} v${blahConfig.version}`);
+  } catch (configError) {
+    console.warn(`Warning: ${configError instanceof Error ? configError.message : String(configError)}`);
+    console.log('Falling back to host parameter...');
+  }
+
+  if (!configPath) {
+    // @todo 
+    configPath = "https://ajax-blah.web.val.run";
+  }
+
+
   // Configure transport - in dev mode, it will connect to the already running server
   const transport = new StdioClientTransport({
     command: "tsx",
-    args: mcpEntryPath ? [mcpEntryPath] : [],
+    args: mcpEntryPath ? [mcpEntryPath, "--config", configPath] : [],
     env: {
       ...process.env as Record<string, string>,
-      BLAH_HOST: config.blah
     }
   });
 
@@ -144,7 +159,7 @@ export async function startClient(config: SimulationConfig) {
 
       Future versions will allow you to fetch the tools from your local BLAH manifest.
 
-      Currently fetching from: ${config.blah}
+      Currently fetching from: ${configPath}
     `);
 
     logStep('Fetching Tools');
@@ -154,7 +169,7 @@ export async function startClient(config: SimulationConfig) {
 
     log('Available tools', toolList);
 
-    const systemPrompt = config.systemPrompt;
+    const systemPrompt = simConfig.systemPrompt;
 
     const messages: Message[] = [
       {
@@ -167,7 +182,7 @@ export async function startClient(config: SimulationConfig) {
       },
       {
         type: "user",
-        content: config.userPrompt || ""  // Provide default empty string
+        content: simConfig.userPrompt || ""  // Provide default empty string
       }
     ];
 
@@ -192,7 +207,7 @@ export async function startClient(config: SimulationConfig) {
     logStep('Generating Tool Selection');
     
     const toolSelection = await generateToolSelection(
-      config.model,
+      simConfig.model,
       createPrompt({ systemPrompt, messages, toolList })
     );
 
@@ -237,7 +252,7 @@ export async function startClient(config: SimulationConfig) {
 
     logStep('Generating Response');
     const text = await generateTextResponse(
-      config.model,
+      simConfig.model,
       createPrompt({ systemPrompt, messages, toolList })
     );
 
@@ -256,6 +271,11 @@ export async function startClient(config: SimulationConfig) {
     // This part is only for experimenting with dynamic tool creation 
     log('Experimental: Running a check for new tools (dynamic tool creation)');
 
+    if (configPath.indexOf('val') !== -1) {
+      log('Only works with VALTOWN hosted manifest (currently)');
+      return await client.close();
+    }
+
     const newTools = await client.listTools();
 
     if (newTools.tools.length > toolList.length) {
@@ -266,7 +286,7 @@ export async function startClient(config: SimulationConfig) {
     }
 
     logTutorial(`
-     Given your prompt/userPrompt "${config.userPrompt}"
+     Given your prompt/userPrompt "${simConfig.userPrompt}"
      
      At this point, the AI-ENABLED-IDE-OR-A-SEX-ROBOT (auton) was asked to create a tool, #toolception or some dumb shit.
 
@@ -280,7 +300,7 @@ export async function startClient(config: SimulationConfig) {
     logSection('New Tool Invocation');
 
     const userRequest = await generateTextResponse(
-      config.model,
+      simConfig.model,
       `
         You generate a message that a user might request when giving a tool it can invoke.
 
@@ -303,7 +323,7 @@ export async function startClient(config: SimulationConfig) {
     });
 
     const newToolSelection = await generateToolSelection(
-      config.model,
+      simConfig.model,
       createPrompt({ systemPrompt, messages, toolList })
     );
 
@@ -337,7 +357,7 @@ export async function startClient(config: SimulationConfig) {
 
     logStep('Generating Response');
     const newText = await generateTextResponse(
-      config.model,
+      simConfig.model,
       createPrompt({ systemPrompt, messages, toolList })
     );
 

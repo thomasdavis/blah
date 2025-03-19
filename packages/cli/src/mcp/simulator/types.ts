@@ -46,6 +46,4 @@ export interface SimulationConfig {
   model: string;
   systemPrompt: string;
   userPrompt?: string;
-  blah: string;
-  configPath?: string;
 }

@@ -4,6 +4,7 @@ import { config } from 'dotenv';
 import { startMcpServer } from './mcp/server/index.js';
 import { validateBlahManifestFile } from './utils/validator.js';
 import { serveFlowEditor } from './mcp/server/flow-editor.js';
+import { startSimulation } from './mcp/simulator/index.js';
 import { loadBlahConfig } from './utils/config-loader.js';
 import { writeFileSync, existsSync } from 'fs';
 import { sampleManifest } from '@blahai/schema';
@@ -58,35 +59,14 @@ mcpCommand
   .option('-m, --model <model>', 'OpenAI model to use (default: gpt-4o-mini)')
   .option('-s, --system-prompt <prompt>', 'System prompt for the simulation')
   .option('-p, --prompt <prompt>', 'User prompt to send')
-  .option('-h, --host <url>', 'The URL of the BLAH manifest (default: process.env.BLAH_HOST or https://ajax-blah.web.val.run)')
   .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
-  .option('--sim-config <path>', 'Path to a simulation config file', './blah-simulation.json')
   .action(async (options) => {
     try {
-      // Load blah.json config if specified
-      let blahConfig;
-      try {
-        blahConfig = await loadBlahConfig(options.config);
-        console.log(`Loaded BLAH config: ${blahConfig.name} v${blahConfig.version}`);
-      } catch (configError) {
-        console.warn(`Warning: ${configError instanceof Error ? configError.message : String(configError)}`);
-        console.log('Falling back to host parameter...');
-      }
-
-      // Use host from options, or from loaded config, or default
-      const host = options.host || 
-                  (blahConfig?.host) || 
-                  process.env.BLAH_HOST || 
-                  "https://ajax-blah.web.val.run";
-      
-      // Dynamically import the simulator module only when needed
-      const { startSimulation } = await import('./mcp/simulator/index.js');
       await startSimulation({
         model: options.model,
         systemPrompt: options.systemPrompt,
         userPrompt: options.prompt,
-        blah: host,
-        configPath: options.simConfig
+        configPath: options.config
       });
     } catch (error) {
       console.error('Error running simulation:', error instanceof Error ? error.message : String(error));
