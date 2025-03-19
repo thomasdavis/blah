@@ -25,7 +25,12 @@ program
 const mcpCommand = new Command('mcp');
 mcpCommand
   .description('Model Context Protocol (MCP) commands')
-  .option('-h, --host <url>', 'The URL of the BLAH manifest (default: process.env.BLAH_HOST or https://ajax-blah.web.val.run)')
+  .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)');
+
+// Add start subcommand to mcp
+const startCommand = new Command('start');
+startCommand
+  .description('Start the MCP server')
   .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
   .action(async (options) => {
     try {
@@ -53,16 +58,14 @@ mcpCommand
   });
 
 // Add simulate subcommand to mcp
-mcpCommand
-  .command('simulate')
+const simulateCommand = new Command('simulate');
+simulateCommand
   .description('Run a simulation of the MCP client with the server')
   .option('-m, --model <model>', 'OpenAI model to use (default: gpt-4o-mini)')
   .option('-s, --system-prompt <prompt>', 'System prompt for the simulation')
   .option('-p, --prompt <prompt>', 'User prompt to send')
   .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
   .action(async (options) => {
-    console.log("SPECIFIED CONFIG" , {options});
-    return;
     try {
       await startSimulation({
         model: options.model,
@@ -75,6 +78,10 @@ mcpCommand
       process.exit(1);
     }
   });
+
+// Add subcommands to mcp command
+mcpCommand.addCommand(startCommand);
+mcpCommand.addCommand(simulateCommand);
 
 program
   .command('validate')
@@ -116,8 +123,11 @@ program
     }
   });
 
-// Add flows subcommand to mcp
-mcpCommand
+
+// Add the mcp command to the program
+program.addCommand(mcpCommand);
+
+program
   .command('flows')
   .description('Launch the Flow Editor server')
   .option('-p, --port <number>', 'Port to run the server on', '3333')
@@ -142,8 +152,7 @@ mcpCommand
     }
   });
 
-// Add the mcp command to the program
-program.addCommand(mcpCommand);
+
 
 program
   .command('init')
