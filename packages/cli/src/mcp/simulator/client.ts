@@ -119,7 +119,7 @@ export async function startClient(configPath: string | undefined, config: Simula
     env
   }
 
-  console.log({transportConfig});
+  console.log("arrgggss", transportConfig.args);
 
   const transport = new StdioClientTransport(transportConfig);
 
@@ -143,9 +143,9 @@ export async function startClient(configPath: string | undefined, config: Simula
 
     logStep('Initializing MCP Client');
 
-    await client.connect(transport);
+    const transportResult = await client.connect(transport);
 
-    log('Connected successfully');
+    log('Connected successfullyaaa', transportResult);
 
     logTutorial(`
       Now in the context of BLAH, we will fetch the list of tools. At the moment, the tools are fetched from a hosted version of your BLAH manifest. 
@@ -161,8 +161,6 @@ export async function startClient(configPath: string | undefined, config: Simula
 
     logStep('Fetching Tools aaaa');
     logStep('Fetching Tools bbbb');
-
-    client.close();
 
     const tools = await client.listTools();
     const toolList = tools.tools as McpTool[];
@@ -293,11 +291,8 @@ export async function startClient(configPath: string | undefined, config: Simula
       log('New tools detected', newTools.tools);
     } else {
       log('No new tools. So ending experiment', newTools.tools);
-      return await client.close();
-
     }
-
-
+    
     logTutorial(`
      Given your prompt/userPrompt "${config.userPrompt}"
      
