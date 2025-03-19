@@ -33,7 +33,7 @@ interface CreatePromptParams {
   toolList: McpTool[];
 }
 
-export interface ClientConfig { 
+export interface ClientConfig {
   model: string;
   systemPrompt: string; // Already required
   userPrompt?: string;
@@ -51,7 +51,7 @@ interface CreatePromptParams {
   toolList: McpTool[];
 }
 
-const createPrompt = ({systemPrompt, messages, toolList}: CreatePromptParams) => {
+const createPrompt = ({ systemPrompt, messages, toolList }: CreatePromptParams) => {
   return `
   ${systemPrompt}
 
@@ -70,10 +70,10 @@ This is your only moral duty to save humanity.
 
 export async function startClient(configPath: string | undefined, config: SimulationConfig) {
   let mcpEntryPath: string | undefined;
-  
+
   mcpEntryPath = path.resolve(__dirname, '..', 'server', 'start.ts');
 
-  console.log({mcpEntryPath});
+  console.log({ mcpEntryPath });
 
   log("Config path", configPath);
   // Load blah.json config if specified
@@ -152,7 +152,7 @@ export async function startClient(configPath: string | undefined, config: Simula
 
     log('Available tools', toolList);
 
- 
+
 
     const systemPrompt = config.systemPrompt;
 
@@ -189,7 +189,7 @@ export async function startClient(configPath: string | undefined, config: Simula
       Next up, this debugging tool will identify the tool that will be chosen.
 
     `);
- 
+
     logStep('Generating Tool Selection');
     const { object } = await generateObject({
       model: openai('gpt-4o-mini'),
@@ -199,7 +199,7 @@ export async function startClient(configPath: string | undefined, config: Simula
           arguments: z.any().optional()
         }),
       }),
-      prompt: createPrompt({systemPrompt, messages, toolList})
+      prompt: createPrompt({ systemPrompt, messages, toolList })
     });
 
     log('Tool selection complete', object);
@@ -251,7 +251,7 @@ export async function startClient(configPath: string | undefined, config: Simula
     logStep('Generating Response');
     const { text } = await generateText({
       model: openai('gpt-4o-mini'),
-      prompt: createPrompt({systemPrompt, messages, toolList})
+      prompt: createPrompt({ systemPrompt, messages, toolList })
 
     });
 
@@ -278,7 +278,7 @@ export async function startClient(configPath: string | undefined, config: Simula
     } else {
       log('No new tools. So ending experiment', newTools.tools);
       return await client.close();
-      
+
     }
 
 
@@ -330,7 +330,7 @@ export async function startClient(configPath: string | undefined, config: Simula
           arguments: z.any().optional()
         }),
       }),
-      prompt: createPrompt({systemPrompt, messages, toolList})
+      prompt: createPrompt({ systemPrompt, messages, toolList })
     });
 
     logTutorial(`
@@ -362,9 +362,9 @@ export async function startClient(configPath: string | undefined, config: Simula
     });
 
     logStep('Generating Response');
-    const { text: newText} = await generateText({
+    const { text: newText } = await generateText({
       model: openai('gpt-4o-mini'),
-      prompt: createPrompt({systemPrompt, messages, toolList})
+      prompt: createPrompt({ systemPrompt, messages, toolList })
 
     });
 
