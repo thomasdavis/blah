@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.41.0
+
+### Minor Changes
+
+- 4398734: Made a bunch of dumb changes
+
 ## 0.40.0
 
 ### Minor Changes
