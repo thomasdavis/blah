@@ -61,6 +61,8 @@ mcpCommand
   .option('-p, --prompt <prompt>', 'User prompt to send')
   .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
   .action(async (options) => {
+    console.log("SPECIFIED CONFIG" , {options});
+    return;
     try {
       await startSimulation({
         model: options.model,

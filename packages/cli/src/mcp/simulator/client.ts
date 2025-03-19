@@ -101,6 +101,7 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
 
   console.log({mcpEntryPath});
 
+  log("Config path", configPath);
   // Load blah.json config if specified
   let blahConfig;
   try {
@@ -118,12 +119,17 @@ export async function startClient(configPath: string | undefined, simConfig: Sim
 
 
   // Configure transport - in dev mode, it will connect to the already running server
+  const env = {
+    ...process.env as Record<string, string>,
+    ...blahConfig?.env
+  };
+
+  log("Using env vars:", blahConfig?.env);
+
   const transport = new StdioClientTransport({
     command: "tsx",
     args: mcpEntryPath ? [mcpEntryPath, "--config", configPath] : [],
-    env: {
-      ...process.env as Record<string, string>,
-    }
+    env
   });
 
   const client = new Client(
