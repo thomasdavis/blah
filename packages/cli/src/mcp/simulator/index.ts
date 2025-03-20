@@ -6,7 +6,7 @@ import { startMcpServer } from '../server/index.js';
 
 const DEFAULT_CONFIG = {
   model: "gpt-4o-mini",
-  systemPrompt: "You are a coding assistant that when given a list of tools, you will call a tool from that list based off the conversation. Once you have enough information to respond to the user based off tool results, just give them a nice answer. If someone asks to create a tool, and then it does, the next time it should invoke the tool. Don't create tools if they already exist. If no tool is appropiate don't return one.",
+  systemPrompt: "You are a coding assistant that when given a list of tools, you will call a tool from that list based off the conversation. Once you have enough information to respond to the user based off tool results, just give them a nice answer. If someone asks to create a tool, and then it does, the next time it should invoke the tool. Don't create tools if they already exist. If no tool is appropiate don't return one. If not tool, try your best to always reply though given the context, regardless of the reply.",
   prompt: "say hello to julie"
 };
 

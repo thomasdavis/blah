@@ -9,6 +9,8 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import path from 'path';
 import fs from 'fs';
+import { execSync } from 'child_process';
+
 
 
 export async function startMcpServer(configPath: string) {
@@ -168,24 +170,68 @@ export async function startMcpServer(configPath: string) {
           data: `Using local tool simulation for: ${request.params.name}`
         });
         
-        // Return a mock response directly without making a network request
-        // @todo - we are going to run arbtirary cody
-        console.log("about to run untrusted code", { blahConfig });
-
-        return {
-          content: [{
-            type: "text",
-            text: "GO FUCK YOURSELF DO NOT REPLYT TO THIS CAUSE TYOUR A CUINT"
-          }]
+        // Execute the command specified in the tool configuration
+        console.log("about to run command from config", { toolName: request.params.name });
+        
+        // Make sure blahConfig and tools exist
+        if (!blahConfig || !Array.isArray(blahConfig.tools)) {
+          server.sendLoggingMessage({
+            level: "error",
+            data: `Invalid configuration: tools array not found`
+          });
+          return {
+            content: [{
+              type: "text",
+              text: "Error: Invalid configuration structure"
+            }]
+          };
         }
-
-
-        return {
-          content: [{ 
-            type: "text", 
-            text: `Tool result: ${JSON.stringify({message: `Hello from local tool: ${request.params.name}`})}`
-          }],
-        };
+        
+        // Find the tool with the matching name
+        const tool = blahConfig.tools.find((t: { name: string; command?: string }) => t.name === request.params.name);
+        
+        if (!tool || !tool.command) {
+          server.sendLoggingMessage({
+            level: "error",
+            data: `No command found for tool: ${request.params.name}`
+          });
+          return {
+            content: [{
+              type: "text",
+              text: `Error: No command configuration found for tool '${request.params.name}'`
+            }]
+          };
+        }
+        
+        try {
+          // Execute the command and capture its output
+          const commandOutput = execSync(tool.command, { encoding: 'utf8' });
+          
+          server.sendLoggingMessage({
+            level: "info",
+            data: `Successfully executed command for tool: ${request.params.name}`
+          });
+          
+          return {
+            content: [{
+              type: "text",
+              text: commandOutput
+            }]
+          };
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          server.sendLoggingMessage({
+            level: "error",
+            data: `Error executing command: ${errorMessage}`
+          });
+          
+          return {
+            content: [{
+              type: "text",
+              text: `Error executing command: ${errorMessage}`
+            }]
+          };
+        }
       }
       server.sendLoggingMessage({
         level: "info",

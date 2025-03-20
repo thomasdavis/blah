@@ -301,18 +301,18 @@ export async function startClient(configPath: string | undefined, config: Simula
       `);
 
     logStep('Generating Response');
-    const { text } = await generateText({
+    const { text: somethingText } = await generateText({
       model: openai('gpt-4o-mini'),
-      prompt: createPrompt({ systemPrompt, messages, toolList })
+      prompt: createPrompt({ systemPrompt, messages, toolList: [] })
 
     });
 
     messages.push({
       type: "assistant",
-      content: text
+      content: somethingText
     });
 
-
+    console.log({ somethingText });
     logSection('Conversation Summary');
     log('Final conversation state', messages);
 
