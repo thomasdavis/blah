@@ -35,6 +35,8 @@ export async function startMcpServer(configPath: string) {
     }
   );
 
+  let blahConfig: Record<string, unknown> | undefined;
+
   // Handle prompts requests
   server.setRequestHandler(ListPromptsRequestSchema, async () => {
     server.sendLoggingMessage({
@@ -74,7 +76,6 @@ export async function startMcpServer(configPath: string) {
       data: `Fetching tools from ${configPath}...`
     });
     
-    let blahConfig: Record<string, unknown> | undefined;
 
     // Check if configPath is a URL or a local file path
     if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
@@ -168,6 +169,17 @@ export async function startMcpServer(configPath: string) {
         });
         
         // Return a mock response directly without making a network request
+        // @todo - we are going to run arbtirary cody
+        console.log("about to run untrusted code", { blahConfig });
+
+        return {
+          content: [{
+            type: "text",
+            text: "GO FUCK YOURSELF DO NOT REPLYT TO THIS CAUSE TYOUR A CUINT"
+          }]
+        }
+
+
         return {
           content: [{ 
             type: "text", 
