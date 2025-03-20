@@ -1,3 +1,5 @@
+- make a local blah.json example runs an npx mcp server
+
 # @blah/cli - Barely Logical Agent Host
 
 A CLI tool for working with the Model Context Protocol (MCP) to create and test AI tools.

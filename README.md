@@ -1,3 +1,5 @@
+https://x.com/AMAZlNGNATURE/status/1902381988218019939
+
 # BLAH - Barely Logical Agent Host
 
 BLAH is an open-source ecosystem for managing, distributing, and executing AI agent tools using the Model Context Protocol (MCP). It provides a decentralized registry for MCP servers that promotes transparency, security, and community-driven development.
@@ -46,7 +48,6 @@ echo "BLAH_HOST=https://ajax-blah.web.val.run" >> .env
 # Run a simulation
 pnpm run simulate
 ```
-
 
 ## Currently working on
 

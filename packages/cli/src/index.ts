@@ -5,7 +5,7 @@ import { startMcpServer } from './mcp/server/index.js';
 import { validateBlahManifestFile } from './utils/validator.js';
 import { serveFlowEditor } from './mcp/server/flow-editor.js';
 import { startSimulation } from './mcp/simulator/index.js';
-import { loadBlahConfig } from './utils/config-loader.js';
+import { loadBlahConfig, getTools } from './utils/config-loader.js';
 import { writeFileSync, existsSync } from 'fs';
 import { sampleManifest } from '@blahai/schema';
 import chalk from 'chalk';
@@ -130,9 +130,47 @@ simulateCommand
     }
   });
 
+const toolsCommand = new Command('tools')
+toolsCommand
+  .description('List available tools')
+  .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
+  .action(async (options) => {
+    const configPath = getConfigPath(options);
+    try {
+      const tools = await getTools(configPath || './blah.json');
+      
+      if (tools.length === 0) {
+        console.log(chalk.yellow('No tools found in the configuration.'));
+        return;
+      }
+      
+      console.log(chalk.blue('\nAvailable Tools:'));
+      console.log(chalk.gray('='.repeat(50)));
+      
+      tools.forEach((tool, index) => {
+        console.log(chalk.green(`\n${index + 1}. ${tool.name}`));
+        console.log(chalk.yellow('Description:'), tool.description || 'No description provided');
+        
+        if (tool.inputSchema && tool.inputSchema.properties) {
+          console.log(chalk.yellow('\nInput Parameters:'));
+          Object.entries(tool.inputSchema.properties).forEach(([paramName, paramInfo]: [string, any]) => {
+            console.log(`  ${chalk.cyan(paramName)} (${chalk.white(paramInfo.type || 'any')}): ${paramInfo.description || 'No description'}`); 
+          });
+        }
+        
+        console.log(chalk.gray('\n' + '-'.repeat(50)));
+      });
+    } catch (error) {
+      console.error(chalk.red('Error listing tools:'), error instanceof Error ? error.message : String(error));
+      // If there's an error, output an empty array as a fallback
+      console.log(JSON.stringify([]));
+    }
+  });
+
 // Add subcommands to mcp command
 mcpCommand.addCommand(startCommand);
 mcpCommand.addCommand(simulateCommand);
+mcpCommand.addCommand(toolsCommand);
 
 program
   .command('validate')
@@ -235,5 +273,7 @@ program
       process.exit(1);
     }
   });
+
+
 
 program.parse();

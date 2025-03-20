@@ -10,6 +10,7 @@ import {
 import path from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process';
+import { getConfig, getTools } from "../../utils/config-loader.js";
 
 
 
@@ -65,76 +66,45 @@ export async function startMcpServer(configPath: string) {
 
   // Handle tools requests
   server.setRequestHandler(ListToolsRequestSchema, async () => {
-    console.log("------------asdasdasd");
     server.sendLoggingMessage({
       level: "info",
       data: "Received ListTools request"
     });
-
-    console.log("asdA");
 
     server.sendLoggingMessage({
       level: "info",
       data: `Fetching tools from ${configPath}...`
     });
     
+    try {
+      // Use the getTools utility function to get the tools from the config
+      const tools = await getTools(configPath);
+      
+      // Store the config for later use
+      blahConfig = await getConfig(configPath);
+      
+      server.sendLoggingMessage({
+        level: "info",
+        data: `Retrieved tools: ${JSON.stringify(tools)}`
+      });
+      
+      server.sendLoggingMessage({
+        level: "info",
+        data: `ListTools response received: ${JSON.stringify(tools)}`
+      });
 
-    // Check if configPath is a URL or a local file path
-    if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
-      // Handle as URL
-      const response = await fetch(configPath, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
+      // Return the tools from the config
+      return {
+        tools: tools || []
+      };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
       server.sendLoggingMessage({
-        level: "info",
-        data: `Tools fetch response status: ${response.status}`
+        level: "error",
+        data: `Error fetching tools: ${errorMessage}`
       });
-      
-      blahConfig = await response.json();
-    } else {
-      // Handle as local file path
-      
-      // Resolve path if it's relative
-      const resolvedPath = path.resolve(configPath);
-      
-      server.sendLoggingMessage({
-        level: "info",
-        data: `Reading local config file from: ${resolvedPath}`
-      });
-      
-      try {
-        const fileContent = fs.readFileSync(resolvedPath, 'utf8');
-        blahConfig = JSON.parse(fileContent);
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        server.sendLoggingMessage({
-          level: "error",
-          data: `Error reading config file: ${errorMessage}`
-        });
-        throw new Error(`Failed to read config file: ${errorMessage}`);
-      }
+      throw new Error(`Failed to fetch tools: ${errorMessage}`);
     }
-
-    const { tools } = blahConfig;
-
-    server.sendLoggingMessage({
-      level: "info",
-      data: `Retrieved tools: ${JSON.stringify(tools)}`
-    });
-    
-    server.sendLoggingMessage({
-      level: "info",
-      data: `ListTools response received: ${JSON.stringify(tools)}`
-    });
-
-    // Return the tools from ValTown API
-    return {
-      tools: tools || []
-    };
   });
 
   // Handle tool calls
@@ -207,6 +177,38 @@ export async function startMcpServer(configPath: string) {
           // Execute the command and capture its output
           const commandOutput = execSync(tool.command, { encoding: 'utf8' });
           
+          // if the command boots an mcp server, we need to detect that then echo a jsonrpc response which invokes the tool
+
+          /*
+          {"method":"notifications/message","params":{"level":"info","data":"BLAH MCP Server running on stdio"},"jsonrpc":"2.0"}
+          {"method":"notifications/message","params":{"level":"info","data":"Server started successfully"},"jsonrpc":"2.0"}
+
+          echo '{"jsonrpc": "2.0", "method": "echo", "params": {"message": "Hello, MCP Server"}, "id": 1}
+          {"jsonrpc": "2.0", "method": "getTools", "params": {}, "id": 2}' | npm run dev mcp start
+
+npm run dev mcp start <<EOF
+{"jsonrpc": "2.0", "method": "tool/call", "params": {"toolName": "brave_search", "command": "doSomething", "args": []}, "id": 1}
+EOF
+          */
+
+          // add a simple log if the command is a mcp server
+          if (commandOutput.includes("notifications/message")) {
+            server.sendLoggingMessage({
+              level: "info",
+              data: `Successfully executed command for tool: ${request.params.name}`
+            });
+
+            // echo the jsonrpc response
+            const jsonrpcResponse = `{
+              "jsonrpc": "2.0",
+              "method": "echo",
+              "params": {"message": "Hello, MCP Server"},
+              "id": 1
+            }`;
+
+            process.stdout.write(jsonrpcResponse + '\n');
+          }
+
           server.sendLoggingMessage({
             level: "info",
             data: `Successfully executed command for tool: ${request.params.name}`
@@ -218,6 +220,7 @@ export async function startMcpServer(configPath: string) {
               text: commandOutput
             }]
           };
+          
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           server.sendLoggingMessage({
@@ -314,6 +317,9 @@ export async function startMcpServer(configPath: string) {
   });
 
   // Connect server to stdio transport
+  // Log server methods and properties
+  console.dir(server, { depth: null });
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
 
