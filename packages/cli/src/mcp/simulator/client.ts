@@ -2,6 +2,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { createOpenAI } from '@ai-sdk/openai';
 import { log, logError, logSection, logStep, logTutorial } from './logger.js';
+import chalk from 'chalk';
 import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult, SimulationConfig } from './types.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -58,19 +59,29 @@ interface CreatePromptParams {
 }
 
 const createPrompt = ({ systemPrompt, messages, toolList }: CreatePromptParams) => {
-  return `
+  logSection('Creating Prompt');
+  
+  const prompt = `
   ${systemPrompt}
 
   Make sure you obey the rules and under the requirements, if you fail at this task continents will be destroyed and whole civilisations will be lost.
 
 This is your only moral duty to save humanity.
+
+ Again, if no tool is appropiate just return null.
   
   Tools:
   ${JSON.stringify(toolList)}
   
   Conversation
   ${JSON.stringify(messages)}
-  `
+  `;
+  
+  console.log(chalk.hex('#D6FA1E')('\n=== GENERATED PROMPT ==='));
+  console.log(chalk.hex('#7AFA1E')(prompt));
+  console.log(chalk.hex('#D6FA1E')('=== END PROMPT ===\n'));
+  
+  return prompt;
 }
 
 
@@ -168,7 +179,7 @@ export async function startClient(configPath: string | undefined, config: Simula
 
     const transportResult = await client.connect(transport);
 
-    log('Connected successfullyaaa', transportResult);
+    log('Connected successfullya', transportResult);
 
     logTutorial(`
       Now in the context of BLAH, we will fetch the list of tools. At the moment, the tools are fetched from a hosted version of your BLAH manifest. 
@@ -233,12 +244,17 @@ export async function startClient(configPath: string | undefined, config: Simula
         tool: z.object({
           name: z.string(),
           arguments: z.any().optional()
-        }),
+        }).nullable(),
       }),
       prompt: createPrompt({ systemPrompt, messages, toolList })
     });
 
     log('Tool selection complete', object);
+
+    if (!object.tool) {
+      log('No tool selected and/or found');
+      return;
+    }
 
     logTutorial(`
       So the prompt generated a structured data response from the model that selected a tool from the list.
