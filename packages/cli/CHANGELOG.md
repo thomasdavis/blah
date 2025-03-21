@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.48.0
+
+### Minor Changes
+
+- 7862edc: asdas
+
 ## 0.47.0
 
 ### Minor Changes
