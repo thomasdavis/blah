@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.67.0
+
+### Minor Changes
+
+- f350a23: asssssssssssssssssssssssssssss
+
 ## 0.66.2
 
 ### Patch Changes

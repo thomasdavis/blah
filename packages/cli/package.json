@@ -1,6 +1,6 @@
 {
   "name": "@blahai/cli",
-  "version": "0.66.2",
+  "version": "0.67.0",
   "type": "module",
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts && shx mkdir -p dist/mcp/server && shx cp src/mcp/server/start.ts dist/mcp/server/ && shx cp -r src/templates dist/templates",
