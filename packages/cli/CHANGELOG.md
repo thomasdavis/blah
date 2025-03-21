@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.64.0
+
+### Minor Changes
+
+- ef85ee1: asdas
+
 ## 0.63.0
 
 ### Minor Changes
