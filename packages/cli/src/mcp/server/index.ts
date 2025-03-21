@@ -120,6 +120,8 @@ export async function startMcpServer(configPath: string, config?: Record<string,
       data: `Tool call request received: name='${request.params.name}', arguments=${JSON.stringify(request.params.arguments)}`
     });
 
+    console.log({configPath});
+
     try {
       let toolUrl;
       
@@ -144,7 +146,6 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         
         // Execute the command specified in the tool configuration
         console.log("about to run command from config", { toolName: request.params.name });
-        console.log({ blahConfig });
 
         // Make sure blahConfig and tools exist
         if (!blahConfig || !Array.isArray(blahConfig.tools)) {
@@ -161,6 +162,8 @@ export async function startMcpServer(configPath: string, config?: Record<string,
           };
         }
         
+        console.log("WE ARE HERE");
+
         // Find the tool with the matching name
         const tool = blahConfig.tools.find((t: { name: string; command?: string }) => t.name === request.params.name);
         
@@ -179,11 +182,21 @@ export async function startMcpServer(configPath: string, config?: Record<string,
           };
         }
 
-        console.log({blahConfig});
+        console.log("Tool has been found", {tool});
         
         try {
-          // Execute the command and capture its output
-          const commandOutput = execSync(`BRAVE_API_KEY="BSAlnwI-DbieXdNBsgJJxDbJ5aRLraj" ${tool.command}`, { encoding: 'utf8' });
+          // Prepare environment variables from blahConfig.env
+          const env = {
+            ...process.env, // Include existing environment variables
+            ...(blahConfig?.env || {}) // Add or override with blahConfig.env variables
+          };
+
+          let commandToRun = `${tool.command} ${JSON.stringify(request.params.arguments)}`;
+
+          console.log("Command to run", {commandToRun});
+
+          // Execute the command with environment variables
+          const commandOutput = execSync(commandToRun, { encoding: 'utf8', env });
           
           // if the command boots an mcp server, we need to detect that then echo a jsonrpc response which invokes the tool
 
@@ -199,6 +212,7 @@ npm run dev mcp start <<EOF
 EOF
           */
 
+          console.log("Command output", {commandOutput});
           // add a simple log if the command is a mcp server
           if (commandOutput.includes("notifications/message")) {
             server.sendLoggingMessage({
