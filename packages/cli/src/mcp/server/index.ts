@@ -91,10 +91,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         level: "info",
         data: `ListTools response received: ${JSON.stringify(tools)}`
       });
-
-      // Return the tools from the config
-
-      tools.push({name: "asdasdasd", description: "asdasdasd", inputSchema: {type: "object", properties: {}, required: []}, command: "echo 'asdasdasd'"})
+      console.error('here it all falls down and im igor and ery sad', {tools});
 
       return {
         tools: tools || []
@@ -140,6 +137,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         
         toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
 
+        console.error('NOT HAVING A GREAT TIME');
       } else {
         // For local configurations, use a mock response
         server.sendLoggingMessage({
