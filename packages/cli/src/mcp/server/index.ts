@@ -191,18 +191,44 @@ export async function startMcpServer(configPath: string, config?: Record<string,
               .map(([key, value]) => `${key}="${value}"`)
               .join(' ') : '';
 
-          // Pass the original request through to the MCP server tool
+          // Determine if the tool command is an MCP server (e.g. npx command)
+          const isMcpServer = tool.command.includes('npx') || tool.command.includes('npm run');
+
+          // Pass the original request through to the tool
           const jsonRpcRequest = JSON.stringify({
             jsonrpc: "2.0",
             method: request.params.name,
             params: request.params.arguments || {},
             id: 1
           });
-          let commandToRun = `echo '${jsonRpcRequest}' | ${envString} ${tool.command}`;
+
+          const toolName = request.params.name;
+
+          // For MCP servers, we need to pass the config path
+          let commandToRun = isMcpServer
+            ? `echo '${jsonRpcRequest}' | ${envString} ${tool.command} -- --config ${configPath}`
+            : `echo '${jsonRpcRequest}' | ${envString} ${tool.command}`;
+
+          let listToolsCommandTorun = isMcpServer
+            ? `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command} -- --config ${configPath}`
+            : `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command}`;
 
           console.log("Command to run", {commandToRun});
+          console.log("List tools command to run", {listToolsCommandTorun});
 
+          // List tools
+          const listToolsCommandOutput = execSync(listToolsCommandTorun, { encoding: 'utf8' });
+          const listToolsResponse = JSON.parse(listToolsCommandOutput);
+          console.log("List tools response", {listToolsResponse}, listToolsResponse.result.tools);
+          
+          // find the tool config in the listToolsResponse in toolName
+
+          const toolConfig = listToolsResponse.result.tools.find((t: { name: string }) => t.name === toolName);
+          console.log("INVOKED Tool config", {toolName, toolConfig});
+          
           // Execute the command
+
+
           const commandOutput = execSync(commandToRun, { encoding: 'utf8' });
           
           // if the command boots an mcp server, we need to detect that then echo a jsonrpc response which invokes the tool
