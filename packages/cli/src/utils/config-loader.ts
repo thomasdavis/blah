@@ -29,6 +29,18 @@ export async function loadBlahConfig(configPath?: string): Promise<any> {
  * @returns The loaded configuration object
  */
 export async function getConfig(configPath?: string): Promise<any> {
+
+  console.error("---------");
+  console.error("---------");
+  console.error("---------");
+  console.error("---------");
+  console.error("---------");
+  console.error("---------");
+  console.error("---------");
+  console.error("IHATEMYSELFWISHHHHHHHHHHHHHHHITWASNEARTHEND");
+  console.log("configPath", {configPath});
+
+
   // 1. Try to load from specified path if provided
   if (configPath) {
     // Check if it's a URL
@@ -130,7 +142,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
   // @todo - implement a more conclusive way to figure out if something is an mcp server
 
 
-  tools.forEach((tool) => {
+  tools.forEach((tool, index) => {
     const isMcpServer = tool.command?.includes('npx') || tool.command?.includes('npm run');
     console.log("asdadadas", {isMcpServer});
     if (isMcpServer) {
@@ -138,8 +150,16 @@ export async function getTools(config: string | Record<string, any>): Promise<an
       // either the payload is not considerate (jsonrpc)
       // windsurf is its own app it likely has a different idea about pwd or cwd
       // also the -- after the command to pass arguments to the parent command may be causing a mishap
+      // why does the dynamic mcp logs appear in cline
+      /*
+        async function runServer() {
+          const transport = new StdioServerTransport();
+          await server.connect(transport);
+          console.error("JsonResume MCP Server running on stdio");
+        }
+      */
 
-      let listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list"}' | ${envString} ${tool.command} -- --config ${config}`;
+      let listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": ${index}}' | ${envString} ${tool.command} -- --config ${config}`;
     
       console.log("List tools command to run", {listToolsCommandTorun});
     
