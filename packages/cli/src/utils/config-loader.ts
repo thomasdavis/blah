@@ -184,7 +184,28 @@ export async function getTools(config: string | Record<string, any>): Promise<an
       console.log('[getTools] Executing MCP tools list command:', { listToolsCommandTorun });
       const listToolsCommandOutput = execSync(listToolsCommandTorun, { encoding: 'utf8' });
       console.log('[getTools] MCP tools list command output:', { listToolsCommandOutput });
-      const listToolsResponse = JSON.parse(listToolsCommandOutput);
+      
+      // Extract the JSON part from the output
+      // Look for a line that starts with a JSON object containing 'result' and 'jsonrpc'
+      const lines = listToolsCommandOutput.split('\n');
+      let jsonStr = '';
+      
+      for (const line of lines) {
+        // Find a line that looks like a complete JSON-RPC response
+        if (line.trim().startsWith('{') && line.includes('"result"') && line.includes('"jsonrpc"')) {
+          jsonStr = line.trim();
+          break;
+        }
+      }
+      
+      if (!jsonStr) {
+        console.error('[getTools] Failed to extract JSON from command output');
+        throw new Error('Failed to extract JSON from MCP tools list command output');
+      }
+      
+      console.log('[getTools] Extracted JSON from command output:', { jsonStr });
+      
+      const listToolsResponse = JSON.parse(jsonStr);
       console.log('[getTools] Received MCP tools list response:', { listToolsResponse });
       const mcpTools = listToolsResponse.result.tools;
 
