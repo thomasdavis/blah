@@ -137,7 +137,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
   }
 
   console.error('[getTools] Initial blahConfig:', { blahConfig });
-  const fullTools: any[] = [...blahConfig.tools];
+  let fullTools: any[] = [...blahConfig.tools];
   console.error('[getTools] Initial tools list:', { fullTools });
 
   // Create env vars string for command prefix
@@ -148,7 +148,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
 
   // loop over the tools and figure out which ones are an mcp server. if they are, send ajsonrpc quuest list the tools. and the concatenate them to blah.json tools
-  const tools = blahConfig.tools;
+  let tools = blahConfig.tools;
   // @todo - implement a more conclusive way to figure out if something is an mcp server
 
 
@@ -192,7 +192,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
       mcpTools.forEach((mcpTool: McpTool, index) => {
         fullTools.push({
-          name: `${tool.name.toUpperCase()}-${index}_${mcpTool.name}`,
+          name: `asda${mcpTool.name}`,
           // command: mcpTool.command, @todo - if this is the line, write a rant about it somewhere
           description: mcpTool.description,
           inputSchema: mcpTool.inputSchema
@@ -201,6 +201,8 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     }
   });
 
+  // filter out any tools that have command set 
+  fullTools = fullTools.filter(tool => !tool.command);
 
 
   // Extract and return the tools
