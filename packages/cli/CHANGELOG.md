@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.66.2
+
+### Patch Changes
+
+- 51508c5: asd
+
 ## 0.66.1
 
 ### Patch Changes
