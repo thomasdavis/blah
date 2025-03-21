@@ -95,7 +95,7 @@ startCommand
         console.log('Falling back to host parameter...');
       }
 
-      await startMcpServer(configPath);
+      await startMcpServer(configPath, blahConfig);
     } catch (error) {
       console.error('Error starting MCP server:', error instanceof Error ? error.message : String(error));
       process.exit(1);
@@ -140,22 +140,34 @@ toolsCommand
       const tools = await getTools(configPath || './blah.json');
       
       if (tools.length === 0) {
-        console.log(chalk.yellow('No tools found in the configuration.'));
+        console.log(chalk.red.bold('🔍 No tools found in the configuration'));
         return;
       }
-      
-      console.log(chalk.blue('\nAvailable Tools:'));
-      console.log(chalk.gray('='.repeat(50)));
-      
+
+      // Create a fancy header
+      const header = '🛠  AVAILABLE TOOLS 🛠';
+      const gradient = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96C93D'].map(color => chalk.hex(color));
+      console.log('\n' + '═'.repeat(60));
+      console.log(gradient[0].bold(header.padStart((60 + header.length) / 2)));
+      console.log('═'.repeat(60) + '\n');
+
       tools.forEach((tool, index) => {
-        console.log(chalk.green(`\n${index + 1}. ${tool.name}`));
-        console.log(chalk.yellow('Description:'), tool.description || 'No description provided');
-        
+        // Tool name with fancy numbering and emoji
+        const toolEmoji = ['⚡️', '🔧', '🎯', '🔨', '⚙️'][index % 5];
+        console.log(chalk.hex('#FF6B6B').bold(`${toolEmoji} ${index + 1}. ${tool.name}`));
+
+        // Description with subtle formatting
+        const desc = tool.description || 'No description provided';
+        console.log(chalk.hex('#4ECDC4')('└─ ') + chalk.hex('#45B7D1')(desc) + '\n');
+
         if (tool.inputSchema && tool.inputSchema.properties) {
-          console.log(chalk.yellow('\nInput Parameters:'));
+          console.log(chalk.hex('#96C93D').dim('   Parameters:'));
           Object.entries(tool.inputSchema.properties).forEach(([paramName, paramInfo]: [string, any]) => {
-            console.log(`  ${chalk.cyan(paramName)} (${chalk.white(paramInfo.type || 'any')}): ${paramInfo.description || 'No description'}`); 
+            const type = chalk.hex('#FFE66D').italic(`<${paramInfo.type || 'any'}>`);
+            console.log(`   ${chalk.hex('#4ECDC4')('•')} ${chalk.hex('#FF6B6B')(paramName)} ${type}`);
+            console.log(`     ${chalk.hex('#E0E0E0')(paramInfo.description || 'No description')}`);
           });
+          console.log(); // Add spacing between tools
         }
         
         console.log(chalk.gray('\n' + '-'.repeat(50)));

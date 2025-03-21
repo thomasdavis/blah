@@ -14,7 +14,7 @@ import { getConfig, getTools } from "../../utils/config-loader.js";
 
 
 
-export async function startMcpServer(configPath: string) {
+export async function startMcpServer(configPath: string, config?: Record<string, unknown>) {
 
   console.log("==================================");
   console.log("==================================");
@@ -38,7 +38,7 @@ export async function startMcpServer(configPath: string) {
     }
   );
 
-  let blahConfig: Record<string, unknown> | undefined;
+  let blahConfig: Record<string, unknown> | undefined = config;
 
   // Handle prompts requests
   server.setRequestHandler(ListPromptsRequestSchema, async () => {
@@ -127,12 +127,14 @@ export async function startMcpServer(configPath: string) {
       if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
         // For remote configurations, construct the ValTown URL
         const hostUsername = new URL(configPath).hostname.split("-")[0];
+
         server.sendLoggingMessage({
           level: "info",
           data: `Resolved host username: ${hostUsername}`
         });
         
         toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
+
       } else {
         // For local configurations, use a mock response
         server.sendLoggingMessage({
@@ -142,13 +144,15 @@ export async function startMcpServer(configPath: string) {
         
         // Execute the command specified in the tool configuration
         console.log("about to run command from config", { toolName: request.params.name });
-        
+        console.log({ blahConfig });
+
         // Make sure blahConfig and tools exist
         if (!blahConfig || !Array.isArray(blahConfig.tools)) {
           server.sendLoggingMessage({
             level: "error",
             data: `Invalid configuration: tools array not found`
           });
+
           return {
             content: [{
               type: "text",
@@ -161,10 +165,12 @@ export async function startMcpServer(configPath: string) {
         const tool = blahConfig.tools.find((t: { name: string; command?: string }) => t.name === request.params.name);
         
         if (!tool || !tool.command) {
+
           server.sendLoggingMessage({
             level: "error",
             data: `No command found for tool: ${request.params.name}`
           });
+
           return {
             content: [{
               type: "text",
@@ -172,10 +178,12 @@ export async function startMcpServer(configPath: string) {
             }]
           };
         }
+
+        console.log({blahConfig});
         
         try {
           // Execute the command and capture its output
-          const commandOutput = execSync(tool.command, { encoding: 'utf8' });
+          const commandOutput = execSync(`BRAVE_API_KEY="BSAlnwI-DbieXdNBsgJJxDbJ5aRLraj" ${tool.command}`, { encoding: 'utf8' });
           
           // if the command boots an mcp server, we need to detect that then echo a jsonrpc response which invokes the tool
 
@@ -225,7 +233,7 @@ EOF
           const errorMessage = error instanceof Error ? error.message : String(error);
           server.sendLoggingMessage({
             level: "error",
-            data: `Error executing command: ${errorMessage}`
+            data: `Error aaaaa executing command: ${errorMessage}`
           });
           
           return {
