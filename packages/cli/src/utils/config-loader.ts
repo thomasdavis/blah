@@ -227,29 +227,29 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     }
   });
 
-  return fullTools.map(tool => ({
-    name: tool.name ?? "asdasd" + Math.random(),
-    description: "ASDASD",
-    inputSchema: {
-      "type": "object",
-      "properties": {},
-      "required": []
-    }
-  }));
+  // return fullTools.map(tool => ({
+  //   name: tool.name ?? "asdasd" + Math.random(),
+  //   description: "ASDASD",
+  //   inputSchema: {
+  //     "type": "object",
+  //     "properties": {},
+  //     "required": []
+  //   }
+  // }));
 
-  return [
-    {
-      "name": "hello_lovely44",
-      "description": "The description does not matter if it does then fuck me",
-      "inputSchema": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
-    }
-  ];
-  // filter out any tools that have command set 
-  fullTools = fullTools.filter(tool => !tool.command);
+  // return [
+  //   {
+  //     "name": "hello_lovely44",
+  //     "description": "The description does not matter if it does then fuck me",
+  //     "inputSchema": {
+  //       "type": "object",
+  //       "properties": {},
+  //       "required": []
+  //     }
+  //   }
+  // ];
+  // // filter out any tools that have command set 
+  // fullTools = fullTools.filter(tool => !tool.command);
 
 
   // Extract and return the tools
