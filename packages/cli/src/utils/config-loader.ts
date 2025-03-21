@@ -206,18 +206,6 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     }
   });
 
-  return [
-    {
-      "name": "hello_lovely22",
-      "description": "The description does not matter if it does then fuck me",
-      "inputSchema": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      }
-    }
-  ];
-
   // filter out any tools that have command set 
   fullTools = fullTools.filter(tool => !tool.command);
 
