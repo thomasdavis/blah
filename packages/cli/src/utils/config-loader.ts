@@ -139,8 +139,10 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     blahConfig = config;
   }
 
+
+
   console.log('[getTools] Initial blahConfig:', { blahConfig });
-  let fullTools: any[] = [...blahConfig.tools];
+  let fullTools: any[] = [];
   console.log('[getTools] Initial tools list:', { fullTools });
 
   // Create env vars string for command prefix
