@@ -135,7 +135,11 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     console.log("asdadadas", {isMcpServer});
     if (isMcpServer) {
 
-      let listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command} -- --config ${config}`;
+      // either the payload is not considerate (jsonrpc)
+      // windsurf is its own app it likely has a different idea about pwd or cwd
+      // also the -- after the command to pass arguments to the parent command may be causing a mishap
+
+      let listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list"}' | ${envString} ${tool.command} -- --config ${config}`;
     
       console.log("List tools command to run", {listToolsCommandTorun});
     
