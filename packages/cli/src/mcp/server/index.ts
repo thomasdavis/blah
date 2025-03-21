@@ -194,26 +194,15 @@ export async function startMcpServer(configPath: string, config?: Record<string,
           // Determine if the tool command is an MCP server (e.g. npx command)
           const isMcpServer = tool.command.includes('npx') || tool.command.includes('npm run');
 
-          // Pass the original request through to the tool
-          const jsonRpcRequest = JSON.stringify({
-            jsonrpc: "2.0",
-            method: request.params.name,
-            params: request.params.arguments || {},
-            id: 1
-          });
+
 
           const toolName = request.params.name;
 
-          // For MCP servers, we need to pass the config path
-          let commandToRun = isMcpServer
-            ? `echo '${jsonRpcRequest}' | ${envString} ${tool.command} -- --config ${configPath}`
-            : `echo '${jsonRpcRequest}' | ${envString} ${tool.command}`;
 
           let listToolsCommandTorun = isMcpServer
             ? `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command} -- --config ${configPath}`
             : `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command}`;
 
-          console.log("Command to run", {commandToRun});
           console.log("List tools command to run", {listToolsCommandTorun});
 
           // List tools
@@ -226,8 +215,23 @@ export async function startMcpServer(configPath: string, config?: Record<string,
           const toolConfig = listToolsResponse.result.tools.find((t: { name: string }) => t.name === toolName);
           console.log("INVOKED Tool config", {toolName, toolConfig});
           
-          // Execute the command
+          // Pass the original request through to the tool
+          const jsonRpcRequest = JSON.stringify({
+            jsonrpc: "2.0",
+            method: 'tools/call',
+            params:  {
+              name :request.params.name,
+              arguments: request.params.arguments
+            },
+            id: 1
+          });
 
+          // For MCP servers, we need to pass the config path
+          let commandToRun = isMcpServer
+            ? `echo '${jsonRpcRequest}' | ${envString} ${tool.command} -- --config ${configPath}`
+            : `echo '${jsonRpcRequest}' | ${envString} ${tool.command}`;
+
+          console.log("Command to run", {commandToRun});
 
           const commandOutput = execSync(commandToRun, { encoding: 'utf8' });
           
