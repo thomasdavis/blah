@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.69.0
+
+### Minor Changes
+
+- 24712e8: asd
+
 ## 0.68.1
 
 ### Patch Changes
