@@ -168,6 +168,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
           await server.connect(transport);
           console.error("JsonResume MCP Server running on stdio");
         }
+          cline does not like additional properties
       */
 
       let listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": ${index}}' | ${envString} ${tool.command} -- --config ${config}`;
@@ -192,7 +193,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
       mcpTools.forEach((mcpTool: McpTool, index) => {
         fullTools.push({
           name: `${tool.name.toUpperCase()}-${index}_${mcpTool.name}`,
-          command: mcpTool.command,
+          // command: mcpTool.command, @todo - if this is the line, write a rant about it somewhere
           description: mcpTool.description,
           inputSchema: mcpTool.inputSchema
         })
