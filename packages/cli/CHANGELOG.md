@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.51.0
+
+### Minor Changes
+
+- b94e72f: sda
+
 ## 0.50.0
 
 ### Minor Changes
