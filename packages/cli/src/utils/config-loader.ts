@@ -3,6 +3,8 @@ import { join, resolve } from 'path';
 import { validateBlahManifest } from './validator.js';
 import axios from 'axios';
 import fs from 'fs';
+import { tool } from 'ai';
+import { execSync } from 'child_process';
 
 /**
  * Configuration for the BLAH CLI
@@ -114,6 +116,48 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     blahConfig = config;
   }
 
+  const fullTools: any[] = [...blahConfig.tools];
+
+  // Create env vars string for command prefix
+  const envString = blahConfig?.env ? 
+  Object.entries(blahConfig.env)
+    .map(([key, value]) => `${key}="${value}"`)
+    .join(' ') : '';
+
+
+  // loop over the tools and figure out which ones are an mcp server. if they are, send ajsonrpc quuest list the tools. and the concatenate them to blah.json tools
+  const tools = blahConfig.tools;
+  // @todo - implement a more conclusive way to figure out if something is an mcp server
+
+
+  tools.forEach((tool) => {
+    const isMcpServer = tool.command?.includes('npx') || tool.command?.includes('npm run');
+    console.log("asdadadas", {isMcpServer});
+    if (isMcpServer) {
+
+      let listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command} -- --config ${config}`;
+    
+      console.log("List tools command to run", {listToolsCommandTorun});
+    
+      // List tools
+      const listToolsCommandOutput = execSync(listToolsCommandTorun, { encoding: 'utf8' });
+      const listToolsResponse = JSON.parse(listToolsCommandOutput);
+      console.log("List tools response", {listToolsResponse}, listToolsResponse.result.tools);
+      const mcpTools = listToolsResponse.result.tools;
+
+      mcpTools.forEach((mcpTool) => {
+        fullTools.push({
+          name: 'LBLAH-' + mcpTool.name,
+          command: mcpTool.command,
+          description: mcpTool.description,
+          inputSchema: mcpTool.inputSchema
+        })
+      });
+    }
+  });
+
+
+
   // Extract and return the tools
-  return blahConfig.tools || [];
+  return fullTools;
 }

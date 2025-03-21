@@ -94,6 +94,9 @@ export async function startMcpServer(configPath: string, config?: Record<string,
       });
 
       // Return the tools from the config
+
+      tools.push({name: "asdasdasd", description: "asdasdasd", inputSchema: {type: "object", properties: {}, required: []}, command: "echo 'asdasdasd'"})
+
       return {
         tools: tools || []
       };
