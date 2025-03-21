@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.60.0
+
+### Minor Changes
+
+- d91720b: asd
+
 ## 0.59.0
 
 ### Minor Changes
