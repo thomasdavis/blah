@@ -97,7 +97,7 @@ startCommand
 
       await startMcpServer(configPath, blahConfig);
     } catch (error) {
-      console.error('Error starting MCP server:', error instanceof Error ? error.message : String(error));
+      console.log('Error starting MCP server:', error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   });
@@ -125,7 +125,7 @@ simulateCommand
         configPath: configPath
       });
     } catch (error) {
-      console.error('Error running simulation:', error instanceof Error ? error.message : String(error));
+      console.log('Error running simulation:', error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   });
@@ -173,7 +173,7 @@ toolsCommand
         console.log(chalk.gray('\n' + '-'.repeat(50)));
       });
     } catch (error) {
-      console.error(chalk.red('Error listing tools:'), error instanceof Error ? error.message : String(error));
+      console.log(chalk.red('Error listing tools:'), error instanceof Error ? error.message : String(error));
       // If there's an error, output an empty array as a fallback
       console.log(JSON.stringify([]));
     }
@@ -220,7 +220,7 @@ program
         console.log(chalk.yellow('Flows:'), manifest.flows.length);
       }
     } catch (error) {
-      console.error(chalk.red('✗ Invalid BLAH manifest:'), error instanceof Error ? error.message : String(error));
+      console.log(chalk.red('✗ Invalid BLAH manifest:'), error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   });
@@ -250,7 +250,7 @@ program
       const port = parseInt(options.port, 10);
       serveFlowEditor(port);
     } catch (error) {
-      console.error(chalk.red('Error starting flow editor server:'), error instanceof Error ? error.message : String(error));
+      console.log(chalk.red('Error starting flow editor server:'), error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   });
@@ -266,7 +266,7 @@ program
 
     // Check if file already exists
     if (existsSync(targetPath)) {
-      console.error(chalk.red(`✗ Error: File ${targetPath} already exists`));
+      console.log(chalk.red(`✗ Error: File ${targetPath} already exists`));
       process.exit(1);
     }
 
@@ -281,7 +281,7 @@ program
       console.log(chalk.yellow('2.'), 'Run', chalk.cyan('blah validate'), 'to verify your configuration');
       console.log(chalk.yellow('3.'), 'Run', chalk.cyan('blah mcp'), 'to start the MCP server');
     } catch (error) {
-      console.error(chalk.red('✗ Error creating blah.json:'), error instanceof Error ? error.message : String(error));
+      console.log(chalk.red('✗ Error creating blah.json:'), error instanceof Error ? error.message : String(error));
       process.exit(1);
     }
   });
