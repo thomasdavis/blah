@@ -1,5 +1,12 @@
 # @blahai/cli
 
+## 0.49.0
+
+### Minor Changes
+
+- b58e6ea: asdasd
+- 0bd042b: asas
+
 ## 0.48.0
 
 ### Minor Changes
