@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.68.1
+
+### Patch Changes
+
+- cfd1243: asd
+
 ## 0.68.0
 
 ### Minor Changes
