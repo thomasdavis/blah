@@ -145,9 +145,9 @@ export async function getTools(config: string | Record<string, any>): Promise<an
       console.log("List tools response", {listToolsResponse}, listToolsResponse.result.tools);
       const mcpTools = listToolsResponse.result.tools;
 
-      mcpTools.forEach((mcpTool) => {
+      mcpTools.forEach((mcpTool, index) => {
         fullTools.push({
-          name: 'LBLAH-' + mcpTool.name,
+          name: `${tool.name.toUpperCase()}-${index}_${mcpTool.name}`,
           command: mcpTool.command,
           description: mcpTool.description,
           inputSchema: mcpTool.inputSchema
