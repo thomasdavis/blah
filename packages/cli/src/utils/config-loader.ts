@@ -216,9 +216,9 @@ export async function getTools(config: string | Record<string, any>): Promise<an
         inputSchema: any;
       }
 
-      mcpTools.forEach((mcpTool: McpTool, index) => {
+      mcpTools.forEach((mcpTool: McpTool, index: number) => {
         fullTools.push({
-          name: `${tool.name}_${mcpTool.name}`,
+          name: `${tool.name.toUpperCase()}_${index + 1}_${mcpTool.name}`,
           // command: mcpTool.command, @todo - if this is the line, write a rant about it somewhere
           description: mcpTool.description,
           inputSchema: mcpTool.inputSchema
