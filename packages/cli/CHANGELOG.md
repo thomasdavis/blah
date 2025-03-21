@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.66.1
+
+### Patch Changes
+
+- 5f69bbf: ad
+
 ## 0.66.0
 
 ### Minor Changes
