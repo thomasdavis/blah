@@ -185,18 +185,18 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         console.log("Tool has been found", {tool});
         
         try {
-          // Prepare environment variables from blahConfig.env
-          const env = {
-            ...process.env, // Include existing environment variables
-            ...(blahConfig?.env || {}) // Add or override with blahConfig.env variables
-          };
+          // Create env vars string for command prefix
+          const envString = blahConfig?.env ? 
+            Object.entries(blahConfig.env)
+              .map(([key, value]) => `${key}="${value}"`)
+              .join(' ') : '';
 
-          let commandToRun = `${tool.command} ${JSON.stringify(request.params.arguments)}`;
+          let commandToRun = `${envString} ${tool.command}`;
 
           console.log("Command to run", {commandToRun});
 
-          // Execute the command with environment variables
-          const commandOutput = execSync(commandToRun, { encoding: 'utf8', env });
+          // Execute the command
+          const commandOutput = execSync(commandToRun, { encoding: 'utf8' });
           
           // if the command boots an mcp server, we need to detect that then echo a jsonrpc response which invokes the tool
 
@@ -210,6 +210,9 @@ export async function startMcpServer(configPath: string, config?: Record<string,
 npm run dev mcp start <<EOF
 {"jsonrpc": "2.0", "method": "tool/call", "params": {"toolName": "brave_search", "command": "doSomething", "args": []}, "id": 1}
 EOF
+
+echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp start -- --config /home/ajax/blah.json
+
           */
 
           console.log("Command output", {commandOutput});
