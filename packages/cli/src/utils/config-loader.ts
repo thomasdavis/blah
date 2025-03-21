@@ -218,7 +218,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
       mcpTools.forEach((mcpTool: McpTool, index) => {
         fullTools.push({
-          name: `asda${mcpTool.name}`,
+          name: `${tool.name}_${mcpTool.name}`,
           // command: mcpTool.command, @todo - if this is the line, write a rant about it somewhere
           description: mcpTool.description,
           inputSchema: mcpTool.inputSchema
