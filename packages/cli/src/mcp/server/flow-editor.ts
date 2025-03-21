@@ -60,7 +60,7 @@ export function serveFlowEditor(port: number = 3333): void {
       console.log(chalk.yellow('Will create a new blah.json file when saving flows'));
     }
   } catch (error) {
-    console.error(chalk.red('Error loading blah.json:'), error);
+    console.log(chalk.red('Error loading blah.json:'), error);
   }
 
   // API endpoint to get initial flows data
@@ -111,7 +111,7 @@ export function serveFlowEditor(port: number = 3333): void {
   //     console.log(chalk.green(`✓ Saved ${flows.length} flows to ${blahJsonPath}`));
   //     return res.json({ success: true, message: `Saved ${flows.length} flows to blah.json` });
   //   } catch (error) {
-  //     console.error(chalk.red('Error saving flows:'), error);
+  //     console.log(chalk.red('Error saving flows:'), error);
   //     return res.status(500).json({ error: 'Failed to save flows data' });
   //   }
   // });
@@ -277,7 +277,7 @@ export function serveFlowEditor(port: number = 3333): void {
               editorFrame.src = 'http://localhost:3002/flows';
             })
             .catch(error => {
-              console.error('Error loading flows:', error);
+              console.log('Error loading flows:', error);
               fileInfo.textContent = \`Error loading \${filePath}\`;
             });
           
@@ -318,7 +318,7 @@ export function serveFlowEditor(port: number = 3333): void {
               }
             })
             .catch(error => {
-              console.error('Error saving flows:', error);
+              console.log('Error saving flows:', error);
               showNotification('Error saving flows: ' + error.message, true);
             });
           }

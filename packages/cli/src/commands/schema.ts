@@ -41,15 +41,15 @@ export function registerSchemaCommands(program: Command) {
           }
           process.exit(0);
         } else {
-          console.error(chalk.red("✗ Configuration is invalid:"));
-          console.error(JSON.stringify(result.errors, null, 2));
+          console.log(chalk.red("✗ Configuration is invalid:"));
+          console.log(JSON.stringify(result.errors, null, 2));
           process.exit(1);
         }
       } catch (error) {
         if (error instanceof Error) {
-          console.error(chalk.red("Error:"), error.message);
+          console.log(chalk.red("Error:"), error.message);
         } else {
-          console.error(chalk.red("An unknown error occurred"));
+          console.log(chalk.red("An unknown error occurred"));
         }
         process.exit(1);
       }
@@ -64,7 +64,7 @@ export function registerSchemaCommands(program: Command) {
         const targetPath = path.resolve(file);
         
         if (existsSync(targetPath)) {
-          console.error(chalk.red("✗ File already exists:"), targetPath);
+          console.log(chalk.red("✗ File already exists:"), targetPath);
           process.exit(1);
         }
 
@@ -78,9 +78,9 @@ export function registerSchemaCommands(program: Command) {
         process.exit(0);
       } catch (error) {
         if (error instanceof Error) {
-          console.error(chalk.red("Error:"), error.message);
+          console.log(chalk.red("Error:"), error.message);
         } else {
-          console.error(chalk.red("An unknown error occurred"));
+          console.log(chalk.red("An unknown error occurred"));
         }
         process.exit(1);
       }

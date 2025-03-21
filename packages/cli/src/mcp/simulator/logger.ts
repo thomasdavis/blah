@@ -10,11 +10,11 @@ export function log(message: string, data?: unknown) {
 }
 
 export function logError(message: string, error: unknown) {
-  console.error(chalk.red('✖'), message);
+  console.log(chalk.red('✖'), message);
   if (error instanceof Error) {
-    console.error(chalk.red(error.stack || error.message));
+    console.log(chalk.red(error.stack || error.message));
   } else {
-    console.error(chalk.red(String(error)));
+    console.log(chalk.red(String(error)));
   }
 }
 

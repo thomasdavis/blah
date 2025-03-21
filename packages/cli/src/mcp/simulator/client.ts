@@ -130,7 +130,7 @@ export async function startClient(configPath: string | undefined, config: Simula
   const apiKey = blahConfig?.env?.OPENAI_API_KEY || env.OPENAI_API_KEY;
   
   if (!apiKey || apiKey === 'your-openai-api-key-here') {
-    console.error('ERROR: No valid OpenAI API key found. Please check your blah.json file or environment variables.');
+    console.log('ERROR: No valid OpenAI API key found. Please check your blah.json file or environment variables.');
     process.exit(1);
   }
 

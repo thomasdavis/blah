@@ -15,7 +15,7 @@ import { getConfig, getTools } from "../../utils/config-loader.js";
 
 
 export async function startMcpServer(configPath: string, config?: Record<string, unknown>) {
-  console.error('[startMcpServer] Starting MCP server with:', { configPath, config });
+  console.log('[startMcpServer] Starting MCP server with:', { configPath, config });
   // Create server instance
   const server = new Server(
     {
@@ -33,7 +33,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
   );
 
   let blahConfig: Record<string, unknown> | undefined = config;
-  console.error('[startMcpServer] Initial config state:', { hasConfig: !!config });
+  console.log('[startMcpServer] Initial config state:', { hasConfig: !!config });
 
   // Handle prompts requests
   server.setRequestHandler(ListPromptsRequestSchema, async () => {
@@ -72,15 +72,15 @@ export async function startMcpServer(configPath: string, config?: Record<string,
     });
     
     try {
-      console.error('[ListTools] Fetching tools from config path:', { configPath });
+      console.log('[ListTools] Fetching tools from config path:', { configPath });
       // Use the getTools utility function to get the tools from the config
       const tools = await getTools(configPath);
-      console.error('[ListTools] Successfully fetched tools:', { toolCount: tools.length });
+      console.log('[ListTools] Successfully fetched tools:', { toolCount: tools.length });
       
-      console.error('[ListTools] Loading full config');
+      console.log('[ListTools] Loading full config');
       // Store the config for later use
       blahConfig = await getConfig(configPath);
-      console.error('[ListTools] Config loaded successfully:', { hasConfig: !!blahConfig });
+      console.log('[ListTools] Config loaded successfully:', { hasConfig: !!blahConfig });
       
       server.sendLoggingMessage({
         level: "info",
@@ -91,14 +91,14 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         level: "info",
         data: `ListTools response received: ${JSON.stringify(tools)}`
       });
-      console.error('here it all falls down and im igor and ery sad', {tools});
+      console.log('here it all falls down and im igor and ery sad', {tools});
 
       return {
         tools: tools || []
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('[ListTools] Failed to fetch tools:', { error: errorMessage });
+      console.log('[ListTools] Failed to fetch tools:', { error: errorMessage });
       server.sendLoggingMessage({
         level: "error",
         data: `Error fetching tools: ${errorMessage}`
@@ -120,7 +120,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
       data: `Tool call request received: name='${request.params.name}', arguments=${JSON.stringify(request.params.arguments)}`
     });
 
-    console.error('[CallTool] Processing tool call with config:', { configPath });
+    console.log('[CallTool] Processing tool call with config:', { configPath });
 
     try {
       let toolUrl;
@@ -137,7 +137,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         
         toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
 
-        console.error('NOT HAVING A GREAT TIME');
+        console.log('NOT HAVING A GREAT TIME');
       } else {
         // For local configurations, use a mock response
         server.sendLoggingMessage({
@@ -146,7 +146,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         });
         
         // Execute the command specified in the tool configuration
-        console.error('[CallTool] Preparing to execute tool command:', { toolName: request.params.name });
+        console.log('[CallTool] Preparing to execute tool command:', { toolName: request.params.name });
 
         // Make sure blahConfig and tools exist
         if (!blahConfig || !Array.isArray(blahConfig.tools)) {
@@ -163,7 +163,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
           };
         }
         
-        console.error('[CallTool] Searching for tool configuration');
+        console.log('[CallTool] Searching for tool configuration');
 
         // Find the tool with the matching name
         const tool = blahConfig.tools.find((t: { name: string; command?: string }) => t.name === request.params.name);
@@ -183,7 +183,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
           };
         }
 
-        console.error('[CallTool] Found tool configuration:', { tool });
+        console.log('[CallTool] Found tool configuration:', { tool });
         
         try {
           // Create env vars string for command prefix
@@ -194,7 +194,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
 
           // Determine if the tool command is an MCP server (e.g. npx command)
           const isMcpServer = tool.command.includes('npx') || tool.command.includes('npm run');
-          console.error('[CallTool] Determined server type:', { isMcpServer, command: tool.command });
+          console.log('[CallTool] Determined server type:', { isMcpServer, command: tool.command });
 
 
 
@@ -205,17 +205,17 @@ export async function startMcpServer(configPath: string, config?: Record<string,
             ? `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command} -- --config ${configPath}`
             : `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command}`;
 
-          console.error('[CallTool] Preparing to list tools command:', { listToolsCommandTorun });
+          console.log('[CallTool] Preparing to list tools command:', { listToolsCommandTorun });
 
           // List tools
           const listToolsCommandOutput = execSync(listToolsCommandTorun, { encoding: 'utf8' });
           const listToolsResponse = JSON.parse(listToolsCommandOutput);
-          console.error('[CallTool] Received tools list response:', { listToolsResponse, tools: listToolsResponse.result.tools });
+          console.log('[CallTool] Received tools list response:', { listToolsResponse, tools: listToolsResponse.result.tools });
           
           // find the tool config in the listToolsResponse in toolName
 
           const toolConfig = listToolsResponse.result.tools.find((t: { name: string }) => t.name === toolName);
-          console.error('[CallTool] Found matching tool configuration:', { toolName, toolConfig });
+          console.log('[CallTool] Found matching tool configuration:', { toolName, toolConfig });
           
           // Pass the original request through to the tool
           const jsonRpcRequest = JSON.stringify({
@@ -233,7 +233,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
             ? `echo '${jsonRpcRequest}' | ${envString} ${tool.command} -- --config ${configPath}`
             : `echo '${jsonRpcRequest}' | ${envString} ${tool.command}`;
 
-          console.error('[CallTool] Executing command:', { commandToRun });
+          console.log('[CallTool] Executing command:', { commandToRun });
 
           const commandOutput = execSync(commandToRun, { encoding: 'utf8' });
           
@@ -254,12 +254,12 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
 
           */
 
-          console.error('[CallTool] Received command output:', { commandOutput });
+          console.log('[CallTool] Received command output:', { commandOutput });
           
           // Split output into lines and look for JSON-RPC responses
-          console.error('[CallTool] Processing command output lines');
+          console.log('[CallTool] Processing command output lines');
           const lines = commandOutput.split('\n').filter(line => line.trim());
-          console.error('[CallTool] Found output lines:', { lineCount: lines.length });
+          console.log('[CallTool] Found output lines:', { lineCount: lines.length });
           let lastJsonRpcResponse = null;
 
           for (const line of lines) {
@@ -304,7 +304,7 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
           
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
-          console.error('[CallTool] Command execution failed:', { error: errorMessage });
+          console.log('[CallTool] Command execution failed:', { error: errorMessage });
           server.sendLoggingMessage({
             level: "error",
             data: `Error executing command: ${errorMessage}`
@@ -372,7 +372,7 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
     } catch (error: unknown) {
       // Handle all errors
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('[CallTool] Tool execution failed:', { error: errorMessage });
+      console.log('[CallTool] Tool execution failed:', { error: errorMessage });
       server.sendLoggingMessage({
         level: "error",
         data: `Error executing tool: ${errorMessage}`
@@ -387,7 +387,7 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
   // Error handler
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   server.onerror = (error: any) => {
-    console.error('[startMcpServer] Server error occurred:', { error: String(error) });
+    console.log('[startMcpServer] Server error occurred:', { error: String(error) });
     server.sendLoggingMessage({
       level: "error",
       data: String(error)
@@ -396,20 +396,20 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
 
   // Set up SIGINT handler
   process.on("SIGINT", async () => {
-    console.error('[startMcpServer] Received SIGINT signal, shutting down...');
+    console.log('[startMcpServer] Received SIGINT signal, shutting down...');
     await server.close();
     process.exit(0);
   });
 
   // Connect server to stdio transport
   // Log server methods and properties
-  console.error('[startMcpServer] Server configuration:', server);
+  console.log('[startMcpServer] Server configuration:', server);
 
-  console.error('[startMcpServer] Initializing stdio transport');
+  console.log('[startMcpServer] Initializing stdio transport');
   const transport = new StdioServerTransport();
-  console.error('[startMcpServer] Connecting server to transport');
+  console.log('[startMcpServer] Connecting server to transport');
   await server.connect(transport);
-  console.error('[startMcpServer] Server connected successfully');
+  console.log('[startMcpServer] Server connected successfully');
 
   // Send initialization messages
   server.sendLoggingMessage({

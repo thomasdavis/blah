@@ -44,8 +44,8 @@ try {
     startMcpServer = serverModule.startMcpServer;
     console.log('Running MCP server in production mode');
   } catch (secondError: unknown) {
-    console.error('Error importing server module:', error instanceof Error ? error.message : String(error));
-    console.error('Second error:', secondError instanceof Error ? secondError.message : String(secondError));
+    console.log('Error importing server module:', error instanceof Error ? error.message : String(error));
+    console.log('Second error:', secondError instanceof Error ? secondError.message : String(secondError));
     process.exit(1);
   }
 }
@@ -56,6 +56,6 @@ console.log(`Starting MCP server with config path: ${blahConfig}`);
 
 startMcpServer(blahConfig)
   .catch((error) => {
-    console.error(`Fatal error running server: ${error}`);
+    console.log(`Fatal error running server: ${error}`);
     process.exit(1);
   });

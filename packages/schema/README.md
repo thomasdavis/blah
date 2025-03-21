@@ -25,7 +25,7 @@ const result = validator.validate(config);
 if (result.valid) {
   console.log("Configuration is valid!");
 } else {
-  console.error("Validation errors:", result.errors);
+  console.log("Validation errors:", result.errors);
 }
 ```
 
