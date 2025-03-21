@@ -191,7 +191,14 @@ export async function startMcpServer(configPath: string, config?: Record<string,
               .map(([key, value]) => `${key}="${value}"`)
               .join(' ') : '';
 
-          let commandToRun = `${envString} ${tool.command}`;
+          // Pass the original request through to the MCP server tool
+          const jsonRpcRequest = JSON.stringify({
+            jsonrpc: "2.0",
+            method: request.params.name,
+            params: request.params.arguments || {},
+            id: 1
+          });
+          let commandToRun = `echo '${jsonRpcRequest}' | ${envString} ${tool.command}`;
 
           console.log("Command to run", {commandToRun});
 
@@ -216,29 +223,44 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
           */
 
           console.log("Command output", {commandOutput});
-          // add a simple log if the command is a mcp server
-          if (commandOutput.includes("notifications/message")) {
-            server.sendLoggingMessage({
-              level: "info",
-              data: `Successfully executed command for tool: ${request.params.name}`
-            });
+          
+          // Split output into lines and look for JSON-RPC responses
+          const lines = commandOutput.split('\n').filter(line => line.trim());
+          let lastJsonRpcResponse = null;
 
-            // echo the jsonrpc response
-            const jsonrpcResponse = `{
-              "jsonrpc": "2.0",
-              "method": "echo",
-              "params": {"message": "Hello, MCP Server"},
-              "id": 1
-            }`;
-
-            process.stdout.write(jsonrpcResponse + '\n');
+          for (const line of lines) {
+            try {
+              const parsed = JSON.parse(line);
+              // Forward any notifications from the MCP server
+              if (parsed.method === 'notifications/message') {
+                server.sendLoggingMessage(parsed.params);
+                continue;
+              }
+              // Track the last valid JSON-RPC response
+              if (parsed.jsonrpc === '2.0') {
+                lastJsonRpcResponse = parsed;
+              }
+            } catch (e) {
+              // Not JSON, ignore
+            }
           }
 
-          server.sendLoggingMessage({
-            level: "info",
-            data: `Successfully executed command for tool: ${request.params.name}`
-          });
-          
+          // If we found a valid JSON-RPC response with a result, return it
+          if (lastJsonRpcResponse?.result) {
+            return lastJsonRpcResponse.result;
+          }
+
+          // If we found a JSON-RPC error, format it nicely
+          if (lastJsonRpcResponse?.error) {
+            return {
+              content: [{
+                type: "text",
+                text: `Error: ${lastJsonRpcResponse.error.message || 'Unknown error'}`
+              }]
+            };
+          }
+
+          // For regular command output or if no JSON-RPC response found
           return {
             content: [{
               type: "text",
