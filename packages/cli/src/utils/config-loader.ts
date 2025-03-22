@@ -6,6 +6,7 @@ import fs from 'fs';
 import { tool } from 'ai';
 import { execSync } from 'child_process';
 import { createLogger } from './logger.js';
+import { getSlopToolsFromManifest, fetchToolsFromSlopEndpoints } from '../slop/index.js';
 
 // Create a logger for this module
 const logger = createLogger('config-loader');
@@ -143,8 +144,9 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
 
   logger.info('Initial blahConfig', { blahConfig });
-  let fullTools: any[] = [...blahConfig.tools];
-  logger.info('Initial tools list', { fullTools });
+  // Filter out SLOP tools from the initial list (we'll handle them separately)
+  let fullTools: any[] = blahConfig.tools ? blahConfig.tools.filter((tool: any) => !('slop' in tool)) : [];
+  logger.info('Initial tools list (without SLOP tools)', { fullTools });
 
   // Create env vars string for command prefix
   const envString = blahConfig?.env ? 
@@ -231,6 +233,41 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     }
   });
 
+
+  // Now fetch and process SLOP tools
+  logger.info('Processing SLOP tools');
+  try {
+    // Extract SLOP tools from the manifest
+    logger.info('Extracting SLOP tools from manifest');
+    const slopTools = getSlopToolsFromManifest(blahConfig as any);
+    logger.info('Found SLOP tools in manifest', { slopToolCount: slopTools.length });
+    
+    // We'll skip adding the parent SLOP tools directly to the list
+    // Instead, we'll just use them to fetch their endpoint tools
+    
+    // Fetch tools from all SLOP endpoints defined in the manifest
+    logger.info('Fetching tools from SLOP endpoints');
+    const slopEndpointTools = await fetchToolsFromSlopEndpoints(blahConfig as any);
+    logger.info('Fetched tools from SLOP endpoints', { endpointToolCount: slopEndpointTools.length });
+    
+    // Format the SLOP endpoint tools for MCP
+    const formattedEndpointTools = slopEndpointTools.map(tool => ({
+      name: `${tool.sourceToolName}_${tool.name}`, // Prepend with SLOP tool name
+      description: tool.description || 'No description provided',
+      slop: tool.slopUrl, // Keep the original SLOP URL for later use
+      sourceToolName: tool.sourceToolName,
+      inputSchema: tool.schema || {
+        type: "object",
+        properties: {}
+      }
+    }));
+    
+    // Add formatted SLOP endpoint tools to the fullTools array
+    fullTools = [...fullTools, ...formattedEndpointTools];
+  } catch (error) {
+    logger.error('Error processing SLOP tools', error);
+    // Continue with the tools we have so far
+  }
 
   // Extract and return the tools
   logger.info('Final tools list', { fullTools });

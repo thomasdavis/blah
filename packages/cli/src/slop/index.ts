@@ -122,6 +122,8 @@ export function displaySlopTools(tools: any[], source: string): void {
   console.log(chalk.blue.bold(`\n🔗 SLOP Tools from ${source} 🔗`));
   console.log(chalk.gray('═'.repeat(60)));
 
+
+  
   tools.forEach((tool: any, index: number) => {
     const toolName = tool.name || `Tool ${index + 1}`;
     const toolDescription = tool.description || 'No description provided';
@@ -158,7 +160,8 @@ export async function fetchToolsFromSlopEndpoints(manifest: BlahManifest): Promi
       const toolsWithSource = tools.map((t: any) => ({
         ...t,
         slopUrl: tool.slopUrl,
-        sourceToolName: tool.name
+        sourceToolName: tool.name,
+        name: t.id
       }));
       
       return toolsWithSource;

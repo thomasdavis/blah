@@ -231,6 +231,8 @@ slopCommand
           // Fetch tools from all SLOP endpoints defined in the manifest
           const endpointTools = await fetchToolsFromSlopEndpoints(manifest);
           
+          console.log({ endpointTools });
+
           if (endpointTools.length > 0) {
             displaySlopTools(endpointTools, 'SLOP Endpoints');
           } else {

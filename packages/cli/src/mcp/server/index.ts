@@ -12,6 +12,7 @@ import fs from 'fs';
 import { execSync } from 'child_process';
 import { getConfig, getTools } from "../../utils/config-loader.js";
 import { log, logError, logSection, logStep } from "../simulator/logger.js";
+import { getSlopToolsFromManifest } from "../../slop/index.js";
 
 /**
  * Starts an MCP server with the specified configuration
@@ -38,12 +39,23 @@ export async function startMcpServer(configPath: string, config?: Record<string,
     }
   );
 
-  // Define a more specific type for blahConfig that includes env property
-  interface BlahConfigWithEnv extends Record<string, unknown> {
+  // Define a more specific type for blahConfig that includes env property and matches BlahManifest
+  interface BlahConfigWithEnv {
+    name: string;
+    version: string;
+    alias?: string;
+    description?: string;
+    tools?: Array<{
+      name: string;
+      description?: string;
+      slop?: string;
+      [key: string]: any;
+    }>;
     env?: {
       VALTOWN_USERNAME?: string;
       [key: string]: string | undefined;
     };
+    [key: string]: any;
   }
   
   let blahConfig: BlahConfigWithEnv | undefined = config as BlahConfigWithEnv;
@@ -98,6 +110,9 @@ export async function startMcpServer(configPath: string, config?: Record<string,
       blahConfig = await getConfig(configPath);
       log('Config loaded successfully', { hasConfig: !!blahConfig });
       
+      // All tools (including SLOP tools and SLOP endpoint tools) are now fetched by getTools
+      log('Tools fetched successfully', { toolCount: tools.length });
+      
       server.sendLoggingMessage({
         level: "info",
         data: `Retrieved tools: ${JSON.stringify(tools)}`
@@ -142,8 +157,54 @@ export async function startMcpServer(configPath: string, config?: Record<string,
     try {
       let toolUrl;
       
+      // Check if the tool is a SLOP tool
+      log('Loading full config to check for SLOP tools');
+      if (!blahConfig) {
+        blahConfig = await getConfig(configPath);
+      }
+      
+      // Ensure blahConfig is not undefined before passing to getSlopToolsFromManifest
+      const slopTools = blahConfig ? getSlopToolsFromManifest(blahConfig as any) : [];
+      
+      // First check if it's a direct SLOP tool
+      let slopTool = slopTools.find(tool => tool.name === request.params.name);
+      
+      // If not a direct SLOP tool, check if it's a tool from a SLOP endpoint
+      if (!slopTool && request.params.name.includes('_')) {
+        // Extract the source tool name (part before the first underscore)
+        const sourceToolName = request.params.name.split('_')[0];
+        // Find the parent SLOP tool
+        const parentSlopTool = slopTools.find(tool => tool.name === sourceToolName);
+        
+        if (parentSlopTool) {
+          // It's a tool from a SLOP endpoint
+          slopTool = {
+            name: request.params.name,
+            description: 'Tool from SLOP endpoint',
+            slopUrl: parentSlopTool.slopUrl
+          };
+          
+          log('Found tool from SLOP endpoint', { 
+            toolName: request.params.name, 
+            parentTool: sourceToolName,
+            slopUrl: parentSlopTool.slopUrl 
+          });
+        }
+      }
+      
+      if (slopTool) {
+        log('Found matching SLOP tool', { slopTool });
+        server.sendLoggingMessage({
+          level: "info",
+          data: `Handling SLOP tool: ${slopTool.name} at ${slopTool.slopUrl}`
+        });
+        
+        // Use the SLOP URL directly
+        toolUrl = slopTool.slopUrl;
+        log('Using SLOP URL', { toolUrl });
+      }
       // Check if configPath is a URL or a local file path
-      if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
+      else if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
         // For remote configurations, construct the ValTown URL
         const hostUsername = new URL(configPath).hostname.split("-")[0];
 
@@ -244,8 +305,56 @@ export async function startMcpServer(configPath: string, config?: Record<string,
             data: `Attempting to fetch from URL: ${toolUrl}`
           });
           
+          // Check if this is a SLOP tool
+          const slopTools = blahConfig ? getSlopToolsFromManifest(blahConfig as any) : [];
+          
+          // First check if it's a direct SLOP tool
+          let slopTool = slopTools.find(tool => tool.name === request.params.name);
+          let isEndpointTool = false;
+          
+          // If not a direct SLOP tool, check if it's a tool from a SLOP endpoint
+          if (!slopTool && request.params.name.includes('_')) {
+            // Extract the source tool name (part before the first underscore)
+            const sourceToolName = request.params.name.split('_')[0];
+            // Find the parent SLOP tool
+            const parentSlopTool = slopTools.find(tool => tool.name === sourceToolName);
+            
+            if (parentSlopTool) {
+              // It's a tool from a SLOP endpoint
+              slopTool = {
+                name: request.params.name,
+                description: 'Tool from SLOP endpoint',
+                slopUrl: parentSlopTool.slopUrl
+              };
+              isEndpointTool = true;
+              
+              log('Found tool from SLOP endpoint', { 
+                toolName: request.params.name, 
+                parentTool: sourceToolName,
+                slopUrl: parentSlopTool.slopUrl 
+              });
+            }
+          }
+          
+          // For SLOP tools, we need to make the request to the appropriate endpoint
+          let requestUrl;
+          if (slopTool) {
+            if (isEndpointTool) {
+              // For endpoint tools, extract the actual tool name (after the first underscore)
+              const actualToolName = request.params.name.split('_').slice(1).join('_');
+              requestUrl = `${toolUrl}/run/${actualToolName}`;
+            } else {
+              // For direct SLOP tools
+              requestUrl = `${toolUrl}/run`;
+            }
+          } else {
+            requestUrl = toolUrl;
+          }
+          
+          log('Final request URL', { requestUrl });
+          
           // Make the API request and await the response
-          const response = await fetch(toolUrl, {
+          const response = await fetch(requestUrl, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -273,15 +382,29 @@ export async function startMcpServer(configPath: string, config?: Record<string,
           }
 
           // Parse the JSON response
-          const valTownResponse = await response.json();
+          const responseData = await response.json() as Record<string, any>;
           server.sendLoggingMessage({
             level: "info",
-            data: `Response parsed: ${JSON.stringify(valTownResponse)}`
+            data: `Response parsed: ${JSON.stringify(responseData)}`
           });
           
+          // Handle SLOP tool responses which might have a different format
+          if (slopTool) {
+            log('Processing SLOP tool response', { responseData });
+            // SLOP responses might be wrapped in a result property or directly contain the result
+            const slopResult = 'result' in responseData ? responseData.result : responseData;
+            
+            return {
+              content: [
+                { type: "text", text: `Tool result: ${JSON.stringify(slopResult)}` }
+              ],
+            };
+          }
+          
+          // Regular ValTown response
           return {
             content: [
-              { type: "text", text: `Tool result: ${JSON.stringify(valTownResponse)}` }
+              { type: "text", text: `Tool result: ${JSON.stringify(responseData)}` }
             ],
           };
         }
