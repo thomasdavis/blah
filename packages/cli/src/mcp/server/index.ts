@@ -11,11 +11,17 @@ import path from 'path';
 import fs from 'fs';
 import { execSync } from 'child_process';
 import { getConfig, getTools } from "../../utils/config-loader.js";
+import { log, logError, logSection, logStep } from "../simulator/logger.js";
 
-
-
+/**
+ * Starts an MCP server with the specified configuration
+ * @param configPath Path to the configuration file
+ * @param config Optional configuration object
+ */
 export async function startMcpServer(configPath: string, config?: Record<string, unknown>) {
-  console.log('[startMcpServer] Starting MCP server with:', { configPath, config });
+  logSection('MCP Server');
+  log('Starting MCP server', { configPath, config });
+  
   // Create server instance
   const server = new Server(
     {
@@ -32,8 +38,16 @@ export async function startMcpServer(configPath: string, config?: Record<string,
     }
   );
 
-  let blahConfig: Record<string, unknown> | undefined = config;
-  console.log('[startMcpServer] Initial config state:', { hasConfig: !!config });
+  // Define a more specific type for blahConfig that includes env property
+  interface BlahConfigWithEnv extends Record<string, unknown> {
+    env?: {
+      VALTOWN_USERNAME?: string;
+      [key: string]: string | undefined;
+    };
+  }
+  
+  let blahConfig: BlahConfigWithEnv | undefined = config as BlahConfigWithEnv;
+  log('Initial config state', { hasConfig: !!config });
 
   // Handle prompts requests
   server.setRequestHandler(ListPromptsRequestSchema, async () => {
@@ -61,6 +75,8 @@ export async function startMcpServer(configPath: string, config?: Record<string,
 
   // Handle tools requests
   server.setRequestHandler(ListToolsRequestSchema, async () => {
+    logStep('Received ListTools request');
+    
     server.sendLoggingMessage({
       level: "info",
       data: "Received ListTools request"
@@ -72,15 +88,15 @@ export async function startMcpServer(configPath: string, config?: Record<string,
     });
     
     try {
-      console.log('[ListTools] Fetching tools from config path:', { configPath });
+      log('Fetching tools from config path', { configPath });
       // Use the getTools utility function to get the tools from the config
       const tools = await getTools(configPath);
-      console.log('[ListTools] Successfully fetched tools:', { toolCount: tools.length });
+      log('Successfully fetched tools', { toolCount: tools.length });
       
-      console.log('[ListTools] Loading full config');
+      log('Loading full config');
       // Store the config for later use
       blahConfig = await getConfig(configPath);
-      console.log('[ListTools] Config loaded successfully:', { hasConfig: !!blahConfig });
+      log('Config loaded successfully', { hasConfig: !!blahConfig });
       
       server.sendLoggingMessage({
         level: "info",
@@ -91,14 +107,13 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         level: "info",
         data: `ListTools response received: ${JSON.stringify(tools)}`
       });
-      console.log('here it all falls down and im igor and ery sad', {tools});
 
       return {
         tools: tools || []
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.log('[ListTools] Failed to fetch tools:', { error: errorMessage });
+      logError('Failed to fetch tools', error);
       server.sendLoggingMessage({
         level: "error",
         data: `Error fetching tools: ${errorMessage}`
@@ -110,6 +125,8 @@ export async function startMcpServer(configPath: string, config?: Record<string,
   // Handle tool calls
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   server.setRequestHandler(CallToolRequestSchema, async (request): Promise<any> => {
+    logStep(`Tool call request: ${request.params.name}`);
+    
     server.sendLoggingMessage({
       level: "info",
       data: `Forwarding tool request to Val Town: ${request.params.name}, ${JSON.stringify(request.params.arguments)}`
@@ -120,7 +137,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
       data: `Tool call request received: name='${request.params.name}', arguments=${JSON.stringify(request.params.arguments)}`
     });
 
-    console.log('[CallTool] Processing tool call with config:', { configPath });
+    log('Processing tool call with config', { configPath });
 
     try {
       let toolUrl;
@@ -137,7 +154,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         
         toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
 
-        console.log('NOT HAVING A GREAT TIME');
+        log('Using remote ValTown URL', { toolUrl });
       } else {
         // For local configurations, use a mock response
         server.sendLoggingMessage({
@@ -146,12 +163,12 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         });
         
         // Execute the command specified in the tool configuration
-        console.log('[CallTool] Preparing to execute tool command:', { toolName: request.params.name });
+        log('Preparing to execute tool command', { toolName: request.params.name });
 
         // Use the getTools utility function to get the tools from the config
-        console.log('[CallTool] Fetching tools from config path:', { configPath });
+        log('Fetching tools from config path', { configPath });
         const tools = await getTools(configPath);
-        console.log('[CallTool] Successfully fetched tools:', { toolCount: tools.length });
+        log('Successfully fetched tools', { toolCount: tools.length });
         
         // Make sure we have tools
         if (!tools || !Array.isArray(tools)) {
@@ -168,27 +185,108 @@ export async function startMcpServer(configPath: string, config?: Record<string,
           };
         }
         
-        console.log('[CallTool] Searching for tool configuration');
+        log('Searching for tool configuration');
 
         // Find the tool with the matching name
         const tool = tools.find((t: { name: string; command?: string }) => t.name === request.params.name);
         
         if (!tool) {
-
           server.sendLoggingMessage({
             level: "error",
-            data: `No command found for tool: ${request.params.name}`
+            data: `No tool found with name: ${request.params.name}`
           });
 
           return {
             content: [{
               type: "text",
-              text: `Error: No command configuration found for tool '${request.params.name}'`
+              text: `Error: No tool configuration found for '${request.params.name}'`
             }]
           };
         }
+        
+        // If tool exists but has no command, use ValTown with VALTOWN_USERNAME
+        if (!tool.command) {
+          // Get ValTown username from environment variables in blahConfig
+          const valTownUsername = blahConfig?.env?.VALTOWN_USERNAME;
+          
+          if (!valTownUsername) {
+            server.sendLoggingMessage({
+              level: "error",
+              data: `No VALTOWN_USERNAME found in environment variables and no command for tool: ${request.params.name}`
+            });
+            
+            return {
+              content: [{
+                type: "text",
+                text: `Error: No command found for tool '${request.params.name}' and no VALTOWN_USERNAME configured`
+              }]
+            };
+          }
+          
+          // Construct ValTown URL using the username and tool name
+          toolUrl = `https://${valTownUsername}-${request.params.name}.web.val.run`;
+          
+          server.sendLoggingMessage({
+            level: "info",
+            data: `No command found for tool, using ValTown URL: ${toolUrl}`
+          });
+          
+          log('Using ValTown URL for tool without command', { toolUrl });
+          
+          // Skip to the fetch part by setting up for ValTown API call
+          server.sendLoggingMessage({
+            level: "info",
+            data: `Constructed tool URL: ${toolUrl}`
+          });
+          
+          server.sendLoggingMessage({
+            level: "info",
+            data: `Attempting to fetch from URL: ${toolUrl}`
+          });
+          
+          // Make the API request and await the response
+          const response = await fetch(toolUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request.params.arguments || {})
+          });
+          
+          server.sendLoggingMessage({
+            level: "info",
+            data: `Response status: ${response.status} ${response.statusText}`
+          });
 
-        console.log('[CallTool] Found tool configuration:', { tool });
+          // Handle non-OK responses
+          if (!response.ok) {
+            if (response.status === 404) {
+              return {
+                content: [{ type: "text", text: `Tool '${request.params.name}' was not found on ValTown` }],
+                error: "NOT_FOUND"
+              };
+            }
+            return {
+              content: [{ type: "text", text: `Val Town API error: ${response.statusText}` }],
+              error: "API_ERROR"
+            };
+          }
+
+          // Parse the JSON response
+          const valTownResponse = await response.json();
+          server.sendLoggingMessage({
+            level: "info",
+            data: `Response parsed: ${JSON.stringify(valTownResponse)}`
+          });
+          
+          return {
+            content: [
+              { type: "text", text: `Tool result: ${JSON.stringify(valTownResponse)}` }
+            ],
+          };
+        }
+
+        log('Found tool configuration', { tool });
         
         try {
           // Create env vars string for command prefix
@@ -214,7 +312,7 @@ export async function startMcpServer(configPath: string, config?: Record<string,
           // For MCP servers, we need to pass the config path
           let commandToRun = `echo '${jsonRpcRequest}' | ${envString} ${tool.command} -- --config ${configPath}`;
 
-          console.log('[CallTool] Executing command:', { commandToRun });
+          log('Executing command', { commandToRun });
 
           const commandOutput = execSync(commandToRun, { encoding: 'utf8' });
           
@@ -235,12 +333,12 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
 
           */
 
-          console.log('[CallTool] Received command output:', { commandOutput });
+          log('Received command output', { commandOutput });
           
           // Split output into lines and look for JSON-RPC responses
-          console.log('[CallTool] Processing command output lines');
+          log('Processing command output lines');
           const lines = commandOutput.split('\n').filter(line => line.trim());
-          console.log('[CallTool] Found output lines:', { lineCount: lines.length });
+          log('Found output lines', { lineCount: lines.length });
           let lastJsonRpcResponse = null;
 
           for (const line of lines) {
@@ -285,7 +383,7 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
           
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
-          console.log('[CallTool] Command execution failed:', { error: errorMessage });
+          logError('Command execution failed', error);
           server.sendLoggingMessage({
             level: "error",
             data: `Error executing command: ${errorMessage}`
@@ -299,15 +397,19 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
           };
         }
       }
-      server.sendLoggingMessage({
-        level: "info",
-        data: `Constructed tool URL: ${toolUrl}`
-      });
       
-      server.sendLoggingMessage({
-        level: "info",
-        data: `Attempting to fetch from URL: ${toolUrl}`
-      });
+      // Only proceed with the ValTown API call if we have a toolUrl
+      // (this will be set either from remote config or from a tool without command)
+      if (toolUrl) {
+        server.sendLoggingMessage({
+          level: "info",
+          data: `Constructed tool URL: ${toolUrl}`
+        });
+        
+        server.sendLoggingMessage({
+          level: "info",
+          data: `Attempting to fetch from URL: ${toolUrl}`
+        });
       
       // Make the API request and await the response
       const response = await fetch(toolUrl, {
@@ -349,11 +451,12 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
           { type: "text", text: `Tool result: ${JSON.stringify(valTownResponse)}` }
         ],
       };
+      }
       
     } catch (error: unknown) {
       // Handle all errors
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.log('[CallTool] Tool execution failed:', { error: errorMessage });
+      logError('Tool execution failed', error);
       server.sendLoggingMessage({
         level: "error",
         data: `Error executing tool: ${errorMessage}`
