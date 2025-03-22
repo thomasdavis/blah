@@ -9,65 +9,49 @@ const logger = createLogger('slop-handler');
  * Handles a tool call for SLOP tools
  * @param request The tool call request
  * @param blahConfig The loaded BLAH configuration
- * @returns Object indicating if the call was handled and the result
+ * @returns Object containing the result
  */
 export async function handleSlopCall(
   request: any,
-  blahConfig: any
-): Promise<{ handled: boolean; result?: any }> {
+  slopConfig: any
+): Promise<{ result: any }> {
   logger.info('Checking if tool is a SLOP tool', { toolName: request.params.name });
   
-  // Ensure blahConfig is not undefined before passing to getSlopToolsFromManifest
-  const slopTools = blahConfig ? getSlopToolsFromManifest(blahConfig) : [];
+  logger.info('Entering handleSlopCall for tool', { toolName: request.params.name });
   
-  // First check if it's a direct SLOP tool
-  let slopTool = slopTools.find(tool => tool.name === request.params.name);
-  
-  // If not a direct SLOP tool, check if it's a tool from a SLOP endpoint
-  if (!slopTool && request.params.name.includes('_')) {
-    // Extract the source tool name (part before the first underscore)
-    const sourceToolName = request.params.name.split('_')[0];
-    // Find the parent SLOP tool
-    const parentSlopTool = slopTools.find(tool => tool.name === sourceToolName);
-    
-    if (parentSlopTool) {
-      // It's a tool from a SLOP endpoint
-      slopTool = {
-        name: request.params.name,
-        description: 'Tool from SLOP endpoint',
-        slopUrl: parentSlopTool.slopUrl
-      };
-      
-      logger.info('Found tool from SLOP endpoint', { 
-        toolName: request.params.name, 
-        parentTool: sourceToolName,
-        slopUrl: parentSlopTool.slopUrl 
-      });
-    }
-  }
-  
-  if (!slopTool) {
-    logger.info('Not a SLOP tool', { toolName: request.params.name });
-    return { handled: false };
-  }
-  
-  logger.info('Found matching SLOP tool', { slopTool });
-  
+  console.log("fggggggg");
+  console.log("fggggggg");
+  console.log("fggggggg");
+  console.log("fggggggg");
+  console.log("fggggggg");
+  console.log({slopConfig, request  });
+
+  // First check if the tool configuration was passed from the index.ts file
+
   try {
     // Use the SLOP URL directly
-    const toolUrl = slopTool.slopUrl;
+    const toolUrl = `${slopConfig.slop}/tools/${slopConfig.originalSlopToolName}`;
     logger.info('Using SLOP URL', { toolUrl });
-    
+
+    logger.info('Full request details', {
+      originalToolName: request.params.name,
+      baseToolName: slopConfig.name,
+      finalUrl: toolUrl,
+      arguments: request.params.arguments
+    });
+      
     // Prepare the request to the SLOP endpoint
-    const slopResponse = await fetch(`${toolUrl}/run`, {
+    const slopResponse = await fetch(toolUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        name: request.params.name,
-        arguments: request.params.arguments
-      })
+      body: JSON.stringify(request.params.arguments)
+    });
+    
+    logger.info('SLOP response status', { 
+      status: slopResponse.status,
+      statusText: slopResponse.statusText 
     });
     
     if (!slopResponse.ok) {
@@ -80,7 +64,6 @@ export async function handleSlopCall(
     
     // Return the result
     return {
-      handled: true,
       result: {
         content: [{
           type: "text",
@@ -93,7 +76,6 @@ export async function handleSlopCall(
     logger.error(`Error calling SLOP endpoint: ${errorMessage}`, error);
     
     return {
-      handled: true,
       result: {
         content: [{
           type: "text",

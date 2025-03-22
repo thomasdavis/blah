@@ -52,6 +52,20 @@ export async function handleLocalCall(
       };
     }
     
+    // Log the tool for debugging
+    logger.info('Found tool configuration', { tool });
+    
+    // If tool has slop property, it should have been handled by the slop handler
+    if (tool.slop) {
+      logger.error(`Tool '${request.params.name}' has slop property but wasn't handled by slop handler`);
+      return {
+        content: [{
+          type: "text",
+          text: `Error: Tool '${request.params.name}' has slop property and should be handled by slop handler`
+        }]
+      };
+    }
+    
     // If tool exists but has no command, use ValTown with VALTOWN_USERNAME
     if (!tool.command) {
       // Get ValTown username from environment variables in blahConfig

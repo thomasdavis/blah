@@ -96,17 +96,36 @@ export async function fetchSlopModels(slopUrl: string): Promise<any[]> {
  * @returns Array of SLOP tools with their URLs
  */
 export function getSlopToolsFromManifest(manifest: BlahManifest): { name: string; description: string; slopUrl: string }[] {
+  logger.info('Getting SLOP tools from manifest', { 
+    hasTools: !!manifest.tools,
+    toolCount: manifest.tools?.length || 0 
+  });
+  
   if (!manifest.tools) {
+    logger.warn('No tools found in manifest');
     return [];
   }
   
-  return manifest.tools
+  // Log all tools for debugging
+  manifest.tools.forEach((tool, index) => {
+    logger.info(`Tool ${index}:`, { 
+      name: tool.name, 
+      hasSlop: 'slop' in tool,
+      slopValue: tool.slop 
+    });
+  });
+  
+  const slopTools = manifest.tools
     .filter(tool => 'slop' in tool && typeof tool.slop === 'string')
     .map(tool => ({
       name: tool.name,
+      // Create a slopUrl property from the slop property for consistency
       description: tool.description || 'No description provided',
       slopUrl: tool.slop as string
     }));
+    
+  logger.info('Found SLOP tools', { count: slopTools.length, slopTools });
+  return slopTools;
 }
 
 /**
@@ -169,6 +188,7 @@ export async function fetchToolsFromSlopEndpoints(manifest: BlahManifest): Promi
         ...t,
         slopUrl: tool.slopUrl,
         sourceToolName: tool.name,
+        sourceSlopToolName: tool.id,
         name: t.id
       }));
       console.log({toolsWithSource});
