@@ -9,6 +9,7 @@ import { loadBlahConfig, getTools } from './utils/config-loader.js';
 import { writeFileSync, existsSync } from 'fs';
 import { sampleManifest } from '@blahai/schema';
 import chalk from 'chalk';
+import { getSlopToolsFromManifest, fetchSlopTools, fetchSlopModels, displaySlopTools, displaySlopModels } from './slop/index.js';
 
 // Load environment variables from .env file
 config();
@@ -183,6 +184,113 @@ toolsCommand
 mcpCommand.addCommand(startCommand);
 mcpCommand.addCommand(simulateCommand);
 mcpCommand.addCommand(toolsCommand);
+
+// Create the slop command with subcommands
+const slopCommand = new Command('slop');
+slopCommand
+  .description('Simple Language Open Protocol (SLOP) commands')
+  .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
+  .hook('preAction', (thisCommand, actionCommand) => {
+    // Store the config option from the parent command
+    if (thisCommand.opts().config) {
+      globalConfigPath = thisCommand.opts().config;
+      
+      // Also set it on the actionCommand if it supports config option
+      if (actionCommand.opts && typeof actionCommand.opts === 'function' && 
+          actionCommand.setOptionValue && typeof actionCommand.setOptionValue === 'function') {
+        actionCommand.setOptionValue('config', thisCommand.opts().config);
+      }
+    }
+  });
+
+// Add tools subcommand to slop
+slopCommand
+  .command('tools')
+  .description('List all SLOP tools from the manifest')
+  .option('-u, --url <url>', 'Directly query a SLOP server URL for tools')
+  .action(async (options) => {
+    try {
+      if (options.url) {
+        // If URL is provided, fetch tools directly from that SLOP server
+        const tools = await fetchSlopTools(options.url);
+        displaySlopTools(tools, options.url);
+      } else {
+        // Otherwise, get tools from the manifest
+        const configPath = getConfigPath(options);
+        const manifest = await loadBlahConfig(configPath);
+        const slopTools = getSlopToolsFromManifest(manifest);
+        
+        console.log(chalk.blue.bold('\n🔗 SLOP Tools from Manifest 🔗'));
+        console.log(chalk.gray('═'.repeat(60)));
+        
+        if (slopTools.length === 0) {
+          console.log(chalk.yellow('No SLOP tools found in manifest'));
+        } else {
+          // Display SLOP tools from manifest
+          slopTools.forEach((tool, index) => {
+            console.log(chalk.green.bold(`${index + 1}. ${tool.name}`));
+            console.log(chalk.white(`   ${tool.description}`));
+            console.log(chalk.cyan(`   URL: ${tool.slopUrl}`));
+            console.log(chalk.gray('-'.repeat(50)));
+          });
+          
+          // Fetch and display tools from each SLOP endpoint
+          for (const tool of slopTools) {
+            try {
+              const toolsFromServer = await fetchSlopTools(tool.slopUrl);
+              if (toolsFromServer.length > 0) {
+                displaySlopTools(toolsFromServer, tool.slopUrl);
+              }
+            } catch (error) {
+              console.error(chalk.red(`Error fetching tools from ${tool.slopUrl}: ${error instanceof Error ? error.message : String(error)}`));
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : String(error)}`));
+    }
+  });
+
+// Add models subcommand to slop
+slopCommand
+  .command('models')
+  .description('List all SLOP models from the manifest')
+  .option('-u, --url <url>', 'Directly query a SLOP server URL for models')
+  .action(async (options) => {
+    try {
+      if (options.url) {
+        // If URL is provided, fetch models directly from that SLOP server
+        const models = await fetchSlopModels(options.url);
+        displaySlopModels(models, options.url);
+      } else {
+        // Otherwise, get models from the manifest
+        const configPath = getConfigPath(options);
+        const manifest = await loadBlahConfig(configPath);
+        const slopTools = getSlopToolsFromManifest(manifest);
+        
+        if (slopTools.length === 0) {
+          console.log(chalk.yellow('No SLOP tools found in manifest'));
+        } else {
+          // Fetch and display models from each SLOP endpoint
+          for (const tool of slopTools) {
+            try {
+              const modelsFromServer = await fetchSlopModels(tool.slopUrl);
+              displaySlopModels(modelsFromServer, tool.slopUrl);
+            } catch (error) {
+              console.error(chalk.red(`Error fetching models from ${tool.slopUrl}: ${error instanceof Error ? error.message : String(error)}`));
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error(chalk.red(`Error: ${error instanceof Error ? error.message : String(error)}`));
+    }
+  });
+
+// Add the commands to the program
+program.addCommand(mcpCommand);
+program.addCommand(slopCommand);
 
 program
   .command('validate')
