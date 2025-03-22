@@ -144,461 +144,44 @@ export async function startMcpServer(configPath: string, config?: Record<string,
     
     server.sendLoggingMessage({
       level: "info",
-      data: `Forwarding tool request to Val Town: ${request.params.name}, ${JSON.stringify(request.params.arguments)}`
-    });
-    
-    server.sendLoggingMessage({
-      level: "info",
       data: `Tool call request received: name='${request.params.name}', arguments=${JSON.stringify(request.params.arguments)}`
     });
 
     log('Processing tool call with config', { configPath });
 
     try {
-      let toolUrl;
-      
-      // Check if the tool is a SLOP tool
-      log('Loading full config to check for SLOP tools');
+      // Load the configuration if not already loaded
       if (!blahConfig) {
         blahConfig = await getConfig(configPath);
       }
       
-      // Ensure blahConfig is not undefined before passing to getSlopToolsFromManifest
-      const slopTools = blahConfig ? getSlopToolsFromManifest(blahConfig as any) : [];
+      // Import the tool call handler from the new module
+      const { handleToolCall } = await import('./calls/index.js');
       
-      // First check if it's a direct SLOP tool
-      let slopTool = slopTools.find(tool => tool.name === request.params.name);
-      
-      // If not a direct SLOP tool, check if it's a tool from a SLOP endpoint
-      if (!slopTool && request.params.name.includes('_')) {
-        // Extract the source tool name (part before the first underscore)
-        const sourceToolName = request.params.name.split('_')[0];
-        // Find the parent SLOP tool
-        const parentSlopTool = slopTools.find(tool => tool.name === sourceToolName);
-        
-        if (parentSlopTool) {
-          // It's a tool from a SLOP endpoint
-          slopTool = {
-            name: request.params.name,
-            description: 'Tool from SLOP endpoint',
-            slopUrl: parentSlopTool.slopUrl
-          };
-          
-          log('Found tool from SLOP endpoint', { 
-            toolName: request.params.name, 
-            parentTool: sourceToolName,
-            slopUrl: parentSlopTool.slopUrl 
-          });
-        }
-      }
-      
-      if (slopTool) {
-        log('Found matching SLOP tool', { slopTool });
-        server.sendLoggingMessage({
-          level: "info",
-          data: `Handling SLOP tool: ${slopTool.name} at ${slopTool.slopUrl}`
-        });
-        
-        // Use the SLOP URL directly
-        toolUrl = slopTool.slopUrl;
-        log('Using SLOP URL', { toolUrl });
-      }
-      // Check if configPath is a URL or a local file path
-      else if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
-        // For remote configurations, construct the ValTown URL
-        const hostUsername = new URL(configPath).hostname.split("-")[0];
-
-        server.sendLoggingMessage({
-          level: "info",
-          data: `Resolved host username: ${hostUsername}`
-        });
-        
-        toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
-
-        log('Using remote ValTown URL', { toolUrl });
-      } else {
-        // For local configurations, use a mock response
-        server.sendLoggingMessage({
-          level: "info",
-          data: `Using local tool simulation for: ${request.params.name}`
-        });
-        
-        // Execute the command specified in the tool configuration
-        log('Preparing to execute tool command', { toolName: request.params.name });
-
-        // Use the getTools utility function to get the tools from the config
-        log('Fetching tools from config path', { configPath });
-        const tools = await getTools(configPath);
-        log('Successfully fetched tools', { toolCount: tools.length });
-        
-        // Make sure we have tools
-        if (!tools || !Array.isArray(tools)) {
-          server.sendLoggingMessage({
-            level: "error",
-            data: `Invalid configuration: tools array not found`
-          });
-
-          return {
-            content: [{
-              type: "text",
-              text: "Error: Invalid configuration structure"
-            }]
-          };
-        }
-        
-        log('Searching for tool configuration');
-
-        // Find the tool with the matching name
-        const tool = tools.find((t: { name: string; command?: string }) => t.name === request.params.name);
-        
-        if (!tool) {
-          server.sendLoggingMessage({
-            level: "error",
-            data: `No tool found with name: ${request.params.name}`
-          });
-
-          return {
-            content: [{
-              type: "text",
-              text: `Error: No tool configuration found for '${request.params.name}'`
-            }]
-          };
-        }
-        
-        // If tool exists but has no command, use ValTown with VALTOWN_USERNAME
-        if (!tool.command) {
-          // Get ValTown username from environment variables in blahConfig
-          const valTownUsername = blahConfig?.env?.VALTOWN_USERNAME;
-          
-          if (!valTownUsername) {
-            server.sendLoggingMessage({
-              level: "error",
-              data: `No VALTOWN_USERNAME found in environment variables and no command for tool: ${request.params.name}`
-            });
-            
-            return {
-              content: [{
-                type: "text",
-                text: `Error: No command found for tool '${request.params.name}' and no VALTOWN_USERNAME configured`
-              }]
-            };
-          }
-          
-          // Construct ValTown URL using the username and tool name
-          toolUrl = `https://${valTownUsername}-${request.params.name}.web.val.run`;
-          
-          server.sendLoggingMessage({
-            level: "info",
-            data: `No command found for tool, using ValTown URL: ${toolUrl}`
-          });
-          
-          log('Using ValTown URL for tool without command', { toolUrl });
-          
-          // Skip to the fetch part by setting up for ValTown API call
-          server.sendLoggingMessage({
-            level: "info",
-            data: `Constructed tool URL: ${toolUrl}`
-          });
-          
-          server.sendLoggingMessage({
-            level: "info",
-            data: `Attempting to fetch from URL: ${toolUrl}`
-          });
-          
-          // Check if this is a SLOP tool
-          const slopTools = blahConfig ? getSlopToolsFromManifest(blahConfig as any) : [];
-          
-          // First check if it's a direct SLOP tool
-          let slopTool = slopTools.find(tool => tool.name === request.params.name);
-          let isEndpointTool = false;
-          
-          // If not a direct SLOP tool, check if it's a tool from a SLOP endpoint
-          if (!slopTool && request.params.name.includes('_')) {
-            // Extract the source tool name (part before the first underscore)
-            const sourceToolName = request.params.name.split('_')[0];
-            // Find the parent SLOP tool
-            const parentSlopTool = slopTools.find(tool => tool.name === sourceToolName);
-            
-            if (parentSlopTool) {
-              // It's a tool from a SLOP endpoint
-              slopTool = {
-                name: request.params.name,
-                description: 'Tool from SLOP endpoint',
-                slopUrl: parentSlopTool.slopUrl
-              };
-              isEndpointTool = true;
-              
-              log('Found tool from SLOP endpoint', { 
-                toolName: request.params.name, 
-                parentTool: sourceToolName,
-                slopUrl: parentSlopTool.slopUrl 
-              });
-            }
-          }
-          
-          // For SLOP tools, we need to make the request to the appropriate endpoint
-          let requestUrl;
-          if (slopTool) {
-            if (isEndpointTool) {
-              // For endpoint tools, extract the actual tool name (after the first underscore)
-              const actualToolName = request.params.name.split('_').slice(1).join('_');
-              requestUrl = `${toolUrl}/run/${actualToolName}`;
-            } else {
-              // For direct SLOP tools
-              requestUrl = `${toolUrl}/run`;
-            }
-          } else {
-            requestUrl = toolUrl;
-          }
-          
-          log('Final request URL', { requestUrl });
-          
-          // Make the API request and await the response
-          const response = await fetch(requestUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(request.params.arguments || {})
-          });
-          
-          server.sendLoggingMessage({
-            level: "info",
-            data: `Response status: ${response.status} ${response.statusText}`
-          });
-
-          // Handle non-OK responses
-          if (!response.ok) {
-            if (response.status === 404) {
-              return {
-                content: [{ type: "text", text: `Tool '${request.params.name}' was not found on ValTown` }],
-                error: "NOT_FOUND"
-              };
-            }
-            return {
-              content: [{ type: "text", text: `Val Town API error: ${response.statusText}` }],
-              error: "API_ERROR"
-            };
-          }
-
-          // Parse the JSON response
-          const responseData = await response.json() as Record<string, any>;
-          server.sendLoggingMessage({
-            level: "info",
-            data: `Response parsed: ${JSON.stringify(responseData)}`
-          });
-          
-          // Handle SLOP tool responses which might have a different format
-          if (slopTool) {
-            log('Processing SLOP tool response', { responseData });
-            // SLOP responses might be wrapped in a result property or directly contain the result
-            const slopResult = 'result' in responseData ? responseData.result : responseData;
-            
-            return {
-              content: [
-                { type: "text", text: `Tool result: ${JSON.stringify(slopResult)}` }
-              ],
-            };
-          }
-          
-          // Regular ValTown response
-          return {
-            content: [
-              { type: "text", text: `Tool result: ${JSON.stringify(responseData)}` }
-            ],
-          };
-        }
-
-        log('Found tool configuration', { tool });
-        
-        try {
-          // Create env vars string for command prefix
-          const envString = blahConfig?.env ? 
-            Object.entries(blahConfig.env)
-              .map(([key, value]) => `${key}="${value}"`)
-              .join(' ') : '';
-
-
-          // tools array needs to contain the original command
-
-          // Pass the original request through to the tool
-          const jsonRpcRequest = JSON.stringify({
-            jsonrpc: "2.0",
-            method: 'tools/call',
-            params:  {
-              name :tool.originalName,
-              arguments: request.params.arguments
-            },
-            id: 1
-          });
-
-          // For MCP servers, we need to pass the config path
-          let commandToRun = `echo '${jsonRpcRequest}' | ${envString} ${tool.command} -- --config ${configPath}`;
-
-          log('Executing command', { commandToRun });
-
-          const commandOutput = execSync(commandToRun, { encoding: 'utf8' });
-          
-          // if the command boots an mcp server, we need to detect that then echo a jsonrpc response which invokes the tool
-
-          /*
-          {"method":"notifications/message","params":{"level":"info","data":"BLAH MCP Server running on stdio"},"jsonrpc":"2.0"}
-          {"method":"notifications/message","params":{"level":"info","data":"Server started successfully"},"jsonrpc":"2.0"}
-
-          echo '{"jsonrpc": "2.0", "method": "echo", "params": {"message": "Hello, MCP Server"}, "id": 1}
-          {"jsonrpc": "2.0", "method": "getTools", "params": {}, "id": 2}' | npm run dev mcp start
-
-npm run dev mcp start <<EOF
-{"jsonrpc": "2.0", "method": "tool/call", "params": {"toolName": "brave_search", "command": "doSomething", "args": []}, "id": 1}
-EOF
-
-echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp start -- --config /home/ajax/blah.json
-
-          */
-
-          log('Received command output', { commandOutput });
-          
-          // Split output into lines and look for JSON-RPC responses
-          log('Processing command output lines');
-          const lines = commandOutput.split('\n').filter(line => line.trim());
-          log('Found output lines', { lineCount: lines.length });
-          let lastJsonRpcResponse = null;
-
-          for (const line of lines) {
-            try {
-              const parsed = JSON.parse(line);
-              // Forward any notifications from the MCP server
-              if (parsed.method === 'notifications/message') {
-                server.sendLoggingMessage(parsed.params);
-                continue;
-              }
-              // Track the last valid JSON-RPC response
-              if (parsed.jsonrpc === '2.0') {
-                lastJsonRpcResponse = parsed;
-              }
-            } catch (e) {
-              // Not JSON, ignore
-            }
-          }
-
-          // If we found a valid JSON-RPC response with a result, return it
-          if (lastJsonRpcResponse?.result) {
-            return lastJsonRpcResponse.result;
-          }
-
-          // If we found a JSON-RPC error, format it nicely
-          if (lastJsonRpcResponse?.error) {
-            return {
-              content: [{
-                type: "text",
-                text: `Error: ${lastJsonRpcResponse.error.message || 'Unknown error'}`
-              }]
-            };
-          }
-
-          // For regular command output or if no JSON-RPC response found
-          return {
-            content: [{
-              type: "text",
-              text: commandOutput
-            }]
-          };
-          
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          logError('Command execution failed', error);
-          server.sendLoggingMessage({
-            level: "error",
-            data: `Error executing command: ${errorMessage}`
-          });
-          
-          return {
-            content: [{
-              type: "text",
-              text: `Error executing command: ${errorMessage}`
-            }]
-          };
-        }
-      }
-      
-      // Only proceed with the ValTown API call if we have a toolUrl
-      // (this will be set either from remote config or from a tool without command)
-      if (toolUrl) {
-        server.sendLoggingMessage({
-          level: "info",
-          data: `Constructed tool URL: ${toolUrl}`
-        });
-        
-        server.sendLoggingMessage({
-          level: "info",
-          data: `Attempting to fetch from URL: ${toolUrl}`
-        });
-      
-      // Make the API request and await the response
-      const response = await fetch(toolUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(request.params.arguments || {})
-      });
-      
-      server.sendLoggingMessage({
-        level: "info",
-        data: `Response status: ${response.status} ${response.statusText}`
-      });
-
-      // Handle non-OK responses
-      if (!response.ok) {
-        if (response.status === 404) {
-          return {
-            content: [{ type: "text", text: `Tool '${request.params.name}' was not found` }],
-            error: "NOT_FOUND"
-          };
-        }
-        return {
-          content: [{ type: "text", text: `Val Town API error: ${response.statusText}` }],
-          error: "API_ERROR"
-        };
-      }
-
-      // Parse the JSON response
-      const valTownResponse = await response.json();
-      server.sendLoggingMessage({
-        level: "info",
-        data: `Response parsed: ${JSON.stringify(response)}`
-      });
-      
-      return {
-        content: [
-          { type: "text", text: `Tool result: ${JSON.stringify(valTownResponse)}` }
-        ],
-      };
-      }
-      
-    } catch (error: unknown) {
-      // Handle all errors
+      // Delegate to the modular handler
+      return await handleToolCall(request, configPath, blahConfig);
+    } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      logError('Tool execution failed', error);
+      logError('Error handling tool call', error);
+      
       server.sendLoggingMessage({
         level: "error",
-        data: `Error executing tool: ${errorMessage}`
+        data: `Error handling tool call: ${errorMessage}`
       });
+      
       return {
-        content: [{ type: "text", text: `Tool execution failed: ${errorMessage}` }],
-        error: errorMessage
+        content: [{
+          type: "text",
+          text: `Error: ${errorMessage}`
+        }]
       };
     }
   });
-
-  // Error handler
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  server.onerror = (error: any) => {
-    console.log('[startMcpServer] Server error occurred:', { error: String(error) });
-    server.sendLoggingMessage({
-      level: "error",
-      data: String(error)
-    });
+  // Set up error handler
+  server.onerror = (error) => {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logError('MCP Server error', error);
+    console.error(`[MCP Server] Error: ${errorMessage}`);
   };
 
   // Set up SIGINT handler
@@ -608,29 +191,10 @@ echo '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}' | npm run dev mcp sta
     process.exit(0);
   });
 
-  // Connect server to stdio transport
-  // Log server methods and properties
-  console.log('[startMcpServer] Server configuration:', server);
-
-  console.log('[startMcpServer] Initializing stdio transport');
+  // Start the server
   const transport = new StdioServerTransport();
-  console.log('[startMcpServer] Connecting server to transport');
+  // Connect the server to the transport
   await server.connect(transport);
-  console.log('[startMcpServer] Server connected successfully');
-
-  // Send initialization messages
-  server.sendLoggingMessage({
-    level: "info",
-    data: "BLAH MCP Server running on stdio"
-  });
-
-  server.sendLoggingMessage({
-    level: "info",
-    data: "Server started successfully"
-  });
-
-  // Keep server running
-  return new Promise<void>((resolve) => {
-    // This promise intentionally doesn't resolve to keep the server running
-  });
+  log('MCP Server started successfully');
+  return server;
 }
