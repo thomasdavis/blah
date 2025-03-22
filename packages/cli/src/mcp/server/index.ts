@@ -148,8 +148,13 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         // Execute the command specified in the tool configuration
         console.log('[CallTool] Preparing to execute tool command:', { toolName: request.params.name });
 
-        // Make sure blahConfig and tools exist
-        if (!blahConfig || !Array.isArray(blahConfig.tools)) {
+        // Use the getTools utility function to get the tools from the config
+        console.log('[CallTool] Fetching tools from config path:', { configPath });
+        const tools = await getTools(configPath);
+        console.log('[CallTool] Successfully fetched tools:', { toolCount: tools.length });
+        
+        // Make sure we have tools
+        if (!tools || !Array.isArray(tools)) {
           server.sendLoggingMessage({
             level: "error",
             data: `Invalid configuration: tools array not found`
@@ -166,9 +171,9 @@ export async function startMcpServer(configPath: string, config?: Record<string,
         console.log('[CallTool] Searching for tool configuration');
 
         // Find the tool with the matching name
-        const tool = blahConfig.tools.find((t: { name: string; command?: string }) => t.name === request.params.name);
+        const tool = tools.find((t: { name: string; command?: string }) => t.name === request.params.name);
         
-        if (!tool || !tool.command) {
+        if (!tool) {
 
           server.sendLoggingMessage({
             level: "error",
@@ -192,46 +197,22 @@ export async function startMcpServer(configPath: string, config?: Record<string,
               .map(([key, value]) => `${key}="${value}"`)
               .join(' ') : '';
 
-          // Determine if the tool command is an MCP server (e.g. npx command)
-          const isMcpServer = tool.command.includes('npx') || tool.command.includes('npm run');
-          console.log('[CallTool] Determined server type:', { isMcpServer, command: tool.command });
 
+          // tools array needs to contain the original command
 
-
-          const toolName = request.params.name;
-
-
-          let listToolsCommandTorun = isMcpServer
-            ? `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command} -- --config ${configPath}`
-            : `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": 1}' | ${envString} ${tool.command}`;
-
-          console.log('[CallTool] Preparing to list tools command:', { listToolsCommandTorun });
-
-          // List tools
-          const listToolsCommandOutput = execSync(listToolsCommandTorun, { encoding: 'utf8' });
-          const listToolsResponse = JSON.parse(listToolsCommandOutput);
-          console.log('[CallTool] Received tools list response:', { listToolsResponse, tools: listToolsResponse.result.tools });
-          
-          // find the tool config in the listToolsResponse in toolName
-
-          const toolConfig = listToolsResponse.result.tools.find((t: { name: string }) => t.name === toolName);
-          console.log('[CallTool] Found matching tool configuration:', { toolName, toolConfig });
-          
           // Pass the original request through to the tool
           const jsonRpcRequest = JSON.stringify({
             jsonrpc: "2.0",
             method: 'tools/call',
             params:  {
-              name :request.params.name,
+              name :tool.originalName,
               arguments: request.params.arguments
             },
             id: 1
           });
 
           // For MCP servers, we need to pass the config path
-          let commandToRun = isMcpServer
-            ? `echo '${jsonRpcRequest}' | ${envString} ${tool.command} -- --config ${configPath}`
-            : `echo '${jsonRpcRequest}' | ${envString} ${tool.command}`;
+          let commandToRun = `echo '${jsonRpcRequest}' | ${envString} ${tool.command} -- --config ${configPath}`;
 
           console.log('[CallTool] Executing command:', { commandToRun });
 

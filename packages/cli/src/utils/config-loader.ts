@@ -142,7 +142,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
 
   console.log('[getTools] Initial blahConfig:', { blahConfig });
-  let fullTools: any[] = [];
+  let fullTools: any[] = [...blahConfig.tools];
   console.log('[getTools] Initial tools list:', { fullTools });
 
   // Create env vars string for command prefix
@@ -162,6 +162,8 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     const isMcpServer = tool.command?.includes('npx') || tool.command?.includes('npm run');
     console.log('[getTools] Detected MCP server:', { tool: tool.name, isMcpServer });
     if (isMcpServer) {
+      // Remove the original MCP server entry from the fullTools list
+      fullTools = fullTools.filter((t: any) => t.name !== tool.name);
 
       // either the payload is not considerate (jsonrpc)
       // windsurf is its own app it likely has a different idea about pwd or cwd
@@ -219,37 +221,14 @@ export async function getTools(config: string | Record<string, any>): Promise<an
       mcpTools.forEach((mcpTool: McpTool, index: number) => {
         fullTools.push({
           name: `${tool.name.toUpperCase()}_${index + 1}_${mcpTool.name}`,
-          // command: mcpTool.command, @todo - if this is the line, write a rant about it somewhere
+          originalName: mcpTool.name,
+          command: tool.command ?? "No master command",
           description: mcpTool.description,
           inputSchema: mcpTool.inputSchema
         })
       });
     }
   });
-
-  // return fullTools.map(tool => ({
-  //   name: tool.name ?? "asdasd" + Math.random(),
-  //   description: "ASDASD",
-  //   inputSchema: {
-  //     "type": "object",
-  //     "properties": {},
-  //     "required": []
-  //   }
-  // }));
-
-  // return [
-  //   {
-  //     "name": "hello_lovely44",
-  //     "description": "The description does not matter if it does then fuck me",
-  //     "inputSchema": {
-  //       "type": "object",
-  //       "properties": {},
-  //       "required": []
-  //     }
-  //   }
-  // ];
-  // // filter out any tools that have command set 
-  // fullTools = fullTools.filter(tool => !tool.command);
 
 
   // Extract and return the tools
