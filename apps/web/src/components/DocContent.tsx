@@ -7,15 +7,15 @@ export function DocContent() {
       <div className="text-center mb-12">
         <h1 className="text-4xl font-bold text-primary-700 mb-2">BLAH</h1>
         <p className="text-xl text-gray-600">Barely Logical Agent Host</p>
-        <p className="mt-4 text-gray-600">A comprehensive CLI tool for working with the Model Context Protocol (MCP)</p>
+        <p className="mt-4 text-gray-600">A comprehensive CLI tool for building, testing, and deploying AI tools across multiple protocols</p>
       </div>
 
       <section id="introduction" className="mb-12">
         <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Introduction</h2>
         <p>
-          BLAH (Barely Logical Agent Host) is a powerful CLI tool designed to work with the Model Context Protocol (MCP).
-          It provides a complete MCP server implementation with support for both remote and local tool execution,
-          allowing you to create, test, and deploy AI tools with ease.
+          BLAH (Barely Logical Agent Host) is a powerful CLI tool designed for building, testing, and deploying AI tools across multiple protocols.
+          It provides a complete implementation with support for both Model Context Protocol (MCP) and Simple Language and Object Protocol (SLOP),
+          enabling seamless integration with various AI systems and tools.
         </p>
       </section>
 
@@ -165,6 +165,8 @@ blah flows`}
       "description": "string", // Required: Tool description
       "command": "string", // Optional: Command to execute for local tools
       "originalName": "string", // Optional: Original name for MCP server tools
+      "slop": "string", // Optional: URL to a SLOP endpoint for this tool
+      "slopUrl": "string", // Optional: Alternative to slop property
       "inputSchema": {
         // Required: JSON Schema for tool inputs
         "type": "object",
@@ -184,6 +186,8 @@ blah flows`}
           <li><strong>Command-based tools</strong>: Tools with a <code>command</code> property that executes a local command</li>
           <li><strong>ValTown tools</strong>: Tools without a command that use ValTown for execution</li>
           <li><strong>MCP server tools</strong>: Tools that invoke other MCP servers (using npx/npm commands)</li>
+          <li><strong>SLOP tools</strong>: Tools with a <code>slop</code> or <code>slopUrl</code> property that connect to SLOP endpoints</li>
+          <li><strong>URI tools</strong>: Tools that execute via custom HTTP endpoints</li>
         </ol>
 
         <h3 className="text-xl font-semibold mt-6">Example Local Configuration</h3>
@@ -275,6 +279,38 @@ blah flows`}
         </ul>
       </section>
 
+      <section id="protocol-bridges" className="mb-12">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Protocol Bridges</h2>
+        <p>
+          @blahai/cli serves as a bridge between different AI tool protocols, allowing tools built for one protocol 
+          to be used with systems that support another. The core of the project is a flexible architecture that 
+          supports multiple protocol implementations:
+        </p>
+
+        <h3 className="text-xl font-semibold mt-6">Protocol Support</h3>
+        <ol>
+          <li>
+            <strong>Model Context Protocol (MCP)</strong>
+            <ul>
+              <li>Complete implementation of the MCP specification</li>
+              <li>Uses StdioServerTransport for bidirectional communication with MCP clients</li>
+              <li>Implements JSON-RPC for standardized request/response handling</li>
+              <li>Supports dynamic tool discovery and listing</li>
+              <li>Compatible with Claude Desktop, Claude Code, Cursor, Cline, Windsurf, and other MCP clients</li>
+            </ul>
+          </li>
+          <li>
+            <strong>Simple Language and Object Protocol (SLOP)</strong>
+            <ul>
+              <li>Full support for the SLOP specification</li>
+              <li>Fetches and integrates tools from SLOP endpoints</li>
+              <li>Handles sub-tool patterns (parentTool_subTool)</li>
+              <li>Provides automatic conversion between SLOP and MCP formats</li>
+            </ul>
+          </li>
+        </ol>
+      </section>
+
       <section id="mcp-integration" className="mb-12">
         <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">MCP Integration</h2>
         <p>BLAH works with any system that supports the Model Context Protocol:</p>
@@ -294,6 +330,61 @@ blah flows`}
           <li><strong>Tool Discovery</strong>: Supports dynamic tool discovery and listing</li>
           <li><strong>Tool Execution</strong>: Handles tool calls with proper error handling and response formatting</li>
           <li><strong>Logging</strong>: Provides detailed logging for debugging and monitoring</li>
+        </ul>
+      </section>
+
+      <section id="slop-integration" className="mb-12">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">SLOP Integration</h2>
+        <p>Connects with systems that implement the Simple Language and Object Protocol:</p>
+        <ul>
+          <li>SLOP servers and endpoints</li>
+          <li>AI systems that use SLOP for tool execution</li>
+          <li>Custom SLOP implementations</li>
+        </ul>
+
+        <h3 className="text-xl font-semibold mt-6">SLOP Features</h3>
+        <ul>
+          <li><strong>HTTP Transport</strong>: Communicates with SLOP endpoints via HTTP</li>
+          <li><strong>Tool Discovery</strong>: Fetches available tools from SLOP endpoints</li>
+          <li><strong>Sub-tool Support</strong>: Handles nested tool patterns (parentTool_subTool)</li>
+          <li><strong>Protocol Translation</strong>: Converts between SLOP and MCP formats seamlessly</li>
+        </ul>
+      </section>
+
+      <section id="advanced-features" className="mb-12">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Advanced Features</h2>
+
+        <h3 className="text-xl font-semibold mt-6">Multi-Protocol Architecture</h3>
+        <p>The CLI is built on a flexible architecture that supports multiple protocols:</p>
+        <ul>
+          <li><strong>Protocol Detection</strong>: Automatically detects which protocol to use based on tool configuration</li>
+          <li><strong>Protocol Translation</strong>: Seamlessly translates between different protocol formats</li>
+          <li><strong>Extensible Design</strong>: Easily add support for new protocols through the handler system</li>
+        </ul>
+
+        <h3 className="text-xl font-semibold mt-6">ValTown Integration</h3>
+        <p>The CLI provides seamless integration with ValTown:</p>
+        <ul>
+          <li><strong>Remote Tool Execution</strong>: Tools can be executed on ValTown's serverless platform</li>
+          <li><strong>Fallback Mechanism</strong>: Uses ValTown as a fallback when local commands aren't available</li>
+          <li><strong>Username Configuration</strong>: Uses VALTOWN_USERNAME from environment variables or config</li>
+        </ul>
+
+        <h3 className="text-xl font-semibold mt-6">Protocol Server Nesting</h3>
+        <p>The CLI supports nesting protocol servers:</p>
+        <ul>
+          <li><strong>Server Discovery</strong>: Detects when a tool is another protocol server</li>
+          <li><strong>Tool Forwarding</strong>: Forwards tool requests to nested servers</li>
+          <li><strong>Response Processing</strong>: Processes and formats responses from nested servers</li>
+        </ul>
+
+        <h3 className="text-xl font-semibold mt-6">SLOP Tool Integration</h3>
+        <p>The CLI provides comprehensive support for SLOP tools:</p>
+        <ul>
+          <li><strong>SLOP Endpoint Discovery</strong>: Automatically discovers tools from SLOP endpoints</li>
+          <li><strong>Sub-tool Support</strong>: Handles SLOP sub-tool patterns (parentTool_subTool)</li>
+          <li><strong>Tool Conversion</strong>: Converts SLOP tools to MCP-compatible format</li>
+          <li><strong>Error Handling</strong>: Provides robust error handling for SLOP-specific issues</li>
         </ul>
       </section>
     </div>

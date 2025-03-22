@@ -1,6 +1,6 @@
 # @blahai/cli - Barely Logical Agent Host
 
-A comprehensive CLI tool for working with the Model Context Protocol (MCP) to create, test, and deploy AI tools. This package provides a complete MCP server implementation with support for both remote and local tool execution.
+A comprehensive CLI tool for building, testing, and deploying AI tools across multiple protocols. This package provides a complete implementation with support for both Model Context Protocol (MCP) and Simple Language and Object Protocol (SLOP), enabling seamless integration with various AI systems and tools.
 
 ## Getting Started
 
@@ -153,9 +153,26 @@ Options:
 
 The flow editor automatically reads from and writes to your `blah.json` file. If the file doesn't exist, it will be created when you save a flow.
 
-## MCP Server Implementation
+## Protocol Bridges
 
-The MCP server in @blahai/cli provides a complete implementation of the Model Context Protocol with several key features:
+@blahai/cli serves as a bridge between different AI tool protocols, allowing tools built for one protocol to be used with systems that support another. The core of the project is a flexible architecture that supports multiple protocol implementations:
+
+### Protocol Support
+
+1. **Model Context Protocol (MCP)**
+
+   - Complete implementation of the MCP specification
+   - Uses StdioServerTransport for bidirectional communication with MCP clients
+   - Implements JSON-RPC for standardized request/response handling
+   - Supports dynamic tool discovery and listing
+   - Compatible with Claude Desktop, Claude Code, Cursor, Cline, Windsurf, and other MCP clients
+
+2. **Simple Language and Object Protocol (SLOP)**
+
+   - Full support for the SLOP specification
+   - Fetches and integrates tools from SLOP endpoints
+   - Handles sub-tool patterns (parentTool_subTool)
+   - Provides automatic conversion between SLOP and MCP formats
 
 ### Tool Execution Modes
 
@@ -171,15 +188,20 @@ The MCP server in @blahai/cli provides a complete implementation of the Model Co
    - Supports JSON-RPC request/response format for tool communication
    - Parses and processes command output for structured responses
 
-3. **Fallback Mechanism**
+3. **URI-based Tool Execution**
+
+   - Executes tools via HTTP endpoints
+   - Supports custom URI patterns and authentication
+
+4. **SLOP Tool Execution**
+
+   - Connects to SLOP endpoints to execute tools
+   - Handles SLOP-specific request/response formats
+   - Supports nested SLOP tools and sub-tools
+
+5. **Fallback Mechanism**
    - If a tool exists in configuration but has no command, falls back to ValTown using VALTOWN_USERNAME
    - Provides graceful degradation and helpful error messages
-
-### Communication Protocol
-
-- Uses StdioServerTransport for bidirectional communication with MCP clients
-- Implements JSON-RPC for standardized request/response handling
-- Provides comprehensive logging throughout the execution flow
 
 ## Creating a BLAH Manifest
 
@@ -274,6 +296,8 @@ The BLAH manifest (`blah.json`) follows this schema:
       "description": "string", // Required: Tool description
       "command": "string", // Optional: Command to execute for local tools
       "originalName": "string", // Optional: Original name for MCP server tools
+      "slop": "string", // Optional: URL to a SLOP endpoint for this tool
+      "slopUrl": "string", // Optional: Alternative to slop property
       "inputSchema": {
         // Required: JSON Schema for tool inputs
         "type": "object",
@@ -292,6 +316,8 @@ The CLI supports several types of tools:
 1. **Command-based tools**: Tools with a `command` property that executes a local command
 2. **ValTown tools**: Tools without a command that use ValTown for execution
 3. **MCP server tools**: Tools that invoke other MCP servers (using npx/npm commands)
+4. **SLOP tools**: Tools with a `slop` or `slopUrl` property that connect to SLOP endpoints
+5. **URI tools**: Tools that execute via custom HTTP endpoints
 
 ### Simulation Config
 
@@ -367,9 +393,13 @@ The flow editor supports the following node types:
 - `input`: Node that collects input from users
 - `output`: Node that provides output to users
 
-## MCP Integration
+## Protocol Integration
 
-BLAH works with any system that supports the Model Context Protocol:
+BLAH works as a bridge between different AI tool protocols, enabling interoperability between systems:
+
+### MCP Integration
+
+Works with any system that supports the Model Context Protocol:
 
 - Claude Desktop
 - Claude Code (CLI)
@@ -378,7 +408,7 @@ BLAH works with any system that supports the Model Context Protocol:
 - Windsurf
 - Other MCP-compatible clients
 
-### Integration Features
+#### MCP Features
 
 - **Stdio Transport**: Communicates with MCP clients using standard input/output
 - **JSON-RPC Protocol**: Uses standardized JSON-RPC for request/response handling
@@ -386,7 +416,30 @@ BLAH works with any system that supports the Model Context Protocol:
 - **Tool Execution**: Handles tool calls with proper error handling and response formatting
 - **Logging**: Provides detailed logging for debugging and monitoring
 
+### SLOP Integration
+
+Connects with systems that implement the Simple Language and Object Protocol:
+
+- SLOP servers and endpoints
+- AI systems that use SLOP for tool execution
+- Custom SLOP implementations
+
+#### SLOP Features
+
+- **HTTP Transport**: Communicates with SLOP endpoints via HTTP
+- **Tool Discovery**: Fetches available tools from SLOP endpoints
+- **Sub-tool Support**: Handles nested tool patterns (parentTool_subTool)
+- **Protocol Translation**: Converts between SLOP and MCP formats seamlessly
+
 ## Advanced Features
+
+### Multi-Protocol Architecture
+
+The CLI is built on a flexible architecture that supports multiple protocols:
+
+- **Protocol Detection**: Automatically detects which protocol to use based on tool configuration
+- **Protocol Translation**: Seamlessly translates between different protocol formats
+- **Extensible Design**: Easily add support for new protocols through the handler system
 
 ### ValTown Integration
 
@@ -404,13 +457,22 @@ The CLI supports executing tools locally:
 - **JSON-RPC Formatting**: Formats requests and parses responses in JSON-RPC format
 - **Error Handling**: Provides robust error handling and informative error messages
 
-### MCP Server Nesting
+### Protocol Server Nesting
 
-The CLI supports nesting MCP servers:
+The CLI supports nesting protocol servers:
 
-- **Server Discovery**: Detects when a tool is another MCP server
-- **Tool Forwarding**: Forwards tool requests to nested MCP servers
+- **Server Discovery**: Detects when a tool is another protocol server
+- **Tool Forwarding**: Forwards tool requests to nested servers
 - **Response Processing**: Processes and formats responses from nested servers
+
+### SLOP Tool Integration
+
+The CLI provides comprehensive support for SLOP tools:
+
+- **SLOP Endpoint Discovery**: Automatically discovers tools from SLOP endpoints
+- **Sub-tool Support**: Handles SLOP sub-tool patterns (parentTool_subTool)
+- **Tool Conversion**: Converts SLOP tools to MCP-compatible format
+- **Error Handling**: Provides robust error handling for SLOP-specific issues
 
 ## Publishing
 
@@ -427,9 +489,13 @@ When publishing the @blahai/cli package to npm, workspace dependencies need to b
 - [x] ValTown integration for remote tool execution
 - [x] Local tool execution with environment variable handling
 - [x] JSON-RPC request/response handling
+- [x] SLOP protocol integration
+- [x] Multi-protocol support (MCP and SLOP)
+- [x] Sub-tool support for SLOP tools
 - [ ] Better error handling and logging
 - [ ] Tool composition
 - [ ] Alternative hosting options beyond ValTown
+- [ ] Additional protocol bridges
 
 ## Credits
 

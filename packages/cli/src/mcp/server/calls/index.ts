@@ -84,7 +84,12 @@ export async function handleToolCall(
       try {
         const slopResult = await handleSlopCall(request, toolConfig);
         
-        return slopResult;
+        return {
+          content: [{
+            type: "text",
+            text: JSON.stringify(slopResult)
+          }]
+        };
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         logger.error(`Error in SLOP handler for tool '${toolName}': ${errorMessage}`);
