@@ -256,7 +256,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
       description: tool.description || 'No description provided',
       slop: tool.slopUrl, // Keep the original SLOP URL for later use
       sourceToolName: tool.sourceToolName,
-      inputSchema: tool.schema || {
+      inputSchema: tool.inputSchema || {
         type: "object",
         properties: {}
       }

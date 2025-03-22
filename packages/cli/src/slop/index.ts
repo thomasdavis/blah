@@ -156,6 +156,14 @@ export async function fetchToolsFromSlopEndpoints(manifest: BlahManifest): Promi
       logger.info(`Fetching tools from SLOP endpoint: ${tool.slopUrl}`);
       const tools = await fetchSlopTools(tool.slopUrl);
       
+      console.log("======================");
+      console.log("======================");
+      console.log("======================");
+      console.log("======================");
+      console.log("======================");
+      console.log("======================");
+      console.log({tools});
+
       // Add the source SLOP URL to each tool
       const toolsWithSource = tools.map((t: any) => ({
         ...t,
@@ -163,6 +171,7 @@ export async function fetchToolsFromSlopEndpoints(manifest: BlahManifest): Promi
         sourceToolName: tool.name,
         name: t.id
       }));
+      console.log({toolsWithSource});
       
       return toolsWithSource;
     } catch (error) {
