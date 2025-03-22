@@ -9,7 +9,7 @@ import { loadBlahConfig, getTools } from './utils/config-loader.js';
 import { writeFileSync, existsSync } from 'fs';
 import { sampleManifest } from '@blahai/schema';
 import chalk from 'chalk';
-import { getSlopToolsFromManifest, fetchSlopTools, fetchSlopModels, displaySlopTools, displaySlopModels } from './slop/index.js';
+import { getSlopToolsFromManifest, fetchSlopTools, fetchSlopModels, displaySlopTools, displaySlopModels, fetchToolsFromSlopEndpoints } from './slop/index.js';
 
 // Load environment variables from .env file
 config();
@@ -208,6 +208,7 @@ slopCommand
   .command('tools')
   .description('List all SLOP tools from the manifest')
   .option('-u, --url <url>', 'Directly query a SLOP server URL for tools')
+  .option('-m, --manifest-only', 'Only show tools defined in the manifest without fetching from endpoints')
   .action(async (options) => {
     try {
       if (options.url) {
@@ -220,30 +221,20 @@ slopCommand
         const manifest = await loadBlahConfig(configPath);
         const slopTools = getSlopToolsFromManifest(manifest);
         
-        console.log(chalk.blue.bold('\n🔗 SLOP Tools from Manifest 🔗'));
-        console.log(chalk.gray('═'.repeat(60)));
+        // Display SLOP tools from manifest
+        displaySlopTools(slopTools, 'Manifest');
         
-        if (slopTools.length === 0) {
-          console.log(chalk.yellow('No SLOP tools found in manifest'));
-        } else {
-          // Display SLOP tools from manifest
-          slopTools.forEach((tool, index) => {
-            console.log(chalk.green.bold(`${index + 1}. ${tool.name}`));
-            console.log(chalk.white(`   ${tool.description}`));
-            console.log(chalk.cyan(`   URL: ${tool.slopUrl}`));
-            console.log(chalk.gray('-'.repeat(50)));
-          });
+        // If not manifest-only, also fetch tools from the SLOP endpoints
+        if (!options.manifestOnly && slopTools.length > 0) {
+          console.log(chalk.blue.bold('\n\n🔗 Fetching tools from SLOP endpoints... 🔗'));
           
-          // Fetch and display tools from each SLOP endpoint
-          for (const tool of slopTools) {
-            try {
-              const toolsFromServer = await fetchSlopTools(tool.slopUrl);
-              if (toolsFromServer.length > 0) {
-                displaySlopTools(toolsFromServer, tool.slopUrl);
-              }
-            } catch (error) {
-              console.error(chalk.red(`Error fetching tools from ${tool.slopUrl}: ${error instanceof Error ? error.message : String(error)}`));
-            }
+          // Fetch tools from all SLOP endpoints defined in the manifest
+          const endpointTools = await fetchToolsFromSlopEndpoints(manifest);
+          
+          if (endpointTools.length > 0) {
+            displaySlopTools(endpointTools, 'SLOP Endpoints');
+          } else {
+            console.log(chalk.yellow('\nNo tools found from SLOP endpoints'));
           }
         }
       }

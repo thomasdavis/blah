@@ -27,14 +27,42 @@ interface BlahManifest {
  */
 export async function fetchSlopTools(slopUrl: string): Promise<any[]> {
   try {
+    logger.info(`Fetching tools from SLOP endpoint: ${slopUrl}/tools`);
     const response = await fetch(`${slopUrl}/tools`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch tools from SLOP server: ${response.statusText}`);
     }
     
-    const data = await response.json() as any[];
-    return data;
+    const data = await response.json();
+    
+    // Handle different response formats
+    if (Array.isArray(data)) {
+      // Response is already an array of tools
+      return data;
+    } else if (typeof data === 'object' && data !== null) {
+      // Response might be an object with a tools property
+      const dataObj = data as Record<string, unknown>;
+      
+      if ('tools' in dataObj && Array.isArray(dataObj.tools)) {
+        return dataObj.tools as any[];
+      } else if ('tool' in dataObj && Array.isArray(dataObj.tool)) {
+        return dataObj.tool as any[];
+      } else {
+        // If we can't find an array, try to convert the object to an array of tools
+        const possibleTools = Object.entries(dataObj).map(([name, value]) => {
+          if (typeof value === 'object' && value !== null) {
+            return { name, ...value as object };
+          }
+          return { name, description: String(value) };
+        });
+        return possibleTools;
+      }
+    }
+    
+    // If we can't determine the format, return an empty array
+    logger.warn(`Unexpected response format from ${slopUrl}/tools: ${JSON.stringify(data).substring(0, 100)}...`);
+    return [];
   } catch (error) {
     logger.error(`Error fetching SLOP tools`, error);
     return [];
@@ -100,8 +128,50 @@ export function displaySlopTools(tools: any[], source: string): void {
     
     console.log(chalk.green.bold(`${index + 1}. ${toolName}`));
     console.log(chalk.white(`   ${toolDescription}`));
+    if (tool.slopUrl) {
+      console.log(chalk.cyan(`   URL: ${tool.slopUrl}`));
+    }
     console.log(chalk.gray('-'.repeat(50)));
   });
+}
+
+/**
+ * Fetches all tools from SLOP endpoints defined in the manifest
+ * @param manifest The BLAH manifest
+ * @returns Array of tools from all SLOP endpoints
+ */
+export async function fetchToolsFromSlopEndpoints(manifest: BlahManifest): Promise<any[]> {
+  const slopTools = getSlopToolsFromManifest(manifest);
+  if (slopTools.length === 0) {
+    return [];
+  }
+  
+  const allTools: any[] = [];
+  
+  // Fetch tools from each SLOP endpoint in parallel
+  const fetchPromises = slopTools.map(async (tool) => {
+    try {
+      logger.info(`Fetching tools from SLOP endpoint: ${tool.slopUrl}`);
+      const tools = await fetchSlopTools(tool.slopUrl);
+      
+      // Add the source SLOP URL to each tool
+      const toolsWithSource = tools.map((t: any) => ({
+        ...t,
+        slopUrl: tool.slopUrl,
+        sourceToolName: tool.name
+      }));
+      
+      return toolsWithSource;
+    } catch (error) {
+      logger.error(`Failed to fetch tools from ${tool.slopUrl}`, error);
+      return [];
+    }
+  });
+  
+  const results = await Promise.all(fetchPromises);
+  
+  // Flatten the results
+  return results.flat();
 }
 
 /**
