@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.75.0
+
+### Minor Changes
+
+- acce82e: asd
+
 ## 0.74.0
 
 ### Minor Changes
