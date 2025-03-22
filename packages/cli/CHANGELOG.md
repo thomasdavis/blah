@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.71.0
+
+### Minor Changes
+
+- a06ba7d: sdasd
+
 ## 0.70.0
 
 ### Minor Changes
