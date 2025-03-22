@@ -1,5 +1,9 @@
 import fetch from 'node-fetch';
 import chalk from 'chalk';
+import { createLogger } from '../utils/logger.js';
+
+// Create a logger for this module
+const logger = createLogger('slop');
 
 // Define types based on the schema structure
 interface BlahManifest {
@@ -32,7 +36,7 @@ export async function fetchSlopTools(slopUrl: string): Promise<any[]> {
     const data = await response.json() as any[];
     return data;
   } catch (error) {
-    console.error(chalk.red(`Error fetching SLOP tools: ${error instanceof Error ? error.message : String(error)}`));
+    logger.error(`Error fetching SLOP tools`, error);
     return [];
   }
 }
@@ -53,7 +57,7 @@ export async function fetchSlopModels(slopUrl: string): Promise<any[]> {
     const data = await response.json() as any[];
     return data;
   } catch (error) {
-    console.error(chalk.red(`Error fetching SLOP models: ${error instanceof Error ? error.message : String(error)}`));
+    logger.error(`Error fetching SLOP models`, error);
     return [];
   }
 }
@@ -87,7 +91,7 @@ export function displaySlopTools(tools: any[], source: string): void {
     return;
   }
 
-  console.log(chalk.blue.bold(`\n🔧 SLOP Tools from ${source} 🔧`));
+  console.log(chalk.blue.bold(`\n🔗 SLOP Tools from ${source} 🔗`));
   console.log(chalk.gray('═'.repeat(60)));
 
   tools.forEach((tool: any, index: number) => {
@@ -110,7 +114,7 @@ export function displaySlopModels(models: any[], source: string): void {
     return;
   }
 
-  console.log(chalk.magenta.bold(`\n🧠 SLOP Models from ${source} 🧠`));
+  console.log(chalk.magenta.bold(`\n🔮 SLOP Models from ${source} 🔮`));
   console.log(chalk.gray('═'.repeat(60)));
 
   models.forEach((model: any, index: number) => {

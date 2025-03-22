@@ -5,6 +5,10 @@ import axios from 'axios';
 import fs from 'fs';
 import { tool } from 'ai';
 import { execSync } from 'child_process';
+import { createLogger } from './logger.js';
+
+// Create a logger for this module
+const logger = createLogger('config-loader');
 
 /**
  * Configuration for the BLAH CLI
@@ -20,9 +24,9 @@ export interface BlahConfig {
  * @returns The loaded configuration object
  */
 export async function loadBlahConfig(configPath?: string): Promise<any> {
-  console.log('[loadBlahConfig] Loading config from path:', { configPath });
+  logger.info('Loading config from path', { configPath });
   const config = await getConfig(configPath);
-  console.log('[loadBlahConfig] Successfully loaded config:', { config });
+  logger.info('Successfully loaded config', { config });
   return config;
 }
 
@@ -32,10 +36,10 @@ export async function loadBlahConfig(configPath?: string): Promise<any> {
  * @returns The loaded configuration object
  */
 export async function getConfig(configPath?: string): Promise<any> {
-  console.log('[getConfig] Starting config load with path:', { configPath });
+  logger.info('Starting config load with path', { configPath });
 
   // Debug logging for config path
-  console.log('[getConfig] Processing config path:', { configPath });
+  logger.info('Processing config path', { configPath });
 
 
   // 1. Try to load from specified path if provided
@@ -43,11 +47,11 @@ export async function getConfig(configPath?: string): Promise<any> {
     // Check if it's a URL
     if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
       try {
-        console.log('[getConfig] Attempting to load config from URL:', { configPath });
+        logger.info('Attempting to load config from URL', { configPath });
         const response = await axios.get(configPath);
-        console.log('[getConfig] Successfully fetched config from URL:', { data: response.data });
+        logger.info('Successfully fetched config from URL', { data: response.data });
         const validatedConfig = validateBlahManifest(response.data);
-        console.log('[getConfig] Validated config from URL:', { validatedConfig });
+        logger.info('Validated config from URL', { validatedConfig });
         return validatedConfig;
       } catch (error) {
         throw new Error(`Failed to load config from URL ${configPath}: ${error instanceof Error ? error.message : String(error)}`);
@@ -56,13 +60,13 @@ export async function getConfig(configPath?: string): Promise<any> {
     // Otherwise treat as local file path
     else if (existsSync(configPath)) {
       try {
-        console.log('[getConfig] Attempting to load config from file:', { configPath });
+        logger.info('Attempting to load config from file', { configPath });
         const fileContent = readFileSync(configPath, 'utf-8');
-        console.log('[getConfig] Read file content:', { fileContent });
+        logger.info('Read file content', { fileContent });
         const parsedContent = JSON.parse(fileContent);
-        console.log('[getConfig] Parsed JSON content:', { parsedContent });
+        logger.info('Parsed JSON content', { parsedContent });
         const validatedConfig = validateBlahManifest(parsedContent);
-        console.log('[getConfig] Validated config from file:', { validatedConfig });
+        logger.info('Validated config from file', { validatedConfig });
         return validatedConfig;
       } catch (error) {
         throw new Error(`Failed to load config from file ${configPath}: ${error instanceof Error ? error.message : String(error)}`);
@@ -79,12 +83,12 @@ export async function getConfig(configPath?: string): Promise<any> {
       const fileContent = readFileSync(localConfigPath, 'utf-8');
       return validateBlahManifest(JSON.parse(fileContent));
     } catch (error) {
-      console.warn(`Found blah.json in current directory but failed to load it: ${error instanceof Error ? error.message : String(error)}`);
+      logger.warn(`Found blah.json in current directory but failed to load it`, error);
       // Continue to fallback instead of throwing
     }
   }
 
-  console.warn(`Found no blah config, using an empty config`);
+  logger.warn(`Found no blah config, using an empty config`);
 
   return {
     name: "default-empty-blah-config",
@@ -100,10 +104,7 @@ export async function getConfig(configPath?: string): Promise<any> {
  * @returns Array of tools from the configuration
  */
 export async function getTools(config: string | Record<string, any>): Promise<any[]> {
-  
- 
-  
-  console.log('[getTools] Starting tools extraction with config:', { config });
+  logger.info('Starting tools extraction with config', { config });
   let blahConfig: Record<string, any>;
   
   // If config is a string, treat it as a path and load the config
@@ -141,9 +142,9 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
 
 
-  console.log('[getTools] Initial blahConfig:', { blahConfig });
+  logger.info('Initial blahConfig', { blahConfig });
   let fullTools: any[] = [...blahConfig.tools];
-  console.log('[getTools] Initial tools list:', { fullTools });
+  logger.info('Initial tools list', { fullTools });
 
   // Create env vars string for command prefix
   const envString = blahConfig?.env ? 
@@ -157,10 +158,10 @@ export async function getTools(config: string | Record<string, any>): Promise<an
   // @todo - implement a more conclusive way to figure out if something is an mcp server
 
 
-  console.log('[getTools] Processing tools for MCP servers:', { tools });
+  logger.info('Processing tools for MCP servers', { tools });
   tools.forEach((tool, index) => {
     const isMcpServer = tool.command?.includes('npx') || tool.command?.includes('npm run');
-    console.log('[getTools] Detected MCP server:', { tool: tool.name, isMcpServer });
+    logger.info('Detected MCP server', { tool: tool.name, isMcpServer });
     if (isMcpServer) {
       // Remove the original MCP server entry from the fullTools list
       fullTools = fullTools.filter((t: any) => t.name !== tool.name);
@@ -180,12 +181,12 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
       let listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": ${index}}' | ${envString} ${tool.command} -- --config ${config}`;
     
-      console.log('[getTools] Prepared MCP list tools command:', { listToolsCommandTorun });
+      logger.info('Prepared MCP list tools command', { listToolsCommandTorun });
     
       // List tools
-      console.log('[getTools] Executing MCP tools list command:', { listToolsCommandTorun });
+      logger.info('Executing MCP tools list command', { listToolsCommandTorun });
       const listToolsCommandOutput = execSync(listToolsCommandTorun, { encoding: 'utf8' });
-      console.log('[getTools] MCP tools list command output:', { listToolsCommandOutput });
+      logger.info('MCP tools list command output', { listToolsCommandOutput });
       
       // Extract the JSON part from the output
       // Look for a line that starts with a JSON object containing 'result' and 'jsonrpc'
@@ -201,14 +202,14 @@ export async function getTools(config: string | Record<string, any>): Promise<an
       }
       
       if (!jsonStr) {
-        console.error('[getTools] Failed to extract JSON from command output');
+        logger.error('Failed to extract JSON from command output');
         throw new Error('Failed to extract JSON from MCP tools list command output');
       }
       
-      console.log('[getTools] Extracted JSON from command output:', { jsonStr });
+      logger.info('Extracted JSON from command output', { jsonStr });
       
       const listToolsResponse = JSON.parse(jsonStr);
-      console.log('[getTools] Received MCP tools list response:', { listToolsResponse });
+      logger.info('Received MCP tools list response', { listToolsResponse });
       const mcpTools = listToolsResponse.result.tools;
 
       interface McpTool {
@@ -232,6 +233,6 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
 
   // Extract and return the tools
-  console.log('[getTools] Final tools list:', { fullTools });
+  logger.info('Final tools list', { fullTools });
   return fullTools;
 }

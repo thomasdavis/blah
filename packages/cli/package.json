@@ -5,8 +5,8 @@
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts && shx mkdir -p dist/mcp/server && shx cp src/mcp/server/start.ts dist/mcp/server/ && shx cp -r src/templates dist/templates",
     "watch": "tsup src/index.ts --format cjs,esm --dts --watch",
-    "dev": "tsx src/index.ts",
-    "mcp": "tsx src/index.ts mcp",
+    "dev": "NODE_ENV=development tsx src/index.ts",
+    "mcp": "NODE_ENV=development tsx src/index.ts mcp",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint .",
@@ -20,6 +20,10 @@
   },
   "bin": {
     "blah": "./dist/index.js"
+  },
+  "scripts-info": {
+    "dev": "Run the CLI in development mode with debug logging enabled",
+    "build": "Build the CLI for production use (no debug logging)"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
