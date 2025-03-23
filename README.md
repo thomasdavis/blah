@@ -1,10 +1,8 @@
 # PROJECT IN EXTREME POC MODE - NOTHING STABLE AT ALL - DOCS AND VISION ARE PURELY NOTES
 
-# BLAH - Barely Logical Agent Host
+BLAH - Barely Logical Agent Host - Update #1
 
 (think npmjs for tools)
-
-## Progress
 
 Once this list is fully done, the BLAH JSON schema will be finalized.
 
@@ -172,6 +170,7 @@ npm run playground
 ## Credits
 
 - Lisa Watts
+- Travis
 - Wombat
 
 ### AI GENERATED BULL SHIT (the above is authentic)
