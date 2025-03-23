@@ -1,4 +1,43 @@
-https://x.com/AMAZlNGNATURE/status/1902381988218019939
+# PROJECT IN EXTREME POC MODE - NOTHING STABLE AT ALL - DOCS AND VISION ARE PURELY NOTES
+
+# BLAH - Barely Logical Agent Host
+
+(think npmjs for tools)
+
+## Progress
+
+Once this list is fully done, the BLAH JSON schema will be finalized.
+
+- [ ] Tools 
+  - [x] Local functions
+  - [x] Hosted functions
+  - [ ] Registry
+    - [ ] Publish
+    - [ ] Browse
+  - [x] Mcp support
+    - [x] Local Stdio
+    - [x] Local SSE
+    - [ ] Hosted SSE
+  - [x] Slop Support
+    - [x] Local Slop
+    - [x] Hosted Slop
+  - [ ] Tool Composability
+    - [ ] Grouping
+    - [ ] Flows
+    - [ ] Triggers / Tags
+  - [ ] Extends
+    - [x] Local blah.json 
+    - [ ] Hosted blah.json
+  - [ ] Debugging
+    - [ ] Playground
+    - [ ] Logging
+
+Notes:
+  - The flows will be using a subset of agnt.gg's flow schema
+  - Extend means you can compose blah.json's in any way you like. (think what if you just want to include a designers you follow tools)
+  - The registry means we will have a convenient way to just push and pull functions (tools)
+  
+
 
 # BLAH - Barely Logical Agent Host
 

@@ -81,6 +81,7 @@ process.argv = [...process.argv.slice(0, 2), ...processArgs()];
 const startCommand = new Command('start');
 startCommand
   .description('Start the MCP server')
+  .option('--sse', 'Start server in SSE mode on port 4200')
   .action(async (options) => {
     try {
       // Load config if specified or use default host
@@ -96,7 +97,7 @@ startCommand
         console.log('Falling back to host parameter...');
       }
 
-      await startMcpServer(configPath, blahConfig);
+      await startMcpServer(configPath, blahConfig, options.sse);
     } catch (error) {
       console.log('Error starting MCP server:', error instanceof Error ? error.message : String(error));
       process.exit(1);

@@ -16,7 +16,7 @@ for (let i = 0; i < args.length; i++) {
 }
 
 // Dynamically determine if we're running in development or production mode
-let startMcpServer: (configPath: string) => Promise<void>;
+let startMcpServer: (configPath: string, config?: Record<string, unknown>, sseMode?: boolean) => Promise<any>;
 
 try {
   // First try to import from the current directory (for development with tsx)

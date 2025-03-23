@@ -1,6 +1,8 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import fetch from "node-fetch";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import express from 'express';
+import cors from 'cors';
 import {
   CallToolRequestSchema,
   ListPromptsRequestSchema,
@@ -18,8 +20,9 @@ import { getSlopToolsFromManifest } from "../../slop/index.js";
  * Starts an MCP server with the specified configuration
  * @param configPath Path to the configuration file
  * @param config Optional configuration object
+ * @param sseMode If true, starts server in SSE mode on port 4200
  */
-export async function startMcpServer(configPath: string, config?: Record<string, unknown>) {
+export async function startMcpServer(configPath: string, config?: Record<string, unknown>, sseMode?: boolean) {
   logSection('MCP Server');
   log('Starting MCP server', { configPath, config });
   
@@ -192,9 +195,47 @@ export async function startMcpServer(configPath: string, config?: Record<string,
   });
 
   // Start the server
-  const transport = new StdioServerTransport();
-  // Connect the server to the transport
-  await server.connect(transport);
-  log('MCP Server started successfully');
-  return server;
+  if (sseMode) {
+    // Create Express app for SSE mode
+    const app = express();
+    app.use(cors());
+    app.use(express.json());
+
+    // SSE endpoint for tool listing
+    app.get('/tools', async (req, res) => {
+      try {
+        const tools = await getTools(configPath);
+        res.json({ tools: tools || [] });
+      } catch (error) {
+        res.status(500).json({ error: String(error) });
+      }
+    });
+
+    // SSE endpoint for tool calls
+    app.post('/call', async (req, res) => {
+      try {
+        const { name, arguments: args } = req.body;
+        const { handleToolCall } = await import('./calls/index.js');
+        const result = await handleToolCall({ params: { name, arguments: args } }, configPath, blahConfig);
+        res.json(result);
+      } catch (error) {
+        res.status(500).json({ error: String(error) });
+      }
+    });
+
+    // Start HTTP server
+    const port = 4200;
+    app.listen(port, () => {
+      log(`MCP Server started in SSE mode on port ${port}`);
+      console.log(`MCP Server is running at http://localhost:${port}`);
+    });
+
+    return server;
+  } else {
+    // Start in standard mode with stdio transport
+    const transport = new StdioServerTransport();
+    await server.connect(transport);
+    log('MCP Server started successfully in standard mode');
+    return server;
+  }
 }
