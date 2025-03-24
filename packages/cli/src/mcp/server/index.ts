@@ -203,6 +203,21 @@ export async function startMcpServer(configPath: string, config?: Record<string,
     const mcpServer = new McpServer({
       name: config?.name as string || "blah-mcp-server",
       version: config?.version as string || "1.0.0"
+    }, {
+      capabilities: {
+        tools: {},
+        prompts: {},
+        resources: {},
+        logging: {}
+      }
+    });
+    
+    // Register capabilities explicitly for the server
+    mcpServer.server.registerCapabilities({
+      tools: {},
+      prompts: {},
+      resources: {},
+      logging: {}
     });
     
     // Set up our custom request handlers directly on the underlying server property
