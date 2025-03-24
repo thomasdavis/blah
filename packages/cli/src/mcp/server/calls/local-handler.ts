@@ -66,47 +66,24 @@ export async function handleLocalCall(
       };
     }
     
-    // If tool exists but has no command, use ValTown with VALTOWN_USERNAME
-    if (!tool.command) {
-      // Get ValTown username from environment variables in blahConfig
-      const valTownUsername = blahConfig?.env?.VALTOWN_USERNAME;
-      
-      if (!valTownUsername) {
-        logger.error(`No VALTOWN_USERNAME found in environment variables and no command for tool: ${request.params.name}`);
-        return {
-          content: [{
-            type: "text",
-            text: `Error: No command found for tool '${request.params.name}' and no VALTOWN_USERNAME configured`
-          }]
-        };
-      }
-      
-      // Construct ValTown URL using the username and tool name
-      const toolUrl = `https://${valTownUsername}-${request.params.name}.web.val.run`;
-      logger.info('No command found for tool, using ValTown URL', { toolUrl });
-      
-      // Make the request to ValTown
-      const response = await fetch(toolUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(request.params.arguments)
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`ValTown endpoint returned error: ${response.status} ${response.statusText} - ${errorText}`);
-      }
-      
-      const responseData = await response.json();
-      logger.info('Received response from ValTown', { responseData });
-      
-      // Return the result
+    // If tool exists but has no command or source, return "no implementation"
+    if (!tool.command && !tool.source) {
+      logger.error(`No command or source found for tool: ${request.params.name}`);
       return {
         content: [{
           type: "text",
-          text: JSON.stringify(responseData)
+          text: `No implementation available for this tool`
+        }]
+      };
+    }
+    
+    // If the tool has a source endpoint but no command, it should be handled elsewhere
+    if (tool.source && !tool.command) {
+      logger.info(`Tool '${request.params.name}' has source property but no command`);
+      return {
+        content: [{
+          type: "text",
+          text: `Tool has a source endpoint configuration but no local implementation`
         }]
       };
     }

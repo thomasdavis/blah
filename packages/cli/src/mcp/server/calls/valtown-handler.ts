@@ -2,30 +2,37 @@ import { createLogger } from '../../../utils/logger.js';
 import fetch from 'node-fetch';
 
 // Create a logger for this module
-const logger = createLogger('valtown-handler');
+const logger = createLogger('source-handler');
 
 /**
- * Handles a tool call using ValTown
+ * Handles a tool call using a source URL
  * @param request The tool call request
  * @param configPath Path to the configuration file
  * @returns The result of the tool call
  */
-export async function handleValtownCall(
+export async function handleSourceCall(
   request: any,
-  configPath: string
+  configPath: string,
+  tool: any
 ): Promise<any> {
-  logger.info('Handling ValTown call', { toolName: request.params.name, configPath });
+  logger.info('Handling source URL call', { toolName: request.params.name });
   
   try {
-    // For remote configurations, construct the ValTown URL
-    const hostUsername = new URL(configPath).hostname.split("-")[0];
-    logger.info('Resolved host username', { hostUsername });
+    if (!tool || !tool.source) {
+      return {
+        content: [{
+          type: "text",
+          text: "No implementation available for this tool"
+        }]
+      };
+    }
+
+    // Use the source URL directly
+    const sourceUrl = tool.source;
+    logger.info('Using source URL', { sourceUrl });
     
-    const toolUrl = `https://${hostUsername}-${request.params.name}.web.val.run`;
-    logger.info('Using remote ValTown URL', { toolUrl });
-    
-    // Make the request to ValTown
-    const response = await fetch(toolUrl, {
+    // Make the request to the source URL
+    const response = await fetch(sourceUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -35,11 +42,11 @@ export async function handleValtownCall(
     
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(`ValTown endpoint returned error: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(`Source endpoint returned error: ${response.status} ${response.statusText} - ${errorText}`);
     }
     
     const responseData = await response.json();
-    logger.info('Received response from ValTown', { responseData });
+    logger.info('Received response from source endpoint', { responseData });
     
     // Return the result
     return {
@@ -50,12 +57,12 @@ export async function handleValtownCall(
     };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logger.error(`Error calling ValTown: ${errorMessage}`, error);
+    logger.error(`Error calling source endpoint: ${errorMessage}`, error);
     
     return {
       content: [{
         type: "text",
-        text: `Error calling ValTown: ${errorMessage}`
+        text: `Error calling source endpoint: ${errorMessage}`
       }]
     };
   }

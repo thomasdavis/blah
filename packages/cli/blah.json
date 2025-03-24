@@ -1,5 +1,5 @@
 {
-  "name": "valtown-testing",
+  "name": "sample-tools",
   "version": "1.0.0",
   "alias": "sample-tools",
   "description": "A sample blah manifest demonstrating various tool types and configurations.",
@@ -48,7 +48,7 @@
     },
     {
       "name": "create_a_tool",
-      "description": "When the user wants to create a tool, you understand there wants and needs. And write the best code you can that is executed in the context of deno and valtown",
+      "description": "When the user wants to create a tool, you understand their wants and needs, and write the best code to implement that tool",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -59,6 +59,20 @@
           "tool_name": {
             "type": "string",
             "description": "The name of the tool/function. Descriptive and snake case."
+          }
+        }
+      }
+    },
+    {
+      "name": "translate_to_leet",
+      "description": "Translates text to leet speak",
+      "source": "https://example-translate-leet.vercel.app/api",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Text to translate to leet speak"
           }
         }
       }

@@ -31,10 +31,7 @@ Create a `.env` file in your project directory or in the `packages/cli` director
 OPENAI_API_KEY=your_openai_api_key_here
 
 # Default BLAH manifest host (optional)
-BLAH_HOST=https://ajax-blah.web.val.run
-
-# For ValTown integration
-VALTOWN_USERNAME=your_valtown_username
+BLAH_HOST=https://example.com/blah-config.json
 
 # Other API keys for tools
 BRAVE_API_KEY=your_brave_api_key
@@ -336,7 +333,7 @@ The BLAH manifest (`blah.json`) follows this schema:
 The CLI supports several types of tools:
 
 1. **Command-based tools**: Tools with a `command` property that executes a local command
-2. **ValTown tools**: Tools without a command that use ValTown for execution
+2. **Source-based tools**: Tools with a `source` property that execute via HTTP endpoints
 3. **MCP server tools**: Tools that invoke other MCP servers (using npx/npm commands)
 4. **SLOP tools**: Tools with a `slop` or `slopUrl` property that connect to SLOP endpoints
 5. **URI tools**: Tools that execute via custom HTTP endpoints
