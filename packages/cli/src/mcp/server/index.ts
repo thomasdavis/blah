@@ -26,7 +26,17 @@ import { getSlopToolsFromManifest } from "../../slop/index.js";
  * @param ssePort Port to run the SSE server on (default: 4200)
  * @returns Object containing the server instance and any other resources (like Express app)
  */
-export async function createMcpServer(configPath: string, config?: Record<string, unknown>, sseMode?: boolean, ssePort?: number) {
+export async function createMcpServer(
+  configPath: string, 
+  config?: Record<string, unknown>, 
+  sseMode?: boolean, 
+  ssePort?: number
+): Promise<{
+  server: Server;
+  transport?: StdioServerTransport;
+  app?: import('express').Application;
+  port?: number;
+}> {
   logSection('MCP Server');
   log('Starting MCP server', { configPath, config });
   

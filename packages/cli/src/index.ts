@@ -248,9 +248,9 @@ slopCommand
 // Add tools subcommand to slop
 slopCommand
   .command('tools')
-  .description('List all SLOP tools from the manifest')
+  .description('List all tools in the blah.json manifest, including SLOP and regular tools')
   .option('-u, --url <url>', 'Directly query a SLOP server URL for tools')
-  .option('-m, --manifest-only', 'Only show tools defined in the manifest without fetching from endpoints')
+  .option('-s, --slop-only', 'Only show SLOP tools (for backward compatibility)')
   .action(async (options) => {
     try {
       if (options.url) {
@@ -258,27 +258,51 @@ slopCommand
         const tools = await fetchSlopTools(options.url);
         displaySlopTools(tools, options.url);
       } else {
-        // Otherwise, get tools from the manifest
+        // Otherwise, get all tools from the manifest
         const configPath = getConfigPath(options);
-        const manifest = await loadBlahConfig(configPath);
-        const slopTools = getSlopToolsFromManifest(manifest);
         
-        // Display SLOP tools from manifest
-        displaySlopTools(slopTools, 'Manifest');
+        // Get ALL tools from the configuration using getTools
+        const allTools = await getTools(configPath);
         
-        // If not manifest-only, also fetch tools from the SLOP endpoints
-        if (!options.manifestOnly && slopTools.length > 0) {
-          console.log(chalk.blue.bold('\n\n🔗 Fetching tools from SLOP endpoints... 🔗'));
+        if (options.slopOnly) {
+          // If slop-only flag is set, only show SLOP tools
+          const slopTools = allTools.filter(tool => tool.slop)
+            .map(tool => ({
+              name: tool.name,
+              description: tool.description || 'No description provided',
+              slopUrl: tool.slop
+            }));
           
-          // Fetch tools from all SLOP endpoints defined in the manifest
-          const endpointTools = await fetchToolsFromSlopEndpoints(manifest);
+          displaySlopTools(slopTools, 'Manifest');
+        } else {
+          // Display all tools
+          console.log(chalk.blue.bold('\n🛠️ All Tools from Manifest 🛠️'));
+          console.log(chalk.gray('═'.repeat(60)));
           
-          console.log({ endpointTools });
-
-          if (endpointTools.length > 0) {
-            displaySlopTools(endpointTools, 'SLOP Endpoints');
+          if (allTools.length === 0) {
+            console.log(chalk.yellow('No tools found in the manifest'));
           } else {
-            console.log(chalk.yellow('\nNo tools found from SLOP endpoints'));
+            allTools.forEach((tool, index) => {
+              const toolName = tool.name || `Tool ${index + 1}`;
+              const toolDescription = tool.description || 'No description provided';
+              const toolType = tool.slop ? 'SLOP' : 
+                tool.command ? 'MCP Server' : 
+                tool.fromFlow ? 'Flow' : 'Standard';
+              
+              console.log(chalk.green.bold(`${index + 1}. ${toolName}`));
+              console.log(chalk.white(`   ${toolDescription}`));
+              console.log(chalk.cyan(`   Type: ${toolType}`));
+              
+              if (tool.slop) {
+                console.log(chalk.cyan(`   SLOP URL: ${tool.slop}`));
+              }
+              
+              if (tool.command) {
+                console.log(chalk.cyan(`   Command: ${tool.command}`));
+              }
+              
+              console.log(chalk.gray('-'.repeat(50)));
+            });
           }
         }
       }
@@ -302,7 +326,17 @@ slopCommand
         // Otherwise, get models from the manifest
         const configPath = getConfigPath(options);
         const manifest = await loadBlahConfig(configPath);
-        const slopTools = getSlopToolsFromManifest(manifest);
+        
+        // Get all tools first
+        const allTools = await getTools(configPath);
+        
+        // Filter to find SLOP tools from all tools
+        const slopTools = allTools.filter(tool => tool.slop)
+          .map(tool => ({
+            name: tool.name,
+            description: tool.description || 'No description provided',
+            slopUrl: tool.slop
+          }));
         
         if (slopTools.length === 0) {
           console.log(chalk.yellow('No SLOP tools found in manifest'));

@@ -13,8 +13,13 @@ const logger = createLogger('slop-server');
  * @param port Port number to run the server on
  * @param configPath Path to the configuration file
  * @param blahConfig Optional loaded BLAH configuration
+ * @returns The Express application instance
  */
-export async function startSlopServer(port: number, configPath: string, blahConfig?: any) {
+export async function startSlopServer(
+  port: number, 
+  configPath: string, 
+  blahConfig?: any
+): Promise<import('express').Application> {
   console.log(`SLOP Server: Loading tools from ${configPath}...`);
   
   try {
@@ -70,6 +75,20 @@ export async function startSlopServer(port: number, configPath: string, blahConf
       if (tool.fromFlow) {
         formattedTool.sourceFlow = tool.fromFlow;
       }
+      
+      if (tool.slop) {
+        formattedTool.slopUrl = tool.slop;
+      }
+      
+      if (tool.command) {
+        formattedTool.isCommandTool = true;
+        // Don't include the actual command for security reasons
+      }
+      
+      // Tool type 
+      formattedTool.toolType = tool.slop ? 'SLOP' : 
+                              tool.command ? 'MCP Server' : 
+                              tool.fromFlow ? 'Flow' : 'Standard';
       
       return formattedTool;
     });
