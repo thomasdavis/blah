@@ -99,12 +99,27 @@ Starts an MCP server that connects to a BLAH manifest and exposes tools via the 
 Options:
 
 - `-c, --config <path>` - Path to a blah.json configuration file (local path or URL)
+- `--sse` - Start server in SSE (Server-Sent Events) mode
+- `--port <number>` - Port to run the SSE server on (default: 4200)
 
 The server supports:
 
 - JSON-RPC request/response handling for tool communication
 - StdioServerTransport for communication with MCP clients
+- SSE mode for web interfaces and real-time tool monitoring
 - Comprehensive logging and error handling
+
+When started in SSE mode, the server exposes the following endpoints:
+
+**MCP Standard Endpoints:**
+- `/sse` - Official MCP SSE connection endpoint
+- `/messages` - Message handling for MCP SSE communication
+
+**Custom Endpoints:**
+- `/events` - Custom SSE event stream for real-time updates
+- `/tools` - List all available tools (including both regular and SLOP tools)
+- `/config` - Access the current configuration 
+- `/health` - Health check endpoint
 
 #### List Tools (`blah mcp tools`)
 
