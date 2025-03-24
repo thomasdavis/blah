@@ -1,0 +1,106 @@
+{
+  "name": "blah-flow-example",
+  "version": "1.0.0",
+  "description": "Example BLAH configuration with a flow",
+  "flows": [
+    {
+      "name": "random-number-test-workflow",
+      "description": "A workflow that generates and processes random numbers",
+      "nodes": [
+        {
+          "name": "start-node",
+          "type": "manual-trigger",
+          "category": "trigger",
+          "parameters": {},
+          "text": "Start Workflow"
+        },
+        {
+          "name": "random-generator",
+          "type": "random-number",
+          "category": "utility",
+          "parameters": {
+            "min": "1",
+            "max": "100"
+          },
+          "text": "Generate Random Number"
+        },
+        {
+          "name": "high-number-message",
+          "type": "execute-javascript",
+          "category": "utility",
+          "parameters": {
+            "code": "return { message: `High number generated: ${inputData.randomNumber}` };"
+          },
+          "text": "High Number Message"
+        },
+        {
+          "name": "low-number-message",
+          "type": "execute-javascript",
+          "category": "utility",
+          "parameters": {
+            "code": "return { message: `Low number generated: ${inputData.randomNumber}` };"
+          },
+          "text": "Low Number Message"
+        },
+        {
+          "name": "log-result",
+          "type": "execute-javascript",
+          "category": "utility",
+          "parameters": {
+            "code": "console.log(inputData.message);\nreturn { completed: true, result: inputData.message };"
+          },
+          "text": "Log Result"
+        }
+      ],
+      "edges": [
+        {
+          "name": "edge-1",
+          "startNodeName": "start-node",
+          "endNodeName": "random-generator"
+        },
+        {
+          "name": "edge-2",
+          "startNodeName": "random-generator",
+          "endNodeName": "high-number-message",
+          "condition": "greater_than",
+          "if": "{{random-generator.randomNumber}}",
+          "value": "50"
+        },
+        {
+          "name": "edge-3",
+          "startNodeName": "random-generator",
+          "endNodeName": "low-number-message",
+          "condition": "less_than_or_equal",
+          "if": "{{random-generator.randomNumber}}",
+          "value": "50"
+        },
+        {
+          "name": "edge-4",
+          "startNodeName": "high-number-message",
+          "endNodeName": "log-result"
+        },
+        {
+          "name": "edge-5",
+          "startNodeName": "low-number-message",
+          "endNodeName": "log-result"
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "name": "basic-echo",
+      "description": "A basic echo tool that returns the input",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Text to echo back"
+          }
+        },
+        "required": ["text"]
+      }
+    }
+  ]
+}

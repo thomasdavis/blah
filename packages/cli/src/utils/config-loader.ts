@@ -23,6 +23,7 @@ import { tool } from 'ai';
 import { execSync } from 'child_process';
 import { createLogger } from './logger.js';
 import { getSlopToolsFromManifest, fetchToolsFromSlopEndpoints } from '../slop/index.js';
+import { compileFlowsToTools } from './flow-processor.js';
 
 // Create a logger for this module
 const logger = createLogger('config-loader');
@@ -550,6 +551,20 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     }
   } catch (slopError) {
     logger.error('Error processing SLOP tools', slopError);
+    // Continue with the tools we have so far
+  }
+
+  // Process flows and compile them into tools
+  try {
+    logger.info('Processing flows');
+    const flowTools = compileFlowsToTools(blahConfig?.flows);
+    
+    if (Array.isArray(flowTools) && flowTools.length > 0) {
+      logger.info(`Adding ${flowTools.length} tools compiled from flows`);
+      fullTools = [...fullTools, ...flowTools];
+    }
+  } catch (flowError) {
+    logger.error('Error processing flows', flowError);
     // Continue with the tools we have so far
   }
 

@@ -42,6 +42,8 @@ BLAH (Barely Logical Agent Host) CLI is a comprehensive tool for building, testi
 - ✅ SLOP protocol integration
 - ✅ Multi-protocol support
 - ✅ Sub-tool support for SLOP tools
+- ✅ Configuration extension support
+- ✅ Flow-to-tool compilation
 - ⬜ Better error handling and logging
 - ⬜ Tool composition
 - ⬜ Alternative hosting options
@@ -104,6 +106,27 @@ BLAH (Barely Logical Agent Host) CLI is a comprehensive tool for building, testi
 - **v1.0.0**: Alternative hosting options and production readiness
 
 ## Recently Implemented Features
+
+### Flow-to-Tool Compilation
+
+Added support for compiling flows in `blah.json` into executable tools:
+
+- Flows defined in the `flows` array are compiled into individual tools
+- Each flow becomes a tool with a name like `FLOW_start_end` (based on first and last nodes)
+- Flow tools include a detailed description of all steps and edge conditions
+- Flow tools can be executed like any other tool in the system
+- Full support for conditional branching and decision points
+- All flow tools follow BLAH's standard tool schema conventions
+- Detailed error reporting when flows have invalid structure
+- Tools indicate they were created from flows with a `fromFlow` property
+
+This implementation enables:
+
+1. **Workflow Composition**: Create complex workflows by connecting multiple tools
+2. **Conditional Logic**: Implement branching based on tool outputs
+3. **Simplified Interfaces**: Present complex tool chains as single tools
+4. **Non-Technical Access**: Allow non-programmers to create tools through the visual flow editor
+5. **Reuse and Sharing**: Package common tool patterns as reusable flows
 
 ### Configuration Extensions
 
@@ -173,596 +196,159 @@ This API enables:
 - Custom server configurations
 - Controlled server lifecycle management
 
-### MCP SSE Server Testing Guide
+## Flow Tool Specification
 
-The MCP server can be tested manually or programmatically using various HTTP clients and tools. This guide provides detailed instructions for testing both the standard MCP endpoints and custom SSE features.
+### Flow Schema
 
-#### Starting the SSE Server for Testing
+Flows are defined in the `flows` array in your `blah.json` file:
 
-```bash
-# Start the server with default configuration
-blah mcp start --sse
-
-# Start the server on a specific port
-blah mcp start --sse --port 4444
-
-# Start the server with a specific configuration
-blah mcp start --sse --config path/to/blah.json
-```
-
-#### Available Endpoints
-
-When running in SSE mode, the MCP server exposes the following endpoints:
-
-**MCP Standard Endpoints:**
-- `/sse` - SSE connection endpoint (GET)
-- `/messages` - JSON-RPC message endpoint (POST)
-
-**Custom BLAH Endpoints:**
-- `/events` - Custom SSE event stream (GET)
-- `/tools` - List available tools with metadata (GET)
-- `/config` - Access the current configuration (GET)
-- `/health` - Server health check (GET)
-
-#### Testing with cURL
-
-**1. Basic Health Check:**
-```bash
-curl http://localhost:4200/health
-# Expected response: {"status":"ok","mode":"sse"}
-```
-
-**2. Get Available Tools:**
-```bash
-curl http://localhost:4200/tools
-# Expected response: {"tools":[...],"metadata":{...}}
-```
-
-**3. Get Server Configuration:**
-```bash
-curl http://localhost:4200/config
-# Expected response: {"config":{...}}
-```
-
-**4. Make a JSON-RPC Tool Call:**
-```bash
-curl -X POST http://localhost:4200/messages \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "tools/call",
-    "params": {
-      "name": "translate_to_leet",
-      "arguments": {
-        "text": "hello world"
-      }
-    },
-    "id": 1
-  }'
-```
-
-**5. List Tools with JSON-RPC:**
-```bash
-curl -X POST http://localhost:4200/messages \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "tools/list",
-    "params": {},
-    "id": 2
-  }'
-```
-
-**6. Monitor SSE Events:**
-```bash
-# This requires curl 7.68.0+ for proper SSE support
-curl -N -H "Accept: text/event-stream" http://localhost:4200/events
-```
-
-#### Testing with the Playground Client
-
-The BLAH CLI includes a built-in playground client for testing SSE functionality. The playground client can test both the standard stdio mode and the SSE mode.
-
-```bash
-# Test SSE mode (server must be running separately)
-tsx src/playground/client.ts --sse
-
-# Test SSE mode with specific port
-tsx src/playground/client.ts --sse --port 4444
-
-# Test stdio mode (starts server automatically)
-tsx src/playground/client.ts
-```
-
-The playground client tests:
-1. Custom SSE endpoints (health, tools, config)
-2. MCP standard endpoints via the MCP SDK
-3. Direct JSON-RPC calls to test tool execution
-
-#### Testing with JavaScript/Node.js
-
-Here's a complete example of how to test the SSE server using Node.js:
-
-```javascript
-const fetch = require('node-fetch');
-const EventSource = require('eventsource');
-
-// Base URL of the MCP server
-const SERVER_URL = 'http://localhost:4200';
-
-// === TESTING CUSTOM ENDPOINTS ===
-
-// Health check
-async function checkHealth() {
-  const response = await fetch(`${SERVER_URL}/health`);
-  const data = await response.json();
-  console.log('Health check:', data);
-  return data;
-}
-
-// Get a list of tools (custom endpoint)
-async function getTools() {
-  const response = await fetch(`${SERVER_URL}/tools`);
-  const data = await response.json();
-  console.log('Available tools:', data.tools);
-  console.log('Metadata:', data.metadata);
-  return data.tools;
-}
-
-// Get server configuration
-async function getConfig() {
-  const response = await fetch(`${SERVER_URL}/config`);
-  const data = await response.json();
-  console.log('Server config:', data.config);
-  return data.config;
-}
-
-// === TESTING MCP STANDARD ENDPOINTS ===
-
-// Make a JSON-RPC call
-async function jsonRpcCall(method, params, id = 1) {
-  const response = await fetch(`${SERVER_URL}/messages`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      jsonrpc: '2.0',
-      method,
-      params,
-      id
-    })
-  });
-  
-  return await response.json();
-}
-
-// List tools using MCP JSON-RPC
-async function listToolsRpc() {
-  const response = await jsonRpcCall('tools/list', {});
-  console.log('Tools from RPC:', response.result.tools);
-  return response.result.tools;
-}
-
-// Call a tool using MCP JSON-RPC
-async function callToolRpc(name, args) {
-  const response = await jsonRpcCall('tools/call', {
-    name,
-    arguments: args
-  });
-  console.log(`Tool result for ${name}:`, response.result);
-  return response.result;
-}
-
-// === TESTING SSE EVENTS ===
-
-// Listen to real-time events from the server
-function subscribeToEvents() {
-  const eventSource = new EventSource(`${SERVER_URL}/events`);
-  
-  eventSource.addEventListener('connected', (event) => {
-    console.log('Connected to event stream:', event.data);
-  });
-  
-  eventSource.addEventListener('tools-updated', (event) => {
-    console.log('Tools updated:', JSON.parse(event.data));
-  });
-  
-  eventSource.addEventListener('heartbeat', () => {
-    console.log('Received heartbeat');
-  });
-  
-  eventSource.onerror = (error) => {
-    console.error('SSE Error:', error);
-  };
-  
-  return eventSource; // Return for later cleanup
-}
-
-// Example usage
-async function main() {
-  try {
-    // Start by checking if the server is running
-    await checkHealth();
-    
-    // Subscribe to events
-    const events = subscribeToEvents();
-    
-    // Test custom endpoints
-    console.log('\n=== Testing Custom Endpoints ===');
-    const tools = await getTools();
-    await getConfig();
-    
-    // Test MCP standard endpoints
-    console.log('\n=== Testing MCP Standard Endpoints ===');
-    const mcpTools = await listToolsRpc();
-    
-    // If translate_to_leet tool is available, call it
-    if (mcpTools.some(tool => tool.name === 'translate_to_leet')) {
-      await callToolRpc('translate_to_leet', { text: 'hello world' });
-    }
-    
-    // Clean up after 10 seconds
-    setTimeout(() => {
-      events.close();
-      console.log('Event subscription closed');
-    }, 10000);
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
-
-main();
-```
-
-#### Testing with Python
-
-Here's an example of testing the SSE server using Python:
-
-```python
-import requests
-import json
-import sseclient
-import threading
-import time
-
-# Base URL of the MCP server
-SERVER_URL = 'http://localhost:4200'
-
-# === TESTING CUSTOM ENDPOINTS ===
-
-# Health check
-def check_health():
-    response = requests.get(f"{SERVER_URL}/health")
-    data = response.json()
-    print(f"Health check: {data}")
-    return data
-
-# Get a list of tools (custom endpoint)
-def get_tools():
-    response = requests.get(f"{SERVER_URL}/tools")
-    data = response.json()
-    print(f"Available tools: {len(data['tools'])} tools found")
-    print(f"Metadata: {data['metadata']}")
-    return data['tools']
-
-# Get server configuration
-def get_config():
-    response = requests.get(f"{SERVER_URL}/config")
-    data = response.json()
-    print(f"Server config name: {data['config'].get('name', 'unknown')}")
-    return data['config']
-
-# === TESTING MCP STANDARD ENDPOINTS ===
-
-# Make a JSON-RPC call
-def json_rpc_call(method, params, id=1):
-    response = requests.post(
-        f"{SERVER_URL}/messages",
-        headers={'Content-Type': 'application/json'},
-        data=json.dumps({
-            'jsonrpc': '2.0',
-            'method': method,
-            'params': params,
-            'id': id
-        })
-    )
-    return response.json()
-
-# List tools using MCP JSON-RPC
-def list_tools_rpc():
-    response = json_rpc_call('tools/list', {})
-    tools = response.get('result', {}).get('tools', [])
-    print(f"Tools from RPC: {len(tools)} tools found")
-    return tools
-
-# Call a tool using MCP JSON-RPC
-def call_tool_rpc(name, args):
-    print(f"Calling tool {name} with args: {args}")
-    response = json_rpc_call('tools/call', {
-        'name': name,
-        'arguments': args
-    })
-    print(f"Tool result: {json.dumps(response.get('result', {}), indent=2)}")
-    return response.get('result', {})
-
-# === TESTING SSE EVENTS ===
-
-# Listen to real-time events from the server
-def subscribe_to_events():
-    def listen_for_events():
-        headers = {'Accept': 'text/event-stream'}
-        response = requests.get(f"{SERVER_URL}/events", headers=headers, stream=True)
-        client = sseclient.SSEClient(response)
-        
-        print("SSE connection established, listening for events...")
-        for event in client.events():
-            if event.event == 'connected':
-                print(f"Connected to event stream: {event.data}")
-            elif event.event == 'tools-updated':
-                print(f"Tools updated: {json.loads(event.data)}")
-            elif event.event == 'heartbeat':
-                print("Received heartbeat")
-            else:
-                print(f"Unknown event: {event.event} - {event.data}")
-    
-    # Start event listener in a separate thread
-    thread = threading.Thread(target=listen_for_events)
-    thread.daemon = True
-    thread.start()
-    print("Started SSE listener thread")
-    return thread
-
-# Example usage
-def main():
-    try:
-        # Start by checking if the server is running
-        check_health()
-        
-        # Subscribe to events
-        events_thread = subscribe_to_events()
-        
-        # Test custom endpoints
-        print("\n=== Testing Custom Endpoints ===")
-        tools = get_tools()
-        config = get_config()
-        
-        # Test MCP standard endpoints
-        print("\n=== Testing MCP Standard Endpoints ===")
-        mcp_tools = list_tools_rpc()
-        
-        # If translate_to_leet tool is available, call it
-        tool_names = [tool['name'] for tool in mcp_tools]
-        if 'translate_to_leet' in tool_names:
-            call_tool_rpc('translate_to_leet', {'text': 'hello world'})
-        
-        # Wait for a bit to see events
-        print("\nWaiting for events (10 seconds)...")
-        time.sleep(10)
-        print("\nTest completed")
-    except Exception as e:
-        print(f"Error: {e}")
-
-if __name__ == "__main__":
-    main()
-```
-
-#### Testing with Official MCP SDK
-
-For MCP-compliant applications, use the official MCP SDK:
-
-```javascript
-const { Client } = require("@modelcontextprotocol/sdk/client/index.js");
-const { SSEClientTransport } = require("@modelcontextprotocol/sdk/client/sse.js");
-const fetch = require('node-fetch');
-
-async function testWithMcpSdk() {
-  console.log('Testing with MCP SDK');
-  
-  // Create SSE transport
-  const transport = new SSEClientTransport({ 
-    baseUrl: 'http://localhost:4200',
-    fetchFn: fetch
-  });
-  
-  // Create client
-  const client = new Client(
+```json
+{
+  "flows": [
     {
-      name: "test-mcp-client",
-      version: "1.0.0"
-    },
-    {
-      capabilities: {
-        prompts: {},
-        resources: {},
-        tools: {}
-      }
-    }
-  );
-  
-  try {
-    // Connect to SSE transport
-    await client.connect(transport);
-    console.log('Connected to MCP server via SSE');
-    
-    // List tools
-    const tools = await client.listTools();
-    console.log(`Listed ${tools.tools.length} tools`);
-    
-    // Call a tool if available
-    if (tools.tools.some(tool => tool.name === 'translate_to_leet')) {
-      console.log('Calling translate_to_leet tool...');
-      const result = await client.callTool({
-        name: "translate_to_leet",
-        arguments: {
-          text: "Hello from MCP SDK!"
-        }
-      });
-      console.log('Tool call result:', result);
-    }
-  } catch (error) {
-    console.error('Error:', error);
-  }
-}
-
-testWithMcpSdk();
-```
-
-#### Integration Testing
-
-For integration testing, use the programmatic API to create and start the server:
-
-```javascript
-const { createMcpServer, startMcpServer } = require('./path/to/server/index.js');
-
-async function testServer() {
-  // Create a test configuration
-  const testConfig = {
-    name: "test-config",
-    version: "1.0.0",
-    tools: [
-      {
-        name: "echo",
-        description: "Echo back the input",
-        inputSchema: {
-          type: "object",
-          properties: {
-            text: {
-              type: "string",
-              description: "Text to echo"
-            }
+      "name": "random-number-test-workflow",
+      "description": "A workflow that generates and processes random numbers",
+      "nodes": [
+        {
+          "name": "start-node",
+          "type": "manual-trigger",
+          "category": "trigger",
+          "parameters": {},
+          "text": "Start Workflow"
+        },
+        {
+          "name": "random-generator",
+          "type": "random-number",
+          "category": "utility",
+          "parameters": {
+            "min": "1",
+            "max": "100"
           },
-          required: ["text"]
+          "text": "Generate Random Number"
+        },
+        {
+          "name": "high-number-message",
+          "type": "execute-javascript",
+          "category": "utility",
+          "parameters": {
+            "code": "return { message: `High number generated: ${inputData.randomNumber}` };"
+          },
+          "text": "High Number Message"
+        },
+        {
+          "name": "low-number-message",
+          "type": "execute-javascript",
+          "category": "utility",
+          "parameters": {
+            "code": "return { message: `Low number generated: ${inputData.randomNumber}` };"
+          },
+          "text": "Low Number Message"
+        },
+        {
+          "name": "log-result",
+          "type": "execute-javascript",
+          "category": "utility",
+          "parameters": {
+            "code": "console.log(inputData.message);\nreturn { completed: true };"
+          },
+          "text": "Log Result"
         }
-      }
-    ]
-  };
-  
-  // Create server programmatically (but don't start it yet)
-  const serverObj = await createMcpServer(
-    "./test-config.json", // Config path
-    testConfig,           // Config object
-    true,                 // SSE mode
-    0                     // Random port
-  );
-  
-  // Start the server on a random port
-  const httpServer = serverObj.app.listen(0);
-  const port = httpServer.address().port;
-  console.log(`Test server running on port ${port}`);
-  
-  // Run your tests...
-  
-  // Clean up
-  httpServer.close();
-  await serverObj.server.close();
-}
-```
-
-## Configuration Extensions
-
-### Overview
-
-BLAH now supports extending configurations from other local or remote sources. This allows you to:
-
-1. Share common tools across multiple configurations
-2. Import tools from trusted sources
-3. Create modular configurations that inherit functionality
-4. Override or extend existing tools with custom behavior
-
-The `extends` property in your `blah.json` file allows you to reference other configuration files that will be merged with your local configuration.
-
-### Usage
-
-Add an `extends` property to your `blah.json` file:
-
-```json
-{
-  "name": "my-blah-config",
-  "version": "1.0.0",
-  "extends": {
-    "shared-tools": "./path/to/shared-tools.json",
-    "remote-tools": "https://example.com/shared-blah.json"
-  },
-  "tools": [
-    // Your local tools here...
-  ]
-}
-```
-
-### How Extensions Work
-
-1. The system loads all referenced configurations (both local and remote)
-2. Tools from extended configurations are merged into your local configuration
-3. In case of conflicts (tools with the same name), your local tools take precedence
-4. Environment variables from extended configurations are merged (local values override extended ones)
-5. Each tool from an extension is tagged with a `fromExtension` property to track its source
-
-### Path Resolution
-
-- **Local paths**: Relative to the location of your base configuration file
-- **Remote paths**: Full URLs (http:// or https://) to remote configuration files
-
-### Example
-
-**Base Configuration (blah.json)**:
-```json
-{
-  "name": "my-extended-blah",
-  "version": "1.0.0",
-  "extends": {
-    "shared-tools": "./shared-tools.json",
-    "remote-tools": "https://example.com/shared-blah.json"
-  },
-  "tools": [
-    {
-      "name": "local_tool",
-      "description": "A local tool defined in this config",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "param1": {
-            "type": "string",
-            "description": "Parameter 1"
-          }
+      ],
+      "edges": [
+        {
+          "startNodeName": "start-node",
+          "endNodeName": "random-generator",
+          "name": "edge-1"
         },
-        "required": ["param1"]
-      }
+        {
+          "startNodeName": "random-generator",
+          "endNodeName": "high-number-message",
+          "name": "edge-2",
+          "condition": "greater_than",
+          "if": "{{random-generator.randomNumber}}",
+          "value": "50"
+        },
+        {
+          "startNodeName": "random-generator",
+          "endNodeName": "low-number-message",
+          "name": "edge-3",
+          "condition": "less_than_or_equal",
+          "if": "{{random-generator.randomNumber}}",
+          "value": "50"
+        },
+        {
+          "startNodeName": "high-number-message",
+          "endNodeName": "log-result",
+          "name": "edge-4"
+        },
+        {
+          "startNodeName": "low-number-message",
+          "endNodeName": "log-result",
+          "name": "edge-5"
+        }
+      ]
     }
   ]
 }
 ```
 
-**Shared Tools (shared-tools.json)**:
+### Node Schema
+
+Each node in a flow has the following properties:
+
+- `name`: Unique identifier for the node
+- `type`: Type of node (e.g., manual-trigger, random-number, execute-javascript)
+- `category`: General category (e.g., trigger, utility, output)
+- `parameters`: Configuration parameters for the node
+- `text`: Display text/description for the node
+
+### Edge Schema
+
+Edges connect nodes and define the flow sequence:
+
+- `name`: Unique identifier for the edge
+- `startNodeName`: Source node name
+- `endNodeName`: Target node name
+- `condition` (optional): Condition type for conditional branching
+- `if` (optional): The value to evaluate
+- `value` (optional): The value to compare against
+
+### Execution Model
+
+When a flow is compiled into a tool:
+
+1. The flow is given a name in the format `FLOW_first_last`
+2. The tool description includes all steps and branches
+3. An internal execution engine traverses the graph at runtime
+4. Data is passed between nodes based on edge connections
+5. Conditional edges are evaluated to determine the execution path
+6. Results from the final node are returned as the tool result
+
+### Example Generated Tool
+
 ```json
 {
-  "name": "shared-tools",
-  "version": "1.0.0",
-  "tools": [
-    {
-      "name": "shared_tool_1",
-      "description": "A shared tool",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "text": {
-            "type": "string",
-            "description": "Text to process"
-          }
-        },
-        "required": ["text"]
+  "name": "FLOW_start_node_log_result",
+  "description": "Tool created from flow 'Random Number Test Workflow'. Starts at 'Start Workflow', generates a random number, creates a message based on the number, and logs the result.",
+  "fromFlow": "random-number-test-workflow",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "trigger": {
+        "type": "boolean",
+        "description": "Set to true to trigger the flow"
       }
     }
-  ]
+  }
 }
 ```
 
-### Security Considerations
+### Restrictions and Limitations
 
-- Only extend configurations from trusted sources
-- Be aware that remote configurations could change without your knowledge
-- Consider using a local cache of remote configurations for stability
-- Remote extensions are fetched at runtime, which may impact startup performance
+1. Flows must have at least one entry point and one exit point
+2. Circular references in the flow graph are not supported
+3. All referenced node types must be available in the system
+4. Flow performance depends on the tools it composes
 
 ## Open Questions
 1. How should we approach tool versioning?

@@ -12,7 +12,7 @@ export interface BlahManifest {
   tools: BlahTool[];
   prompts?: BlahPrompt[];
   resources?: BlahResource[];
-  flows?: any[];
+  flows?: BlahFlow[];
   extends?: Record<string, string>; // Map of extension names to paths/URLs
   env?: Record<string, string>; // Environment variables
   [key: string]: any;
@@ -34,6 +34,33 @@ export interface BlahPrompt {
 export interface BlahResource {
   name: string;
   type: string;
+  [key: string]: any;
+}
+
+export interface BlahFlowNode {
+  name: string;
+  type: string;
+  category: string;
+  parameters: Record<string, any>;
+  text: string;
+  [key: string]: any;
+}
+
+export interface BlahFlowEdge {
+  name: string;
+  startNodeName: string;
+  endNodeName: string;
+  condition?: string;
+  if?: string;
+  value?: string;
+  [key: string]: any;
+}
+
+export interface BlahFlow {
+  name: string;
+  description?: string;
+  nodes: BlahFlowNode[];
+  edges: BlahFlowEdge[];
   [key: string]: any;
 }
 /**
