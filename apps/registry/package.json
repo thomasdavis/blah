@@ -1,0 +1,44 @@
+{
+  "name": "registry",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "check-types": "tsc --noEmit",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@repo/ai": "workspace:*",
+    "@blahai/cli": "workspace:*",
+    "@blahai/schema": "workspace:*",
+    "@repo/ui": "workspace:*",
+    "next": "^14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "next-auth": "^4.24.7",
+    "@prisma/client": "^5.11.0",
+    "bcrypt": "^5.1.1",
+    "zod": "^3.22.4",
+    "semver": "^7.6.0",
+    "lucide-react": "^0.330.0",
+    "tailwindcss": "^3.4.0",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.39"
+  },
+  "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^20.11.28",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@types/semver": "^7.5.8",
+    "@types/bcrypt": "^5.0.2",
+    "prisma": "^5.11.0",
+    "typescript": "^5.4.2"
+  }
+}

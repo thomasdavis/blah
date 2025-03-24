@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  name         String?
+  passwordHash String    @map("password_hash")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  
+  tools    Tool[]
+  apiKeys  ApiKey[]
+
+  @@map("users")
+}
+
+model Tool {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  userId      Int       @map("user_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions    ToolVersion[]
+  tags        ToolTag[]
+
+  @@unique([name, userId])
+  @@map("tools")
+}
+
+model ToolVersion {
+  id          Int       @id @default(autoincrement())
+  toolId      Int       @map("tool_id")
+  version     String
+  code        String?
+  manifest    Json?
+  publishedAt DateTime  @default(now()) @map("published_at")
+  deprecated  Boolean   @default(false)
+  
+  tool               Tool                 @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  providerConfigs    ToolProviderConfig[]
+
+  @@unique([toolId, version])
+  @@map("tool_versions")
+}
+
+model Provider {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  
+  toolProviderConfigs ToolProviderConfig[]
+
+  @@map("providers")
+}
+
+model ToolProviderConfig {
+  id            Int       @id @default(autoincrement())
+  toolVersionId Int       @map("tool_version_id")
+  providerId    Int       @map("provider_id")
+  config        Json?
+  
+  toolVersion   ToolVersion @relation(fields: [toolVersionId], references: [id], onDelete: Cascade)
+  provider      Provider    @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  @@unique([toolVersionId, providerId])
+  @@map("tool_provider_configs")
+}
+
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  
+  toolTags ToolTag[]
+
+  @@map("tags")
+}
+
+model ToolTag {
+  toolId  Int  @map("tool_id")
+  tagId   Int  @map("tag_id")
+  
+  tool    Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  tag     Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([toolId, tagId])
+  @@map("tool_tags")
+}
+
+model ApiKey {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  keyHash   String    @unique @map("key_hash")
+  name      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  expiresAt DateTime? @map("expires_at")
+  
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("api_keys")
+}
