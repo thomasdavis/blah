@@ -1,0 +1,29 @@
+{
+  "name": "my-extended-blah",
+  "version": "1.0.0",
+  "description": "My BLAH config that extends tools from other sources",
+  "extends": {
+    "shared-tools": "./shared-tools.json",
+    "remote-tools": "https://example.com/shared-blah.json"
+  },
+  "env": {
+    "OPENAI_API_KEY": "your_openai_api_key",
+    "CUSTOM_VAR": "custom_value"
+  },
+  "tools": [
+    {
+      "name": "local_tool",
+      "description": "A local tool defined in this config",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "param1": {
+            "type": "string",
+            "description": "Parameter 1"
+          }
+        },
+        "required": ["param1"]
+      }
+    }
+  ]
+}

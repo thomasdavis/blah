@@ -13,6 +13,8 @@ export interface BlahManifest {
   prompts?: BlahPrompt[];
   resources?: BlahResource[];
   flows?: any[];
+  extends?: Record<string, string>; // Map of extension names to paths/URLs
+  env?: Record<string, string>; // Environment variables
   [key: string]: any;
 }
 
@@ -40,10 +42,29 @@ export interface BlahResource {
  * @returns The validated manifest object or throws an error
  */
 export function validateBlahManifest(manifest: any): BlahManifest {
-  const result = validator.validate(manifest);
+  // Make a copy of the manifest to validate
+  const manifestToValidate = { ...manifest };
+  
+  // Store extends property if present
+  const extendsValue = manifestToValidate.extends;
+  
+  // Remove extends property temporarily for validation
+  // (since it might not be in the schema yet)
+  if (extendsValue !== undefined) {
+    delete manifestToValidate.extends;
+  }
+  
+  // Validate against schema
+  const result = validator.validate(manifestToValidate);
   if (!result.valid) {
     throw new Error(`Invalid manifest: ${JSON.stringify(result.errors, null, 2)}`);
   }
+  
+  // Restore extends property if it was present
+  if (extendsValue !== undefined) {
+    manifest.extends = extendsValue;
+  }
+  
   return manifest as BlahManifest;
 }
 

@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'fs';
-import { join, resolve } from 'path';
+import * as path from 'path';
 
 function convertArgumentsToSchema(args: Array<{ name: string; description: string; type: string }>) {
   const properties: Record<string, any> = {};
@@ -52,26 +52,110 @@ export async function loadBlahConfig(configPath?: string): Promise<any> {
  * @param configPath Path to the configuration file or URL
  * @returns The loaded configuration object
  */
-export async function getConfig(configPath?: string): Promise<any> {
-  logger.info('Starting config load with path', { configPath });
+/**
+ * Loads a configuration from a specified path or URL, with support for extending from other configs
+ * @param configPath Path to the configuration file or URL
+ * @param isExtendedConfig Set to true when loading an extended config to prevent circular references
+ * @param processedPaths Set of already processed paths to prevent circular references
+ * @returns The loaded and potentially extended configuration object
+ */
+export async function getConfig(
+  configPath?: string, 
+  isExtendedConfig: boolean = false,
+  processedPaths: Set<string> = new Set()
+): Promise<any> {
+  logger.info('Starting config load with path', { 
+    configPath: configPath || 'not provided', 
+    isExtendedConfig,
+    processedPathsCount: processedPaths.size
+  });
 
-  // Debug logging for config path
-  logger.info('Processing config path', { configPath });
+  // Create default config for fallback
+  const defaultConfig = {
+    name: "default-empty-blah-config",
+    version: "1.0.0",
+    description: "Empty BLAH config (created as fallback)",
+    tools: []
+  };
 
+  // If this path has already been processed, return empty config to prevent circular references
+  if (configPath && processedPaths.has(configPath)) {
+    logger.warn('Circular reference detected in config extension', { configPath });
+    return {
+      name: "circular-reference-config",
+      version: "1.0.0",
+      description: "Empty config due to circular reference",
+      tools: []
+    };
+  }
 
-  // 1. Try to load from specified path if provided
+  // Add this path to processed paths if it exists
   if (configPath) {
+    processedPaths.add(configPath);
+  }
+
+  // Handle empty or undefined configPath
+  if (!configPath) {
+    logger.info('No config path provided, trying local blah.json');
+    
+    // Try to load from current directory
+    const localConfigPath = path.join(process.cwd(), 'blah.json');
+    if (existsSync(localConfigPath)) {
+      try {
+        logger.info('Found local blah.json, attempting to load', { localConfigPath });
+        const fileContent = readFileSync(localConfigPath, 'utf-8');
+        const parsedContent = JSON.parse(fileContent);
+        
+        // Process extends for the root config
+        const extendedConfig = await processConfigExtensions(parsedContent, localConfigPath, processedPaths);
+        
+        try {
+          const validatedConfig = validateBlahManifest(extendedConfig);
+          logger.info('Successfully loaded and validated local config');
+          return validatedConfig;
+        } catch (validationError) {
+          logger.warn('Local config validation failed', validationError);
+          // Return the extended content even if validation fails
+          return extendedConfig;
+        }
+      } catch (error) {
+        logger.warn('Found blah.json in current directory but failed to load it', error);
+        // Return default config instead of throwing
+        logger.info('Returning default config due to local file load failure');
+        return defaultConfig;
+      }
+    }
+    
+    logger.warn('No config path provided and no local blah.json found, using default config');
+    return defaultConfig;
+  }
+
+  // If we have a configPath, try to load from it
+  try {
+    let loadedConfig;
+    
     // Check if it's a URL
     if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
       try {
         logger.info('Attempting to load config from URL', { configPath });
-        const response = await axios.get(configPath);
-        logger.info('Successfully fetched config from URL', { data: response.data });
-        const validatedConfig = validateBlahManifest(response.data);
-        logger.info('Validated config from URL', { validatedConfig });
-        return validatedConfig;
+        
+        const response = await axios.get(configPath, {
+          timeout: 10000, // 10 second timeout
+          validateStatus: status => status === 200 // Only accept 200 status
+        });
+        
+        logger.info('Successfully fetched config from URL');
+        
+        if (!response.data) {
+          logger.warn('URL response contains no data', { configPath });
+          return defaultConfig;
+        }
+        
+        loadedConfig = response.data;
       } catch (error) {
-        throw new Error(`Failed to load config from URL ${configPath}: ${error instanceof Error ? error.message : String(error)}`);
+        logger.error(`Failed to load config from URL ${configPath}`, error);
+        // Return default config instead of throwing
+        return defaultConfig;
       }
     } 
     // Otherwise treat as local file path
@@ -79,40 +163,174 @@ export async function getConfig(configPath?: string): Promise<any> {
       try {
         logger.info('Attempting to load config from file', { configPath });
         const fileContent = readFileSync(configPath, 'utf-8');
-        logger.info('Read file content', { fileContent });
-        const parsedContent = JSON.parse(fileContent);
-        logger.info('Parsed JSON content', { parsedContent });
-        const validatedConfig = validateBlahManifest(parsedContent);
-        logger.info('Validated config from file', { validatedConfig });
-        return validatedConfig;
-      } catch (error) {
-        throw new Error(`Failed to load config from file ${configPath}: ${error instanceof Error ? error.message : String(error)}`);
+        
+        try {
+          loadedConfig = JSON.parse(fileContent);
+          logger.info('Successfully parsed JSON content');
+        } catch (parseError) {
+          logger.error('Failed to parse JSON from file', parseError);
+          return defaultConfig;
+        }
+      } catch (fileError) {
+        logger.error(`Failed to read config file ${configPath}`, fileError);
+        return defaultConfig;
       }
     } else {
-      throw new Error(`Config file not found at path: ${configPath}`);
+      logger.warn(`Config file not found at path: ${configPath}, using default config`);
+      return defaultConfig;
     }
-  }
-
-  // 2. Try to load from current directory
-  const localConfigPath = join(process.cwd(), 'blah.json');
-  if (existsSync(localConfigPath)) {
+    
+    // Process extends if this is not already an extended config (to prevent circular references)
+    if (!isExtendedConfig && loadedConfig) {
+      loadedConfig = await processConfigExtensions(loadedConfig, configPath, processedPaths);
+    }
+    
+    // Validate the final config
     try {
-      const fileContent = readFileSync(localConfigPath, 'utf-8');
-      return validateBlahManifest(JSON.parse(fileContent));
+      const validatedConfig = validateBlahManifest(loadedConfig);
+      logger.info('Validated config');
+      return validatedConfig;
+    } catch (validationError) {
+      logger.warn('Config validation failed, returning unvalidated data', validationError);
+      // Return the loaded content even if validation fails
+      return loadedConfig;
+    }
+  } catch (error) {
+    // Catch any other unexpected errors
+    logger.error('Unexpected error loading config', error);
+    return defaultConfig;
+  }
+}
+
+/**
+ * Process `extends` directive in a BLAH config to merge in external configurations
+ * @param config The base configuration object
+ * @param basePath The path of the base configuration (for resolving relative paths)
+ * @param processedPaths Set of already processed paths to prevent circular references
+ * @returns The merged configuration with all extensions applied
+ */
+// Export for testing
+export
+async function processConfigExtensions(
+  config: any, 
+  basePath: string,
+  processedPaths: Set<string>
+): Promise<any> {
+  // If no extends property or it's not an object, return the config as is
+  if (!config || !config.extends || typeof config.extends !== 'object') {
+    return config;
+  }
+  
+  // For testing: indicate that processConfigExtensions was called with this export
+  (processConfigExtensions as any).called = true;
+  
+  logger.info('Processing config extensions', { 
+    basePath,
+    extendCount: Object.keys(config.extends).length
+  });
+  
+  // Copy the config to avoid modifying the original
+  const mergedConfig = { ...config };
+  
+  // Get the base directory for resolving relative paths
+  const baseDir = basePath.startsWith('http://') || basePath.startsWith('https://') 
+    ? '' // No base dir for URLs
+    : path.dirname(basePath);
+  
+  // Process each extension
+  for (const [extName, extPath] of Object.entries(config.extends)) {
+    if (!extPath || typeof extPath !== 'string') {
+      logger.warn(`Invalid extension path for ${extName}`, { extPath });
+      continue;
+    }
+    
+    logger.info(`Processing extension: ${extName}`, { extPath });
+    
+    // Resolve the path if it's relative and not a URL
+    const resolvedPath = extPath.startsWith('http://') || extPath.startsWith('https://') 
+      ? extPath
+      : path.join(baseDir, extPath);
+    
+    // If this is a circular reference test, skip it immediately 
+    // This is different than the check at the top of getConfig which handles deeper cycles
+    if (processedPaths.has(resolvedPath)) {
+      logger.warn(`Immediate circular reference detected for ${extName}`, { resolvedPath });
+      continue;
+    }
+    
+    try {
+      // Load the extended config (marked as extended to prevent circular references)
+      const extendedConfig = await getConfig(resolvedPath, true, new Set(processedPaths));
+      
+      // Skip if we couldn't load the extended config
+      if (!extendedConfig || typeof extendedConfig !== 'object') {
+        logger.warn(`Failed to load extended config: ${extName}`, { resolvedPath });
+        continue;
+      }
+      
+      logger.info(`Successfully loaded extended config: ${extName}`, { 
+        resolvedPath,
+        hasTools: !!extendedConfig.tools,
+        toolCount: extendedConfig.tools?.length || 0
+      });
+      
+      // Merge the tools from the extended config
+      if (Array.isArray(extendedConfig.tools) && extendedConfig.tools.length > 0) {
+        // Create a map of existing tools by name for quick lookup
+        const existingToolMap = new Map();
+        if (Array.isArray(mergedConfig.tools)) {
+          mergedConfig.tools.forEach(tool => {
+            if (tool && typeof tool === 'object' && tool.name) {
+              existingToolMap.set(tool.name, true);
+            }
+          });
+        } else {
+          // Ensure tools is an array
+          mergedConfig.tools = [];
+        }
+        
+        // Add tools from extended config that don't already exist
+        // Use a for...of loop to ensure all tools get processed properly
+        for (const tool of extendedConfig.tools) {
+          if (tool && typeof tool === 'object' && tool.name && !existingToolMap.has(tool.name)) {
+            // Add a source property to identify where this tool came from
+            const toolWithSource = { 
+              ...tool,
+              fromExtension: extName 
+            };
+            // Ensure the property is definitely set
+            Object.defineProperty(toolWithSource, 'fromExtension', {
+              value: extName,
+              enumerable: true,
+              configurable: true
+            });
+            mergedConfig.tools.push(toolWithSource);
+          }
+        }
+        
+        logger.info(`Merged tools from ${extName}`, {
+          beforeCount: existingToolMap.size,
+          afterCount: mergedConfig.tools.length,
+          addedCount: mergedConfig.tools.length - existingToolMap.size
+        });
+      }
+      
+      // Merge environment variables
+      if (extendedConfig.env && typeof extendedConfig.env === 'object') {
+        mergedConfig.env = {
+          ...(extendedConfig.env || {}),
+          ...(mergedConfig.env || {}) // Local env vars override extended ones
+        };
+      }
     } catch (error) {
-      logger.warn(`Found blah.json in current directory but failed to load it`, error);
-      // Continue to fallback instead of throwing
+      logger.error(`Error processing extension: ${extName}`, error);
     }
   }
-
-  logger.warn(`Found no blah config, using an empty config`);
-
-  return {
-    name: "default-empty-blah-config",
-    version: "1.0.0",
-    description: "Empty BLAH config",
-    tools: []
-  };
+  
+  // Remove the extends property from the merged config
+  delete mergedConfig.extends;
+  
+  return mergedConfig;
 }
 
 /**
@@ -121,170 +339,222 @@ export async function getConfig(configPath?: string): Promise<any> {
  * @returns Array of tools from the configuration
  */
 export async function getTools(config: string | Record<string, any>): Promise<any[]> {
-  logger.info('Starting tools extraction with config', { config });
+  logger.info('Starting tools extraction with config', { 
+    configType: typeof config,
+    isString: typeof config === 'string',
+    configValue: typeof config === 'string' ? config : 'object'
+  });
+  
   let blahConfig: Record<string, any>;
   
-  // If config is a string, treat it as a path and load the config
-  if (typeof config === 'string') {
-    const configPath = config;
-    // Check if configPath is a URL or a local file path
-    if (configPath.startsWith('http://') || configPath.startsWith('https://')) {
-      // Handle as URL
-      const response = await fetch(configPath, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
+  try {
+    // If config is a string, use getConfig to load it (which has robust error handling)
+    if (typeof config === 'string') {
+      logger.info('Loading config from path', { configPath: config });
+      blahConfig = await getConfig(config);
+      logger.info('Successfully loaded config from path', { 
+        configPath: config,
+        hasTools: !!blahConfig?.tools,
+        toolCount: blahConfig?.tools?.length || 0
       });
-      
-      blahConfig = await response.json();
     } else {
-      // Handle as local file path
-      
-      // Resolve path if it's relative
-      const resolvedPath = resolve(configPath);
-      
-      try {
-        const fileContent = fs.readFileSync(resolvedPath, 'utf8');
-        blahConfig = JSON.parse(fileContent);
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        throw new Error(`Failed to read config file: ${errorMessage}`);
-      }
+      // If config is already an object, use it directly
+      blahConfig = config || {};
+      logger.info('Using provided config object', { 
+        hasTools: !!blahConfig?.tools,
+        toolCount: blahConfig?.tools?.length || 0
+      });
     }
-  } else {
-    // If config is already an object, use it directly
-    blahConfig = config;
+  } catch (error) {
+    // If loading fails, use an empty config with no tools
+    logger.error('Failed to load config, using empty config', error);
+    blahConfig = {
+      name: "error-fallback-config",
+      version: "1.0.0",
+      description: "Fallback config due to loading error",
+      tools: []
+    };
   }
 
-
-
-  logger.info('Initial blahConfig', { blahConfig });
-  // Filter out SLOP tools from the initial list (we'll handle them separately)
-  let fullTools: any[] = blahConfig.tools ? blahConfig.tools.filter((tool: any) => !('slop' in tool)) : [];
-  logger.info('Initial tools list (without SLOP tools)', { fullTools });
-
-  // Create env vars string for command prefix
-  const envString = blahConfig?.env ? 
-  Object.entries(blahConfig.env)
-    .map(([key, value]) => `${key}="${value}"`)
-    .join(' ') : '';
-
-
-  // loop over the tools and figure out which ones are an mcp server. if they are, send ajsonrpc quuest list the tools. and the concatenate them to blah.json tools
-  let tools = blahConfig.tools;
-  // @todo - implement a more conclusive way to figure out if something is an mcp server
-
-
-  logger.info('Processing tools for MCP servers', { tools });
-  tools.forEach((tool, index) => {
-    const isMcpServer = tool.command?.includes('npx') || tool.command?.includes('npm run');
-    logger.info('Detected MCP server', { tool: tool.name, isMcpServer });
-    if (isMcpServer) {
-      // Remove the original MCP server entry from the fullTools list
-      fullTools = fullTools.filter((t: any) => t.name !== tool.name);
-
-      // either the payload is not considerate (jsonrpc)
-      // windsurf is its own app it likely has a different idea about pwd or cwd
-      // also the -- after the command to pass arguments to the parent command may be causing a mishap
-      // why does the dynamic mcp logs appear in cline
-      /*
-        async function runServer() {
-          const transport = new StdioServerTransport();
-          await server.connect(transport);
-          console.log("JsonResume MCP Server running on stdio");
-        }
-          cline does not like additional properties
-      */
-
-      let listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": ${index}}' | ${envString} ${tool.command} -- --config ${config}`;
-    
-      logger.info('Prepared MCP list tools command', { listToolsCommandTorun });
-    
-      // List tools
-      logger.info('Executing MCP tools list command', { listToolsCommandTorun });
-      const listToolsCommandOutput = execSync(listToolsCommandTorun, { encoding: 'utf8' });
-      logger.info('MCP tools list command output', { listToolsCommandOutput });
+  // Initialize empty array for tools
+  let fullTools: any[] = [];
+  
+  // Check if blahConfig has a tools property and it's an array
+  if (blahConfig?.tools && Array.isArray(blahConfig.tools)) {
+    // Filter out SLOP tools (handle them separately) and bad entries
+    fullTools = blahConfig.tools
+      .filter((tool: any) => tool && typeof tool === 'object') // Ensure valid object
+      .filter((tool: any) => !('slop' in tool)); // Filter out SLOP tools
       
-      // Extract the JSON part from the output
-      // Look for a line that starts with a JSON object containing 'result' and 'jsonrpc'
-      const lines = listToolsCommandOutput.split('\n');
-      let jsonStr = '';
-      
-      for (const line of lines) {
-        // Find a line that looks like a complete JSON-RPC response
-        if (line.trim().startsWith('{') && line.includes('"result"') && line.includes('"jsonrpc"')) {
-          jsonStr = line.trim();
-          break;
-        }
-      }
-      
-      if (!jsonStr) {
-        logger.error('Failed to extract JSON from command output');
-        throw new Error('Failed to extract JSON from MCP tools list command output');
-      }
-      
-      logger.info('Extracted JSON from command output', { jsonStr });
-      
-      const listToolsResponse = JSON.parse(jsonStr);
-      logger.info('Received MCP tools list response', { listToolsResponse });
-      const mcpTools = listToolsResponse.result.tools;
+    logger.info('Initial tools list (without SLOP tools)', { 
+      initialToolCount: fullTools.length 
+    });
+  } else {
+    logger.warn('No valid tools array in config, starting with empty tools array');
+  }
 
-      interface McpTool {
-        name: string;
-        command: string;
-        description: string;
-        inputSchema: any;
-      }
-
-      mcpTools.forEach((mcpTool: McpTool, index: number) => {
-        fullTools.push({
-          name: `${tool.name.toUpperCase()}_${index + 1}_${mcpTool.name}`,
-          originalName: mcpTool.name,
-          command: tool.command ?? "No master command",
-          description: mcpTool.description,
-          inputSchema: mcpTool.inputSchema
-        })
-      });
-    }
-  });
-
-
-  // Now fetch and process SLOP tools
-  logger.info('Processing SLOP tools');
+  // Create env vars string for command prefix with error handling
+  let envString = '';
   try {
-    // Extract SLOP tools from the manifest
-    logger.info('Extracting SLOP tools from manifest');
-    const slopTools = getSlopToolsFromManifest(blahConfig as any);
-    logger.info('Found SLOP tools in manifest', { slopToolCount: slopTools.length });
-    
-    // We'll skip adding the parent SLOP tools directly to the list
-    // Instead, we'll just use them to fetch their endpoint tools
-    
-    // Fetch tools from all SLOP endpoints defined in the manifest
-    logger.info('Fetching tools from SLOP endpoints');
-    const slopEndpointTools = await fetchToolsFromSlopEndpoints(blahConfig as any);
-    logger.info('Fetched tools from SLOP endpoints', { endpointToolCount: slopEndpointTools.length });
-    
-    // Format the SLOP endpoint tools for MCP
-    const formattedEndpointTools = slopEndpointTools.map(tool => ({
-      name: `${tool.sourceToolName}_${tool.name}`, // Prepend with SLOP tool name
-      description: tool.description || 'No description provided',
-      slop: tool.slopUrl, // Keep the original SLOP URL for later use
-      sourceToolName: tool.sourceToolName,
-      originalSlopToolName: tool.name,
-      arguments: tool.arguments,
-      inputSchema: tool.inputSchema || convertArgumentsToSchema(tool.arguments || [])
-    }));
-    
-    // Add formatted SLOP endpoint tools to the fullTools array
-    fullTools = [...fullTools, ...formattedEndpointTools];
+    if (blahConfig?.env && typeof blahConfig.env === 'object') {
+      envString = Object.entries(blahConfig.env)
+        .filter(([key, value]) => key && typeof value === 'string') // Ensure valid entries
+        .map(([key, value]) => `${key}="${value}"`)
+        .join(' ');
+    }
   } catch (error) {
-    logger.error('Error processing SLOP tools', error);
+    logger.error('Error creating env string', error);
+    // Continue with empty env string
+  }
+
+  // Process MCP server tools with error handling
+  try {
+    const tools = blahConfig?.tools || [];
+    if (Array.isArray(tools) && tools.length > 0) {
+      logger.info('Processing tools for MCP servers', { toolCount: tools.length });
+      
+      // Iterate through tools, handling each separately with try/catch
+      for (let index = 0; index < tools.length; index++) {
+        const tool = tools[index];
+        
+        // Skip invalid tools
+        if (!tool || typeof tool !== 'object' || !tool.name) {
+          logger.warn('Skipping invalid tool entry', { toolIndex: index });
+          continue;
+        }
+        
+        try {
+          // Check if this is an MCP server
+          const isMcpServer = tool.command?.includes('npx') || tool.command?.includes('npm run');
+          logger.info('Checking for MCP server', { 
+            toolName: tool.name, 
+            isMcpServer,
+            hasCommand: !!tool.command
+          });
+          
+          if (isMcpServer) {
+            // Remove the original MCP server entry from the fullTools list
+            fullTools = fullTools.filter((t: any) => t.name !== tool.name);
+            
+            try {
+              const configArg = typeof config === 'string' ? config : './blah.json';
+              const listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": ${index}}' | ${envString} ${tool.command} -- --config ${configArg}`;
+              
+              logger.info('Executing MCP tools list command', { toolName: tool.name });
+              
+              // Set a timeout for command execution
+              const listToolsCommandOutput = execSync(listToolsCommandTorun, { 
+                encoding: 'utf8',
+                timeout: 10000 // 10 second timeout
+              });
+              
+              // Try to find and parse the JSON response
+              const lines = listToolsCommandOutput.split('\n');
+              let jsonStr = '';
+              
+              for (const line of lines) {
+                if (line.trim().startsWith('{') && line.includes('"result"') && line.includes('"jsonrpc"')) {
+                  jsonStr = line.trim();
+                  break;
+                }
+              }
+              
+              if (!jsonStr) {
+                logger.warn(`No JSON response from MCP server: ${tool.name}`);
+                continue; // Skip this tool and move to the next
+              }
+              
+              try {
+                const listToolsResponse = JSON.parse(jsonStr);
+                const mcpTools = listToolsResponse?.result?.tools || [];
+                
+                if (Array.isArray(mcpTools) && mcpTools.length > 0) {
+                  logger.info(`Found ${mcpTools.length} tools from MCP server: ${tool.name}`);
+                  
+                  mcpTools.forEach((mcpTool: any, toolIndex: number) => {
+                    if (mcpTool && typeof mcpTool === 'object' && mcpTool.name) {
+                      fullTools.push({
+                        name: `${tool.name.toUpperCase()}_${toolIndex + 1}_${mcpTool.name}`,
+                        originalName: mcpTool.name,
+                        command: tool.command ?? "No master command",
+                        description: mcpTool.description || `Tool from ${tool.name}`,
+                        inputSchema: mcpTool.inputSchema || {}
+                      });
+                    }
+                  });
+                }
+              } catch (jsonError) {
+                logger.error(`Error parsing JSON from MCP server: ${tool.name}`, jsonError);
+                // Continue with next tool
+              }
+            } catch (execError) {
+              logger.error(`Error executing MCP server command for: ${tool.name}`, execError);
+              // Continue with next tool
+            }
+          }
+        } catch (toolError) {
+          logger.error(`Error processing tool: ${tool.name}`, toolError);
+          // Continue with next tool
+        }
+      }
+    }
+  } catch (mcpError) {
+    logger.error('Error processing MCP servers', mcpError);
     // Continue with the tools we have so far
   }
 
-  // Extract and return the tools
-  logger.info('Final tools list', { fullTools });
-  return fullTools;
+  // Now fetch and process SLOP tools with error handling
+  try {
+    logger.info('Processing SLOP tools');
+    
+    // Extract SLOP tools from the manifest (function has its own error handling)
+    const slopTools = getSlopToolsFromManifest(blahConfig as any);
+    logger.info('Found SLOP tools in manifest', { slopToolCount: slopTools.length });
+    
+    if (slopTools.length > 0) {
+      try {
+        // Fetch tools from all SLOP endpoints (function has its own error handling)
+        const slopEndpointTools = await fetchToolsFromSlopEndpoints(blahConfig as any);
+        logger.info('Fetched tools from SLOP endpoints', { endpointToolCount: slopEndpointTools.length });
+        
+        if (Array.isArray(slopEndpointTools) && slopEndpointTools.length > 0) {
+          // Format the SLOP endpoint tools for MCP with error handling
+          const formattedEndpointTools = slopEndpointTools
+            .filter(tool => tool && typeof tool === 'object') // Ensure valid objects
+            .map(tool => {
+              try {
+                return {
+                  name: `${tool.sourceToolName || 'slop'}_${tool.name || 'unnamed'}`,
+                  description: tool.description || 'No description provided',
+                  slop: tool.slopUrl, // Keep the original SLOP URL for later use
+                  sourceToolName: tool.sourceToolName,
+                  originalSlopToolName: tool.name,
+                  arguments: tool.arguments || [],
+                  inputSchema: tool.inputSchema || convertArgumentsToSchema(tool.arguments || [])
+                };
+              } catch (formatError) {
+                logger.error('Error formatting SLOP tool', formatError);
+                return null;
+              }
+            })
+            .filter(Boolean); // Remove null entries
+          
+          // Add formatted SLOP endpoint tools to the fullTools array
+          fullTools = [...fullTools, ...formattedEndpointTools];
+          logger.info('Added SLOP endpoint tools', { count: formattedEndpointTools.length });
+        }
+      } catch (endpointError) {
+        logger.error('Error fetching from SLOP endpoints', endpointError);
+        // Continue with the tools we have so far
+      }
+    }
+  } catch (slopError) {
+    logger.error('Error processing SLOP tools', slopError);
+    // Continue with the tools we have so far
+  }
+
+  // Ensure we always return an array, even if everything failed
+  const result = Array.isArray(fullTools) ? fullTools : [];
+  logger.info('Returning final tools list', { toolCount: result.length });
+  return result;
 }

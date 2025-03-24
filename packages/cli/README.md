@@ -121,6 +121,8 @@ When started in SSE mode, the server exposes the following endpoints:
 - `/config` - Access the current configuration 
 - `/health` - Health check endpoint
 
+For detailed examples of how to test and interact with the SSE server, see the [MCP SSE Server Testing Guide](#mcp-sse-server-testing-guide) section below.
+
 #### List Tools (`blah mcp tools`)
 
 Lists all available tools from your configuration.
@@ -298,6 +300,11 @@ The BLAH manifest (`blah.json`) follows this schema:
   "name": "string", // Required: Name of your BLAH manifest
   "version": "string", // Required: Version number
   "description": "string", // Optional: Description of your manifest
+  "extends": {
+    // Optional: Extend from other BLAH manifests
+    "extension-name": "./path/to/local/config.json",
+    "remote-name": "https://example.com/remote-config.json"
+  },
   "env": {
     // Optional: Environment variables
     "OPENAI_API_KEY": "string",
@@ -448,6 +455,33 @@ Connects with systems that implement the Simple Language and Object Protocol:
 
 ## Advanced Features
 
+### Configuration Extensions
+
+The CLI supports extending configurations from other sources:
+
+- **Shared Tools**: Import tools from other local or remote configurations
+- **Tool Inheritance**: Extend your configuration with tools from trusted sources
+- **Conflict Resolution**: Local tools take precedence over extended ones
+- **Environment Merging**: Environment variables are merged across configurations
+
+To use this feature, add an `extends` property to your `blah.json`:
+
+```json
+{
+  "name": "my-config",
+  "version": "1.0.0",
+  "extends": {
+    "shared-tools": "./shared-tools.json",
+    "remote-tools": "https://example.com/shared-blah.json"
+  },
+  "tools": [
+    // Your local tools here...
+  ]
+}
+```
+
+See the [Configuration Extensions](#configuration-extensions) section for more details.
+
 ### Multi-Protocol Architecture
 
 The CLI is built on a flexible architecture that supports multiple protocols:
@@ -507,6 +541,7 @@ When publishing the @blahai/cli package to npm, workspace dependencies need to b
 - [x] SLOP protocol integration
 - [x] Multi-protocol support (MCP and SLOP)
 - [x] Sub-tool support for SLOP tools
+- [x] Configuration extensions for importing tools from other sources
 - [ ] Better error handling and logging
 - [ ] Tool composition
 - [ ] Alternative hosting options beyond ValTown
@@ -518,6 +553,97 @@ When publishing the @blahai/cli package to npm, workspace dependencies need to b
 - Wombat
 - Traves
 - Ajax
+
+## MCP SSE Server Testing Guide
+
+The MCP server can run in two modes: standard (stdio) mode and SSE mode. The SSE mode enables web-based access to tools via HTTP endpoints.
+
+### Starting in SSE Mode
+
+```bash
+# Start with default settings (port 4200)
+blah mcp start --sse
+
+# Start on a specific port
+blah mcp start --sse --port 4444
+
+# Start with a specific configuration
+blah mcp start --sse --config path/to/blah.json
+```
+
+### Available Endpoints
+
+When running in SSE mode, the server exposes:
+
+**MCP Standard Endpoints:**
+- `/sse` - SSE connection endpoint for MCP clients
+- `/messages` - JSON-RPC message endpoint for MCP communication
+
+**Custom Endpoints:**
+- `/events` - Custom SSE event stream for real-time updates
+- `/tools` - List available tools with metadata
+- `/config` - Access the current configuration
+- `/health` - Server health check
+
+### Testing with cURL
+
+```bash
+# Health check
+curl http://localhost:4200/health
+
+# Get available tools
+curl http://localhost:4200/tools
+
+# Execute a tool via JSON-RPC
+curl -X POST http://localhost:4200/messages \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "translate_to_leet",
+      "arguments": {
+        "text": "hello world"
+      }
+    },
+    "id": 1
+  }'
+```
+
+### Testing with JavaScript
+
+```javascript
+// Connect to custom event stream
+const eventSource = new EventSource('http://localhost:4200/events');
+eventSource.addEventListener('connected', (event) => {
+  console.log('Connected:', event.data);
+});
+eventSource.addEventListener('tools-updated', (event) => {
+  console.log('Tools updated:', JSON.parse(event.data));
+});
+
+// Get tools via custom endpoint
+fetch('http://localhost:4200/tools')
+  .then(response => response.json())
+  .then(data => console.log('Tools:', data.tools));
+```
+
+### Using the Playground Client
+
+The CLI includes a built-in playground client for testing:
+
+```bash
+# Test SSE mode
+tsx src/playground/client.ts --sse
+
+# Test SSE mode with specific port
+tsx src/playground/client.ts --sse --port 4444
+
+# Test standard stdio mode
+tsx src/playground/client.ts
+```
+
+For more detailed examples in JavaScript, Python, and with the MCP SDK, see the full documentation in CLAUDE.md.
 
 ## License
 

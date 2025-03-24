@@ -95,37 +95,61 @@ export async function fetchSlopModels(slopUrl: string): Promise<any[]> {
  * @param manifest The BLAH manifest
  * @returns Array of SLOP tools with their URLs
  */
-export function getSlopToolsFromManifest(manifest: BlahManifest): { name: string; description: string; slopUrl: string }[] {
-  logger.info('Getting SLOP tools from manifest', { 
-    hasTools: !!manifest.tools,
-    toolCount: manifest.tools?.length || 0 
-  });
-  
-  if (!manifest.tools) {
-    logger.warn('No tools found in manifest');
+export function getSlopToolsFromManifest(manifest: BlahManifest | null | undefined): { name: string; description: string; slopUrl: string }[] {
+  // Handle null or undefined manifest
+  if (!manifest) {
+    logger.warn('Manifest is null or undefined');
     return [];
   }
   
-  // Log all tools for debugging
-  manifest.tools.forEach((tool, index) => {
-    logger.info(`Tool ${index}:`, { 
-      name: tool.name, 
-      hasSlop: 'slop' in tool,
-      slopValue: tool.slop 
-    });
+  logger.info('Getting SLOP tools from manifest', { 
+    hasTools: !!manifest.tools,
+    toolCount: manifest.tools?.length || 0,
+    manifestName: manifest.name || 'unknown'
   });
   
-  const slopTools = manifest.tools
-    .filter(tool => 'slop' in tool && typeof tool.slop === 'string')
-    .map(tool => ({
-      name: tool.name,
-      // Create a slopUrl property from the slop property for consistency
-      description: tool.description || 'No description provided',
-      slopUrl: tool.slop as string
-    }));
-    
-  logger.info('Found SLOP tools', { count: slopTools.length, slopTools });
-  return slopTools;
+  // Handle missing tools array
+  if (!manifest.tools || !Array.isArray(manifest.tools)) {
+    logger.warn('No valid tools array found in manifest');
+    return [];
+  }
+  
+  // Log all tools for debugging (with error handling)
+  try {
+    manifest.tools.forEach((tool, index) => {
+      if (tool && typeof tool === 'object') {
+        logger.info(`Tool ${index}:`, { 
+          name: tool.name || 'unnamed', 
+          hasSlop: tool && 'slop' in tool,
+          slopValue: tool.slop 
+        });
+      } else {
+        logger.warn(`Invalid tool at index ${index}`, { tool });
+      }
+    });
+  } catch (error) {
+    logger.error('Error logging tools', error);
+    // Continue processing even if logging fails
+  }
+  
+  try {
+    // Filter out invalid tools and extract SLOP tools
+    const slopTools = manifest.tools
+      .filter(tool => tool && typeof tool === 'object') // Ensure tool is a valid object
+      .filter(tool => 'slop' in tool && typeof tool.slop === 'string' && tool.slop)
+      .map(tool => ({
+        name: tool.name || 'unnamed-tool',
+        // Create a slopUrl property from the slop property for consistency
+        description: tool.description || 'No description provided',
+        slopUrl: tool.slop as string
+      }));
+      
+    logger.info('Found SLOP tools', { count: slopTools.length });
+    return slopTools;
+  } catch (error) {
+    logger.error('Error processing SLOP tools', error);
+    return [];
+  }
 }
 
 /**
@@ -175,24 +199,32 @@ export async function fetchToolsFromSlopEndpoints(manifest: BlahManifest): Promi
       logger.info(`Fetching tools from SLOP endpoint: ${tool.slopUrl}`);
       const tools = await fetchSlopTools(tool.slopUrl);
       
-      console.log("======================");
-      console.log("======================");
-      console.log("======================");
-      console.log("======================");
-      console.log("======================");
-      console.log("======================");
-      console.log({tools});
+      logger.debug(`Retrieved ${tools.length} tools from ${tool.slopUrl}`);
+
+      // Handle case where tools array might contain invalid items
+      if (!Array.isArray(tools)) {
+        logger.warn(`Invalid tools array received from ${tool.slopUrl}`);
+        return [];
+      }
 
       // Add the source SLOP URL to each tool
-      const toolsWithSource = tools.map((t: any) => ({
-        ...t,
-        slopUrl: tool.slopUrl,
-        sourceToolName: tool.name,
-        sourceSlopToolName: tool.id,
-        name: t.id
-      }));
-      console.log({toolsWithSource});
+      const toolsWithSource = tools.map((t: any) => {
+        // Handle invalid tool objects
+        if (!t || typeof t !== 'object') {
+          logger.warn(`Invalid tool in response from ${tool.slopUrl}`);
+          return null;
+        }
+        
+        return {
+          ...t,
+          slopUrl: tool.slopUrl,
+          sourceToolName: tool.name,
+          sourceSlopToolName: tool.id || undefined,
+          name: t.id || t.name || `unnamed_tool_from_${tool.name}`
+        };
+      }).filter(Boolean); // Remove null entries
       
+      logger.debug(`Processed ${toolsWithSource.length} tools from ${tool.slopUrl}`);
       return toolsWithSource;
     } catch (error) {
       logger.error(`Failed to fetch tools from ${tool.slopUrl}`, error);

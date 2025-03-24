@@ -421,15 +421,34 @@ export async function createMcpServer(configPath: string, config?: Record<string
     // Tools endpoint (custom, not part of MCP)
     app.get('/tools', async (req, res) => {
       try {
-        const tools = await getTools(configPath);
+        // Add extra logging to debug issues
+        log('Tools endpoint requested', { configPath });
+        
+        // Initialize empty array to handle failure cases gracefully
+        let tools = [];
+        try {
+          tools = await getTools(configPath);
+          log('Successfully retrieved tools', { toolCount: tools.length });
+        } catch (toolError) {
+          log('Error fetching tools', toolError);
+          // Continue with empty tools array rather than failing completely
+        }
         
         // Get SLOP tools metadata for additional information
         let slopTools = [];
         try {
           if (!blahConfig) {
+            log('Loading blah config for tools endpoint');
             blahConfig = await getConfig(configPath);
           }
-          slopTools = getSlopToolsFromManifest(blahConfig);
+          
+          // Handle case where blahConfig might still be null
+          if (blahConfig) {
+            slopTools = getSlopToolsFromManifest(blahConfig);
+            log('Successfully loaded SLOP tools', { slopToolCount: slopTools.length });
+          } else {
+            log('Warning: blahConfig is null after loading attempt');
+          }
         } catch (slopError) {
           log('Warning: Error fetching SLOP tools metadata', slopError);
         }
@@ -438,7 +457,7 @@ export async function createMcpServer(configPath: string, config?: Record<string
           tools: tools || [],
           metadata: {
             slopToolCount: slopTools.length,
-            totalToolCount: tools.length
+            totalToolCount: tools ? tools.length : 0
           }
         };
         
@@ -447,7 +466,11 @@ export async function createMcpServer(configPath: string, config?: Record<string
         
         res.json(response);
       } catch (error) {
-        res.status(500).json({ error: String(error) });
+        log('Fatal error in tools endpoint', error);
+        res.status(500).json({ 
+          error: String(error),
+          message: "Error retrieving tools. Check server logs for details."
+        });
       }
     });
 

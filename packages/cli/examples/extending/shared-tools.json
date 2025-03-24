@@ -1,0 +1,30 @@
+{
+  "name": "shared-tools",
+  "version": "1.0.0",
+  "description": "Shared tools for use in other configs",
+  "tools": [
+    {
+      "name": "shared_tool_1",
+      "description": "A shared tool from the shared tools config",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "Text to process"
+          }
+        },
+        "required": ["text"]
+      }
+    },
+    {
+      "name": "shared_tool_2",
+      "description": "Another shared tool",
+      "command": "npx -y @some/tool-package",
+      "inputSchema": {}
+    }
+  ],
+  "env": {
+    "SHARED_API_KEY": "shared_api_key_value"
+  }
+}
