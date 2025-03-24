@@ -487,13 +487,13 @@ The CLI is built on a flexible architecture that supports multiple protocols:
 - **Protocol Translation**: Seamlessly translates between different protocol formats
 - **Extensible Design**: Easily add support for new protocols through the handler system
 
-### ValTown Integration
+### HTTP Source Integration
 
-The CLI provides seamless integration with ValTown:
+The CLI provides seamless integration with HTTP endpoints:
 
-- **Remote Tool Execution**: Tools can be executed on ValTown's serverless platform
-- **Fallback Mechanism**: Uses ValTown as a fallback when local commands aren't available
-- **Username Configuration**: Uses VALTOWN_USERNAME from environment variables or config
+- **Remote Tool Execution**: Tools can be executed on remote HTTP endpoints
+- **Fallback Mechanism**: Returns "no implementation" message when local commands aren't available
+- **Source Configuration**: Uses the `source` property in tool configuration to specify HTTP endpoints
 
 ### Local Tool Execution
 
