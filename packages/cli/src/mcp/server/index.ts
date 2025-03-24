@@ -19,13 +19,14 @@ import { log, logError, logSection, logStep } from "../simulator/logger.js";
 import { getSlopToolsFromManifest } from "../../slop/index.js";
 
 /**
- * Starts an MCP server with the specified configuration
+ * Creates an MCP server with the specified configuration
  * @param configPath Path to the configuration file
  * @param config Optional configuration object
- * @param sseMode If true, starts server in SSE mode
+ * @param sseMode If true, creates server in SSE mode
  * @param ssePort Port to run the SSE server on (default: 4200)
+ * @returns Object containing the server instance and any other resources (like Express app)
  */
-export async function startMcpServer(configPath: string, config?: Record<string, unknown>, sseMode?: boolean, ssePort?: number) {
+export async function createMcpServer(configPath: string, config?: Record<string, unknown>, sseMode?: boolean, ssePort?: number) {
   logSection('MCP Server');
   log('Starting MCP server', { configPath, config });
   
@@ -455,9 +456,47 @@ export async function startMcpServer(configPath: string, config?: Record<string,
       res.json({ status: 'ok', mode: 'sse' });
     });
 
-    // Start HTTP server
-    const port = ssePort || 4200;
-    app.listen(port, () => {
+    // Return server and app for the caller to start
+    return {
+      server: mcpServer,
+      app,
+      port: ssePort || 4200
+    };
+  } else {
+    // Create transport for standard mode
+    const transport = new StdioServerTransport();
+    
+    // Return the server and transport without connecting yet
+    return {
+      server,
+      transport,
+      stdioMode: true
+    };
+  }
+}
+
+/**
+ * Starts an MCP server with the specified configuration
+ * @param configPath Path to the configuration file
+ * @param config Optional configuration object
+ * @param sseMode If true, starts server in SSE mode
+ * @param ssePort Port to run the SSE server on (default: 4200)
+ * @returns The started server instance
+ */
+export async function startMcpServer(configPath: string, config?: Record<string, unknown>, sseMode?: boolean, ssePort?: number) {
+  // Create the server
+  const serverObj = await createMcpServer(configPath, config, sseMode, ssePort);
+  
+  // Start the server based on mode
+  if ('stdioMode' in serverObj && serverObj.stdioMode) {
+    // Start in stdio mode
+    await serverObj.server.connect(serverObj.transport);
+    log('MCP Server started successfully in standard mode');
+    return serverObj.server;
+  } else if ('app' in serverObj) {
+    // Start in SSE mode
+    const { app, port, server } = serverObj;
+    const httpServer = app.listen(port, () => {
       log(`MCP Server started in SSE mode on port ${port}`);
       console.log(`MCP Server is running at http://localhost:${port}`);
       console.log(`SSE endpoint (MCP): http://localhost:${port}/sse`);
@@ -466,13 +505,12 @@ export async function startMcpServer(configPath: string, config?: Record<string,
       console.log(`Tools endpoint (custom): http://localhost:${port}/tools`);
       console.log(`Config endpoint (custom): http://localhost:${port}/config`);
     });
-
-    return mcpServer;
-  } else {
-    // Start in standard mode with stdio transport
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
-    log('MCP Server started successfully in standard mode');
+    
+    // Store HTTP server reference for clean shutdown
+    (server as any).httpServer = httpServer;
+    
     return server;
+  } else {
+    throw new Error('Unknown server configuration');
   }
 }

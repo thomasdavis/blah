@@ -134,6 +134,32 @@ BLAH (Barely Logical Agent Host) CLI is a comprehensive tool for building, testi
 - Uses existing tool fetching and execution logic
 - MCP-compliant clients can connect via the standard protocol
 - Custom UI can use the enhanced event stream for richer interactions
+- Provides programmatic API for testing and embedded usage
+
+### Programmatic API
+The MCP server now provides a programmatic API for advanced use cases:
+
+```typescript
+// Create server without starting it
+const serverObj = await createMcpServer(configPath, config, sseMode, port);
+
+// For SSE mode:
+const { server, app, port } = serverObj;
+const httpServer = app.listen(port);
+
+// For stdio mode:
+const { server, transport } = serverObj;
+await server.connect(transport);
+
+// Simplified starting (handles both modes):
+const server = await startMcpServer(configPath, config, sseMode, port);
+```
+
+This API enables:
+- Programmatic testing of the server
+- Integration into other applications
+- Custom server configurations
+- Controlled server lifecycle management
 
 ## Open Questions
 1. How should we approach tool versioning?
