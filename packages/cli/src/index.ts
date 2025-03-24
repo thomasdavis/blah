@@ -10,6 +10,7 @@ import { writeFileSync, existsSync } from 'fs';
 import { sampleManifest } from '@blahai/schema';
 import chalk from 'chalk';
 import { getSlopToolsFromManifest, fetchSlopTools, fetchSlopModels, displaySlopTools, displaySlopModels, fetchToolsFromSlopEndpoints } from './slop/index.js';
+import { startSlopServer } from './slop/server.js';
 
 // Load environment variables from .env file
 config();
@@ -205,6 +206,42 @@ slopCommand
           actionCommand.setOptionValue && typeof actionCommand.setOptionValue === 'function') {
         actionCommand.setOptionValue('config', thisCommand.opts().config);
       }
+    }
+  });
+
+// Add start subcommand to slop
+slopCommand
+  .command('start')
+  .description('Start a SLOP server that exposes all tools in the configuration')
+  .option('--port <number>', 'Port to run the SLOP server on (default: 5000)', '5000')
+  .action(async (options) => {
+    try {
+      // Load config if specified or use default
+      let blahConfig;
+      const configPath = getConfigPath(options);
+      const configPathToUse = configPath || './blah.json';
+      
+      console.log(`Starting SLOP server with config: ${configPathToUse}`);
+      
+      try {
+        if (configPathToUse) {
+          blahConfig = await loadBlahConfig(configPathToUse);
+          console.log(`Loaded BLAH config: ${blahConfig.name} v${blahConfig.version}`);
+        }
+      } catch (configError) {
+        console.warn(`Warning: ${configError instanceof Error ? configError.message : String(configError)}`);
+        console.log('Will use default or available tools...');
+      }
+      
+      // Parse port
+      const port = parseInt(options.port, 10);
+      
+      // Start the SLOP server
+      console.log(`Starting SLOP server on port ${port}...`);
+      await startSlopServer(port, configPathToUse, blahConfig);
+    } catch (error) {
+      console.error('Error starting SLOP server:', error instanceof Error ? error.stack || error.message : String(error));
+      process.exit(1);
     }
   });
 

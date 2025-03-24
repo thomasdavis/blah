@@ -57,6 +57,9 @@ blah mcp tools
 # Run a simulation of an MCP client interacting with the server
 blah mcp simulate
 
+# Start a SLOP server to expose all tools via HTTP
+blah slop start
+
 # Validate a BLAH manifest file
 blah validate path/to/blah.json
 
@@ -138,6 +141,42 @@ Options:
 - `-s, --system-prompt <prompt>` - System prompt for the simulation
 - `-p, --prompt <prompt>` - User prompt to send
 - `-c, --config <path>` - Path to a blah.json configuration file (local path or URL)
+
+### SLOP Commands (`blah slop`)
+
+The `slop` command group provides access to Simple Language and Object Protocol (SLOP) functionality.
+
+#### Start SLOP Server (`blah slop start`)
+
+Starts a SLOP server that exposes all tools from your configuration via HTTP endpoints.
+
+Options:
+- `-c, --config <path>` - Path to a blah.json configuration file (local path or URL)
+- `--port <number>` - Port to run the SLOP server on (default: 5000)
+
+The server exposes the following endpoints:
+- `GET /tools` - Lists all available tools in SLOP format
+- `GET /models` - Lists available models (default model)
+- `POST /tools/:toolName` - Execute a specific tool
+- `GET /health` - Health check endpoint
+- `GET /config` - Server configuration information
+
+#### List SLOP Tools (`blah slop tools`)
+
+Lists all SLOP tools from the manifest or a specific SLOP server.
+
+Options:
+- `-c, --config <path>` - Path to a blah.json configuration file (local path or URL)
+- `-u, --url <url>` - Directly query a SLOP server URL for tools
+- `-m, --manifest-only` - Only show tools defined in the manifest without fetching from endpoints
+
+#### List SLOP Models (`blah slop models`)
+
+Lists all models available from SLOP servers defined in the manifest or from a specific URL.
+
+Options:
+- `-c, --config <path>` - Path to a blah.json configuration file (local path or URL)
+- `-u, --url <url>` - Directly query a SLOP server URL for models
 
 ### Validation (`blah validate`)
 

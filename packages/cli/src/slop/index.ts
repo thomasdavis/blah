@@ -27,44 +27,79 @@ interface BlahManifest {
  */
 export async function fetchSlopTools(slopUrl: string): Promise<any[]> {
   try {
-    logger.info(`Fetching tools from SLOP endpoint: ${slopUrl}/tools`);
-    const response = await fetch(`${slopUrl}/tools`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to fetch tools from SLOP server: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    
-    // Handle different response formats
-    if (Array.isArray(data)) {
-      // Response is already an array of tools
-      return data;
-    } else if (typeof data === 'object' && data !== null) {
-      // Response might be an object with a tools property
-      const dataObj = data as Record<string, unknown>;
+    // First try with the base URL
+    try {
+      logger.info(`Attempting to fetch tools from base SLOP endpoint: ${slopUrl}`);
+      const response = await fetch(`${slopUrl}`, { timeout: 5000 });
       
-      if ('tools' in dataObj && Array.isArray(dataObj.tools)) {
-        return dataObj.tools as any[];
-      } else if ('tool' in dataObj && Array.isArray(dataObj.tool)) {
-        return dataObj.tool as any[];
-      } else {
-        // If we can't find an array, try to convert the object to an array of tools
-        const possibleTools = Object.entries(dataObj).map(([name, value]) => {
-          if (typeof value === 'object' && value !== null) {
-            return { name, ...value as object };
-          }
-          return { name, description: String(value) };
-        });
-        return possibleTools;
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data && Array.isArray(data)) {
+          logger.info(`Successfully fetched ${data.length} tools from ${slopUrl}`);
+          return data;
+        } else if (data && typeof data === 'object' && 'tools' in data && Array.isArray(data.tools)) {
+          logger.info(`Successfully fetched ${data.tools.length} tools from ${slopUrl}`);
+          return data.tools;
+        }
+        // If we don't find tools in the base response, continue to try the /tools endpoint
       }
+    } catch (baseUrlError) {
+      logger.info(`Base URL fetch failed for ${slopUrl}, trying /tools endpoint instead`);
+      // Continue to try the /tools endpoint
     }
     
-    // If we can't determine the format, return an empty array
-    logger.warn(`Unexpected response format from ${slopUrl}/tools: ${JSON.stringify(data).substring(0, 100)}...`);
+    // Now try with the /tools endpoint
+    try {
+      const toolsUrl = slopUrl.endsWith('/') ? `${slopUrl}tools` : `${slopUrl}/tools`;
+      logger.info(`Fetching tools from SLOP endpoint: ${toolsUrl}`);
+      
+      const response = await fetch(toolsUrl, { timeout: 5000 });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch tools from SLOP server: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Handle different response formats
+      if (Array.isArray(data)) {
+        // Response is already an array of tools
+        logger.info(`Received array of ${data.length} tools from ${toolsUrl}`);
+        return data;
+      } else if (typeof data === 'object' && data !== null) {
+        // Response might be an object with a tools property
+        const dataObj = data as Record<string, unknown>;
+        
+        if ('tools' in dataObj && Array.isArray(dataObj.tools)) {
+          logger.info(`Received ${(dataObj.tools as any[]).length} tools in tools property from ${toolsUrl}`);
+          return dataObj.tools as any[];
+        } else if ('tool' in dataObj && Array.isArray(dataObj.tool)) {
+          logger.info(`Received ${(dataObj.tool as any[]).length} tools in tool property from ${toolsUrl}`);
+          return dataObj.tool as any[];
+        } else {
+          // If we can't find an array, try to convert the object to an array of tools
+          logger.info(`Converting object response to tools array from ${toolsUrl}`);
+          const possibleTools = Object.entries(dataObj).map(([name, value]) => {
+            if (typeof value === 'object' && value !== null) {
+              return { name, ...value as object };
+            }
+            return { name, description: String(value) };
+          });
+          return possibleTools;
+        }
+      }
+      
+      // If we can't determine the format, return an empty array
+      logger.warn(`Unexpected response format from ${toolsUrl}: ${JSON.stringify(data).substring(0, 100)}...`);
+    } catch (toolsEndpointError) {
+      logger.info(`/tools endpoint fetch failed for ${slopUrl}`);
+    }
+    
+    // If all attempts fail, return an empty array
     return [];
   } catch (error) {
-    logger.error(`Error fetching SLOP tools`, error);
+    logger.error(`Error fetching SLOP tools from ${slopUrl}`, error);
     return [];
   }
 }
@@ -76,14 +111,33 @@ export async function fetchSlopTools(slopUrl: string): Promise<any[]> {
  */
 export async function fetchSlopModels(slopUrl: string): Promise<any[]> {
   try {
-    const response = await fetch(`${slopUrl}/models`);
+    // First try with the base URL + /models
+    const modelsUrl = slopUrl.endsWith('/') ? `${slopUrl}models` : `${slopUrl}/models`;
+    logger.info(`Fetching models from SLOP endpoint: ${modelsUrl}`);
     
-    if (!response.ok) {
-      throw new Error(`Failed to fetch models from SLOP server: ${response.statusText}`);
+    try {
+      const response = await fetch(modelsUrl, { timeout: 5000 });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch models from SLOP server: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      if (Array.isArray(data)) {
+        logger.info(`Successfully fetched ${data.length} models from ${modelsUrl}`);
+        return data;
+      } else if (data && typeof data === 'object' && 'models' in data && Array.isArray(data.models)) {
+        logger.info(`Successfully fetched ${data.models.length} models from models property at ${modelsUrl}`);
+        return data.models;
+      } else {
+        logger.warn(`Unexpected response format from ${modelsUrl}`);
+        return [];
+      }
+    } catch (error) {
+      logger.error(`Error fetching SLOP models from ${modelsUrl}`, error);
+      return [];
     }
-    
-    const data = await response.json() as any[];
-    return data;
   } catch (error) {
     logger.error(`Error fetching SLOP models`, error);
     return [];
@@ -199,7 +253,7 @@ export async function fetchToolsFromSlopEndpoints(manifest: BlahManifest): Promi
       logger.info(`Fetching tools from SLOP endpoint: ${tool.slopUrl}`);
       const tools = await fetchSlopTools(tool.slopUrl);
       
-      logger.debug(`Retrieved ${tools.length} tools from ${tool.slopUrl}`);
+      logger.info(`Retrieved ${tools.length} tools from ${tool.slopUrl}`);
 
       // Handle case where tools array might contain invalid items
       if (!Array.isArray(tools)) {
@@ -224,7 +278,7 @@ export async function fetchToolsFromSlopEndpoints(manifest: BlahManifest): Promi
         };
       }).filter(Boolean); // Remove null entries
       
-      logger.debug(`Processed ${toolsWithSource.length} tools from ${tool.slopUrl}`);
+      logger.info(`Processed ${toolsWithSource.length} tools from ${tool.slopUrl}`);
       return toolsWithSource;
     } catch (error) {
       logger.error(`Failed to fetch tools from ${tool.slopUrl}`, error);

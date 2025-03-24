@@ -33,6 +33,18 @@ class Logger {
   }
 
   /**
+   * Log debug message (only in development, more detailed than info)
+   * @param message The message to log
+   * @param data Optional data to include
+   */
+  debug(message: string, data?: any): void {
+    if (isDevelopment) {
+      const dataString = data ? `: ${JSON.stringify(data, null, 2)}` : '';
+      console.log(`[${this.context}] DEBUG: ${message}${dataString}`);
+    }
+  }
+
+  /**
    * Log warning message (always shown)
    * @param message The message to log
    * @param data Optional data to include
