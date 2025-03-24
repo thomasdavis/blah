@@ -1,5 +1,21 @@
 import { existsSync, readFileSync } from 'fs';
 import { join, resolve } from 'path';
+
+function convertArgumentsToSchema(args: Array<{ name: string; description: string; type: string }>) {
+  const properties: Record<string, any> = {};
+  // @todo - this should handle far more complicated arguments
+  for (const arg of args) {
+    properties[arg.name] = {
+      type: arg.type === 'str' ? 'string' : arg.type,
+      description: arg.description
+    };
+  }
+
+  return {
+    type: 'object',
+    properties
+  };
+}
 import { validateBlahManifest } from './validator.js';
 import axios from 'axios';
 import fs from 'fs';
@@ -257,10 +273,8 @@ export async function getTools(config: string | Record<string, any>): Promise<an
       slop: tool.slopUrl, // Keep the original SLOP URL for later use
       sourceToolName: tool.sourceToolName,
       originalSlopToolName: tool.name,
-      inputSchema: tool.inputSchema || {
-        type: "object",
-        properties: {}
-      }
+      arguments: tool.arguments,
+      inputSchema: tool.inputSchema || convertArgumentsToSchema(tool.arguments || [])
     }));
     
     // Add formatted SLOP endpoint tools to the fullTools array
