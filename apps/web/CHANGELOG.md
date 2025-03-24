@@ -1,5 +1,12 @@
 # web
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [8de12a9]
+  - @blahai/cli@0.76.0
+
 ## 0.0.6
 
 ### Patch Changes

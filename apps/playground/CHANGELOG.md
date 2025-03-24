@@ -1,5 +1,15 @@
 # web
 
+## 0.0.7
+
+### Patch Changes
+
+- 73872dc: Add new AI package and integrate it with the playground app. The package provides wrappers for OpenAI and MCP-STDIO communication.
+- Updated dependencies [73872dc]
+- Updated dependencies [8de12a9]
+  - @repo/ai@0.1.0
+  - @blahai/cli@0.76.0
+
 ## 0.0.6
 
 ### Patch Changes
