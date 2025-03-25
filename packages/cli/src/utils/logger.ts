@@ -1,12 +1,12 @@
 /**
  * Logger utility for BLAH CLI
  * Controls logging based on environment and verbosity settings
- * Logs to file in user's home directory
+ * Logs to file in user's home directory using Pino
  */
 
-import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import pino from 'pino';
 
 // Environment detection
 const isDevelopment = process.env.NODE_ENV === 'development' || process.env.BLAH_DEBUG === 'true';
@@ -14,37 +14,52 @@ const isDevelopment = process.env.NODE_ENV === 'development' || process.env.BLAH
 // Set up log file path in user's home directory
 const LOG_FILE_PATH = path.join(os.homedir(), 'blah.log');
 
-/**
- * Write message to log file
- * @param message The formatted message to log
- */
-function writeToLogFile(message: string): void {
-  try {
-    const timestamp = new Date().toISOString();
-    const logMessage = `${timestamp} ${message}\n`;
-    
-    fs.appendFileSync(LOG_FILE_PATH, logMessage, { encoding: 'utf8' });
-  } catch (error) {
-    // If we can't write to the log file, at least try to show the error in the console
-    // but don't throw further as logging should never break the application
-    if (isDevelopment) {
-      console.error(`Failed to write to log file at ${LOG_FILE_PATH}:`, error);
-    }
-  }
-}
+// Configure Pino logger
+const pinoOptions: pino.LoggerOptions = {
+  level: isDevelopment ? 'debug' : 'info',
+  transport: {
+    targets: [
+      // File transport - always active
+      {
+        target: 'pino/file',
+        level: 'debug', // Log everything to file
+        options: { 
+          destination: LOG_FILE_PATH,
+          mkdir: true,
+          sync: false,
+        }
+      },
+      // Console transport - with pretty colors
+      {
+        target: 'pino-pretty',
+        level: isDevelopment ? 'debug' : 'info',
+        options: {
+          colorize: true,
+          translateTime: 'SYS:standard',
+          ignore: 'pid,hostname',
+          messageFormat: '[{context}] {msg}',
+        }
+      }
+    ]
+  },
+  timestamp: pino.stdTimeFunctions.isoTime
+};
+
+// Create base logger
+const baseLogger = pino(pinoOptions);
 
 /**
  * Logger class with environment-aware logging
  */
 class Logger {
-  private context: string;
+  private logger: pino.Logger;
   
   /**
    * Create a new logger instance
    * @param context The context/module name for this logger
    */
   constructor(context: string) {
-    this.context = context;
+    this.logger = baseLogger.child({ context });
   }
 
   /**
@@ -53,15 +68,11 @@ class Logger {
    * @param data Optional data to include
    */
   info(message: string, data?: any): void {
-    const dataString = data ? `: ${JSON.stringify(data, null, 2)}` : '';
-    const formattedMessage = `[${this.context}] ${message}${dataString}`;
-    
-    // Always log to file
-    writeToLogFile(`INFO ${formattedMessage}`);
-    
-    // Only log to console in development
-    if (isDevelopment) {
-      console.log(formattedMessage);
+    // Always log to file via Pino
+    if (data) {
+      this.logger.info(data, message);
+    } else {
+      this.logger.info(message);
     }
   }
 
@@ -71,15 +82,11 @@ class Logger {
    * @param data Optional data to include
    */
   debug(message: string, data?: any): void {
-    const dataString = data ? `: ${JSON.stringify(data, null, 2)}` : '';
-    const formattedMessage = `[${this.context}] DEBUG: ${message}${dataString}`;
-    
-    // Always log to file
-    writeToLogFile(`DEBUG ${formattedMessage}`);
-    
-    // Only log to console in development
-    if (isDevelopment) {
-      console.log(formattedMessage);
+    // Always log to file via Pino
+    if (data) {
+      this.logger.debug(data, `DEBUG: ${message}`);
+    } else {
+      this.logger.debug(`DEBUG: ${message}`);
     }
   }
 
@@ -89,14 +96,12 @@ class Logger {
    * @param data Optional data to include
    */
   warn(message: string, data?: any): void {
-    const dataString = data ? `: ${JSON.stringify(data, null, 2)}` : '';
-    const formattedMessage = `[${this.context}] WARNING: ${message}${dataString}`;
-    
-    // Log to file
-    writeToLogFile(`WARN ${formattedMessage}`);
-    
-    // Log to console
-    console.warn(formattedMessage);
+    // Log via Pino
+    if (data) {
+      this.logger.warn(data, `WARNING: ${message}`);
+    } else {
+      this.logger.warn(`WARNING: ${message}`);
+    }
   }
 
   /**
@@ -105,14 +110,14 @@ class Logger {
    * @param error Optional error to include
    */
   error(message: string, error?: any): void {
-    const errorString = error ? `: ${error instanceof Error ? error.message : JSON.stringify(error)}` : '';
-    const formattedMessage = `[${this.context}] ERROR: ${message}${errorString}`;
-    
-    // Log to file
-    writeToLogFile(`ERROR ${formattedMessage}`);
-    
-    // Log to console
-    console.error(formattedMessage);
+    // Log via Pino
+    if (error instanceof Error) {
+      this.logger.error({ err: error }, `ERROR: ${message}`);
+    } else if (error) {
+      this.logger.error({ data: error }, `ERROR: ${message}`);
+    } else {
+      this.logger.error(`ERROR: ${message}`);
+    }
   }
 }
 

@@ -66,13 +66,15 @@
     "express": "^4.21.2",
     "node-fetch": "^3.3.2",
     "openai": "^4.0.0",
+    "pino": "^9.6.0",
+    "pino-pretty": "^13.0.0",
     "wrap-ansi": "^9.0.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@types/boxen": "^3.0.5",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
+    "@types/boxen": "^3.0.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.5",
