@@ -4,389 +4,412 @@ import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism';
 export function DocContent() {
   return (
     <div className="max-w-4xl mx-auto prose">
-      <div className="text-center mb-12">
+      <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-primary-700 mb-2">BLAH</h1>
         <p className="text-xl text-gray-600">Barely Logical Agent Host</p>
-        <p className="mt-4 text-gray-600">A comprehensive CLI tool for building, testing, and deploying AI tools across multiple protocols</p>
+        <p className="mt-4 text-gray-600">An open-source ecosystem for managing, distributing, and executing AI agent tools</p>
       </div>
 
-      <section id="introduction" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Introduction</h2>
+      <section id="what-is-blah" className="mb-10">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">What is BLAH?</h2>
         <p>
-          BLAH (Barely Logical Agent Host) is a powerful CLI tool designed for building, testing, and deploying AI tools across multiple protocols.
-          It provides a complete implementation with support for both Model Context Protocol (MCP) and Simple Language and Object Protocol (SLOP),
-          enabling seamless integration with various AI systems and tools.
+          BLAH is an open-source ecosystem for managing, distributing, and executing AI agent tools using the Model Context Protocol (MCP).
+          It provides a decentralized registry for MCP servers that promotes transparency, security, and community-driven development.
         </p>
+        <p>
+          Think of BLAH as "npmjs for AI tools" - a comprehensive platform that allows developers to create, share, and consume
+          tools that extend AI capabilities in a standardized way.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+          <div className="bg-gray-50 p-4 rounded shadow-sm">
+            <h3 className="text-lg font-semibold text-primary-600">Protocol Bridges</h3>
+            <p className="text-sm">Seamlessly connect MCP, SLOP, and other AI tool protocols in one unified system</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded shadow-sm">
+            <h3 className="text-lg font-semibold text-primary-600">Tool Registry</h3>
+            <p className="text-sm">Discover, publish, and reuse AI tools through a decentralized, community-driven registry</p>
+          </div>
+          <div className="bg-gray-50 p-4 rounded shadow-sm">
+            <h3 className="text-lg font-semibold text-primary-600">Visual Workflows</h3>
+            <p className="text-sm">Create complex agent behaviors using the visual flow editor without writing code</p>
+          </div>
+        </div>
       </section>
 
-      <section id="installation" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Installation</h2>
-        <p>You can install BLAH CLI globally using npm:</p>
-        <SyntaxHighlighter language="bash" style={nord}>
-          {`npm install @blahai/cli --global`}
-        </SyntaxHighlighter>
-        <p>Or install from the repository:</p>
-        <SyntaxHighlighter language="bash" style={nord}>
-          {`git clone https://github.com/thomasdavis/blah.git
+      <section id="ecosystem" className="mb-10">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">The BLAH Ecosystem</h2>
+        <p>
+          BLAH is structured as a monorepo with several integrated components that work together to create a complete ecosystem:
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <h3 className="text-xl font-semibold text-primary-600">Core Packages</h3>
+            <ul className="mt-2 space-y-2">
+              <li>
+                <span className="font-medium">@blahai/cli</span>: Command-line tool for creating, testing, and deploying AI tools
+              </li>
+              <li>
+                <span className="font-medium">@blahai/schema</span>: JSON Schema and validator for blah.json configuration files
+              </li>
+              <li>
+                <span className="font-medium">@repo/ai</span>: AI integration package for working with OpenAI and MCP-STDIO
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold text-primary-600">Applications</h3>
+            <ul className="mt-2 space-y-2">
+              <li>
+                <span className="font-medium">playground</span>: Web interface for testing and configuring MCP servers
+              </li>
+              <li>
+                <span className="font-medium">registry</span>: Public registry for publishing and discovering AI tools
+              </li>
+              <li>
+                <span className="font-medium">web</span>: Documentation and landing page (this site)
+              </li>
+              <li>
+                <span className="font-medium">docs</span>: Comprehensive documentation site
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="key-features" className="mb-10">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Key Features</h2>
+        
+        <div className="mt-6 space-y-8">
+          <div>
+            <h3 className="text-xl font-semibold text-primary-600">Multi-Protocol Support</h3>
+            <p className="mt-2">
+              BLAH bridges multiple AI tool protocols, enabling seamless interoperability between different systems:
+            </p>
+            <ul className="mt-2 list-disc pl-6">
+              <li>
+                <span className="font-medium">Model Context Protocol (MCP)</span>: Full implementation with StdioServerTransport and JSON-RPC
+              </li>
+              <li>
+                <span className="font-medium">Simple Language and Object Protocol (SLOP)</span>: Complete support with automatic conversion to MCP
+              </li>
+              <li>
+                <span className="font-medium">Custom Protocols</span>: Extensible architecture for adding new protocol support
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-primary-600">Flexible Tool Execution</h3>
+            <p className="mt-2">
+              Execute tools through multiple methods to fit your infrastructure needs:
+            </p>
+            <ul className="mt-2 list-disc pl-6">
+              <li>
+                <span className="font-medium">Local Execution</span>: Run tools locally via command line
+              </li>
+              <li>
+                <span className="font-medium">Remote Execution (ValTown)</span>: Execute tools in the cloud through ValTown
+              </li>
+              <li>
+                <span className="font-medium">URI-based Execution</span>: Connect to HTTP endpoints for tool execution
+              </li>
+              <li>
+                <span className="font-medium">SLOP Endpoint Integration</span>: Use existing SLOP tools seamlessly
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-primary-600">Visual Flow Editor</h3>
+            <p className="mt-2">
+              Build complex agent workflows without writing code:
+            </p>
+            <ul className="mt-2 list-disc pl-6">
+              <li>
+                <span className="font-medium">Node-Based Editor</span>: Intuitive visual interface for creating flows
+              </li>
+              <li>
+                <span className="font-medium">Conditional Branching</span>: Create decision points based on tool outputs
+              </li>
+              <li>
+                <span className="font-medium">Flow-to-Tool Compilation</span>: Flows are automatically compiled into executable tools
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold text-primary-600">Configuration Management</h3>
+            <p className="mt-2">
+              Flexible ways to organize and share your tools:
+            </p>
+            <ul className="mt-2 list-disc pl-6">
+              <li>
+                <span className="font-medium">Local Configurations</span>: Define tools in local blah.json files
+              </li>
+              <li>
+                <span className="font-medium">Hosted Configurations</span>: Host your tool definitions on ValTown or other services
+              </li>
+              <li>
+                <span className="font-medium">Configuration Extensions</span>: Inherit and compose configurations from multiple sources
+              </li>
+              <li>
+                <span className="font-medium">Environment Variable Management</span>: Handle environment variables for secure tool execution
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="getting-started" className="mb-10">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Getting Started</h2>
+        
+        <div className="mt-6">
+          <h3 className="text-xl font-semibold text-primary-600">Installation</h3>
+          <p className="mt-2">Install the BLAH CLI globally using npm:</p>
+          <SyntaxHighlighter language="bash" style={nord}>
+            {`npm install @blahai/cli --global`}
+          </SyntaxHighlighter>
+          <p className="mt-4">Or install from the repository:</p>
+          <SyntaxHighlighter language="bash" style={nord}>
+            {`git clone https://github.com/thomasdavis/blah.git
 cd blah
 pnpm install
 pnpm run build`}
-        </SyntaxHighlighter>
-      </section>
+          </SyntaxHighlighter>
+        </div>
 
-      <section id="environment-setup" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Environment Setup</h2>
-        <p>
-          Create a <code>.env</code> file in your project directory with the following variables:
-        </p>
-        <SyntaxHighlighter language="bash" style={nord}>
-          {`# Required for OpenAI model access in simulations
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Default BLAH manifest host (optional)
-BLAH_HOST=https://ajax-blah.web.val.run
-
-# For ValTown integration
-VALTOWN_USERNAME=your_valtown_username
-
-# Other API keys for tools
-BRAVE_API_KEY=your_brave_api_key
-GITHUB_TOKEN=your_github_token`}
-        </SyntaxHighlighter>
-        <p>
-          You can also specify these environment variables directly in your <code>blah.json</code> configuration file under the <code>env</code> property.
-        </p>
-      </section>
-
-      <section id="basic-usage" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Basic Usage</h2>
-        <p>If installed globally, you can use the following commands:</p>
-        <SyntaxHighlighter language="bash" style={nord}>
-          {`# Initialize a new blah.json configuration file
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold text-primary-600">Basic Usage</h3>
+          <p className="mt-2">Once installed, you can use these commands to get started:</p>
+          <SyntaxHighlighter language="bash" style={nord}>
+            {`# Initialize a new blah.json configuration
 blah init
 
 # Start the MCP server
 blah mcp start
 
-# List available tools from your configuration
+# List available tools
 blah mcp tools
 
-# Run a simulation of an MCP client interacting with the server
+# Test tools with a simulation
 blah mcp simulate
 
-# Validate a BLAH manifest file
-blah validate path/to/blah.json
-
-# Launch the Flow Editor
+# Launch the visual flow editor
 blah flows`}
-        </SyntaxHighlighter>
-      </section>
+          </SyntaxHighlighter>
+        </div>
 
-      <section id="command-reference" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Command Reference</h2>
-        
-        <h3 className="text-xl font-semibold mt-6">Global Options</h3>
-        <ul>
-          <li><code>-c, --config &lt;path&gt;</code> - Path to a blah.json configuration file (local path or URL)</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-6">MCP Commands (<code>blah mcp</code>)</h3>
-        <p>The <code>mcp</code> command group provides access to Model Context Protocol functionality.</p>
-
-        <h4 className="text-lg font-medium mt-4">Start MCP Server (<code>blah mcp start</code>)</h4>
-        <p>Starts an MCP server that connects to a BLAH manifest and exposes tools via the Model Context Protocol.</p>
-        <p><strong>Options:</strong></p>
-        <ul>
-          <li><code>-c, --config &lt;path&gt;</code> - Path to a blah.json configuration file (local path or URL)</li>
-        </ul>
-
-        <h4 className="text-lg font-medium mt-4">List Tools (<code>blah mcp tools</code>)</h4>
-        <p>Lists all available tools from your configuration.</p>
-        <p><strong>Options:</strong></p>
-        <ul>
-          <li><code>-c, --config &lt;path&gt;</code> - Path to a blah.json configuration file (local path or URL)</li>
-        </ul>
-
-        <h4 className="text-lg font-medium mt-4">Simulation (<code>blah mcp simulate</code>)</h4>
-        <p>Runs a simulated interaction between an AI model and the MCP server to test tool selection and execution.</p>
-        <p><strong>Options:</strong></p>
-        <ul>
-          <li><code>-m, --model &lt;model&gt;</code> - OpenAI model to use (default: gpt-4o-mini)</li>
-          <li><code>-s, --system-prompt &lt;prompt&gt;</code> - System prompt for the simulation</li>
-          <li><code>-p, --prompt &lt;prompt&gt;</code> - User prompt to send</li>
-          <li><code>-c, --config &lt;path&gt;</code> - Path to a blah.json configuration file (local path or URL)</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-6">Validation (<code>blah validate</code>)</h3>
-        <p>Validates a BLAH manifest file against the schema.</p>
-        <p><strong>Options:</strong></p>
-        <ul>
-          <li><code>[file]</code> - Path to the BLAH manifest file (defaults to ./blah.json)</li>
-          <li><code>-c, --config &lt;path&gt;</code> - Path to a blah.json configuration file (local path or URL)</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-6">Flow Editor (<code>blah flows</code>)</h3>
-        <p>Launches a visual editor for creating and editing agent workflows.</p>
-        <p><strong>Options:</strong></p>
-        <ul>
-          <li><code>-p, --port &lt;number&gt;</code> - Port to run the server on (default: 3333)</li>
-          <li><code>-c, --config &lt;path&gt;</code> - Path to a blah.json configuration file (local path or URL)</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-6">Initialization (<code>blah init</code>)</h3>
-        <p>Initializes a new blah.json configuration file with a default template.</p>
-        <p><strong>Options:</strong></p>
-        <ul>
-          <li><code>[file]</code> - Path to create the blah.json file (defaults to ./blah.json)</li>
-        </ul>
-      </section>
-
-      <section id="blah-manifest" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">BLAH Manifest Schema</h2>
-        <p>
-          A BLAH manifest is a JSON file that defines the tools available through your MCP server.
-          Here's the schema for the <code>blah.json</code> configuration file:
-        </p>
-        <SyntaxHighlighter language="json" style={nord}>
-          {`{
-  "name": "string", // Required: Name of your BLAH manifest
-  "version": "string", // Required: Version number
-  "description": "string", // Optional: Description of your manifest
-  "env": {
-    // Optional: Environment variables
-    "OPENAI_API_KEY": "string",
-    "VALTOWN_USERNAME": "string",
-    "BRAVE_API_KEY": "string"
-  },
-  "tools": [
-    // Required: Array of tool definitions
-    {
-      "name": "string", // Required: Tool name (used for invocation)
-      "description": "string", // Required: Tool description
-      "command": "string", // Optional: Command to execute for local tools
-      "originalName": "string", // Optional: Original name for MCP server tools
-      "slop": "string", // Optional: URL to a SLOP endpoint for this tool
-      "slopUrl": "string", // Optional: Alternative to slop property
-      "inputSchema": {
-        // Required: JSON Schema for tool inputs
-        "type": "object",
-        "properties": {}
-      }
-    }
-  ],
-  "flows": [] // Optional: Array of flow definitions
-}`}
-        </SyntaxHighlighter>
-      </section>
-
-      <section id="tool-types" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Tool Types</h2>
-        <p>The CLI supports several types of tools:</p>
-        <ol>
-          <li><strong>Command-based tools</strong>: Tools with a <code>command</code> property that executes a local command</li>
-          <li><strong>ValTown tools</strong>: Tools without a command that use ValTown for execution</li>
-          <li><strong>MCP server tools</strong>: Tools that invoke other MCP servers (using npx/npm commands)</li>
-          <li><strong>SLOP tools</strong>: Tools with a <code>slop</code> or <code>slopUrl</code> property that connect to SLOP endpoints</li>
-          <li><strong>URI tools</strong>: Tools that execute via custom HTTP endpoints</li>
-        </ol>
-
-        <h3 className="text-xl font-semibold mt-6">Example Local Configuration</h3>
-        <SyntaxHighlighter language="json" style={nord}>
-          {`{
-  "name": "my-blah-manifest",
+        <div className="mt-8">
+          <h3 className="text-xl font-semibold text-primary-600">Creating a Basic Configuration</h3>
+          <p className="mt-2">Create a simple blah.json file to define your tools:</p>
+          <SyntaxHighlighter language="json" style={nord}>
+            {`{
+  "name": "my-first-blah",
   "version": "1.0.0",
-  "description": "My BLAH manifest with custom tools",
+  "description": "My first BLAH configuration",
   "env": {
-    "OPENAI_API_KEY": "your_openai_api_key",
-    "VALTOWN_USERNAME": "your_valtown_username"
+    "OPENAI_API_KEY": "your_openai_api_key_here"
   },
   "tools": [
     {
       "name": "hello_world",
-      "description": "Says hello to the world",
+      "description": "Says hello to someone",
       "inputSchema": {
         "type": "object",
-        "properties": {},
-        "required": []
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the person to greet"
+          }
+        },
+        "required": ["name"]
       }
-    },
-    {
-      "name": "brave_search",
-      "command": "npx -y @modelcontextprotocol/server-brave-search",
-      "description": "Search the web using Brave Search API",
-      "inputSchema": {}
     }
   ]
 }`}
-        </SyntaxHighlighter>
+          </SyntaxHighlighter>
+        </div>
       </section>
 
-      <section id="mcp-server" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">MCP Server Implementation</h2>
-        <p>
-          The MCP server in @blahai/cli provides a complete implementation of the Model Context Protocol with several key features:
+      <section id="use-cases" className="mb-10">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Use Cases</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="bg-gray-50 p-5 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold text-primary-600">AI Development Teams</h3>
+            <p className="mt-2 text-sm">
+              Create internal tool libraries that can be shared across different AI systems and applications within your organization.
+              Use the configuration extension feature to compose tools from multiple teams into unified interfaces.
+            </p>
+          </div>
+          
+          <div className="bg-gray-50 p-5 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold text-primary-600">Tool Creators</h3>
+            <p className="mt-2 text-sm">
+              Build and publish specialized AI tools to the BLAH registry. Monetize your expertise by creating high-quality,
+              specialized tools that solve specific problems for AI developers.
+            </p>
+          </div>
+          
+          <div className="bg-gray-50 p-5 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold text-primary-600">LLM Application Developers</h3>
+            <p className="mt-2 text-sm">
+              Extend your LLM applications with powerful tools from the BLAH ecosystem. Create complex workflows
+              using the flow editor to orchestrate sophisticated agent behaviors.
+            </p>
+          </div>
+          
+          <div className="bg-gray-50 p-5 rounded-lg shadow-sm">
+            <h3 className="text-lg font-semibold text-primary-600">AI Researchers</h3>
+            <p className="mt-2 text-sm">
+              Develop and test new agent architectures using the flow editor. Publish your research findings
+              as reusable tools and workflows that others can build upon.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="compatible-systems" className="mb-10">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Compatible Systems</h2>
+        
+        <p className="mt-4">
+          BLAH works with any system that supports the Model Context Protocol (MCP) or Simple Language and Object Protocol (SLOP):
         </p>
-
-        <h3 className="text-xl font-semibold mt-6">Tool Execution Modes</h3>
-        <ol>
-          <li>
-            <strong>Remote Tool Execution via ValTown</strong>
-            <ul>
-              <li>Tools can be executed remotely through ValTown's serverless functions</li>
-              <li>Automatically constructs ValTown URLs based on username and tool name</li>
-              <li>Handles HTTP requests and responses with proper error handling</li>
-            </ul>
-          </li>
-          <li>
-            <strong>Local Tool Execution</strong>
-            <ul>
-              <li>Executes tools locally via command line with proper environment variable handling</li>
-              <li>Supports JSON-RPC request/response format for tool communication</li>
-              <li>Parses and processes command output for structured responses</li>
-            </ul>
-          </li>
-          <li>
-            <strong>Fallback Mechanism</strong>
-            <ul>
-              <li>If a tool exists in configuration but has no command, falls back to ValTown using VALTOWN_USERNAME</li>
-              <li>Provides graceful degradation and helpful error messages</li>
-            </ul>
-          </li>
-        </ol>
-
-        <h3 className="text-xl font-semibold mt-6">Communication Protocol</h3>
-        <ul>
-          <li>Uses StdioServerTransport for bidirectional communication with MCP clients</li>
-          <li>Implements JSON-RPC for standardized request/response handling</li>
-          <li>Provides comprehensive logging throughout the execution flow</li>
-        </ul>
+        
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="border rounded p-4">
+            <h3 className="font-medium text-primary-600">Claude Desktop & Code</h3>
+            <p className="text-sm mt-2">Use BLAH tools directly with Claude's desktop application and CLI</p>
+          </div>
+          
+          <div className="border rounded p-4">
+            <h3 className="font-medium text-primary-600">Cursor</h3>
+            <p className="text-sm mt-2">Integrate BLAH tools into your Cursor AI coding environment</p>
+          </div>
+          
+          <div className="border rounded p-4">
+            <h3 className="font-medium text-primary-600">Cline</h3>
+            <p className="text-sm mt-2">Access BLAH tools through the Cline command-line interface</p>
+          </div>
+          
+          <div className="border rounded p-4">
+            <h3 className="font-medium text-primary-600">Windsurf</h3>
+            <p className="text-sm mt-2">Use BLAH tools with the Windsurf AI development environment</p>
+          </div>
+          
+          <div className="border rounded p-4">
+            <h3 className="font-medium text-primary-600">SLOP Clients</h3>
+            <p className="text-sm mt-2">Connect to any system supporting the SLOP protocol</p>
+          </div>
+          
+          <div className="border rounded p-4">
+            <h3 className="font-medium text-primary-600">Custom MCP Clients</h3>
+            <p className="text-sm mt-2">Build your own MCP clients that leverage BLAH's tool ecosystem</p>
+          </div>
+        </div>
       </section>
 
-      <section id="flow-configuration" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Flow Configuration</h2>
-        <p>
-          Flows are stored in the <code>flows</code> array of your <code>blah.json</code> file. 
-          The flow editor supports the following node types:
+      <section id="future-roadmap" className="mb-10">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Development Roadmap</h2>
+        
+        <p className="mt-4">The BLAH project is actively developing these features:</p>
+        
+        <div className="mt-6 space-y-4">
+          <div>
+            <h3 className="text-lg font-semibold text-primary-600">Completed ✅</h3>
+            <ul className="list-disc pl-6 mt-2">
+              <li>Local manifest files support</li>
+              <li>Visual flow editor</li>
+              <li>ValTown integration</li>
+              <li>Local tool execution</li>
+              <li>JSON-RPC request/response handling</li>
+              <li>SLOP protocol integration</li>
+              <li>Multi-protocol support</li>
+              <li>Configuration extension support</li>
+              <li>Flow-to-tool compilation</li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-semibold text-primary-600">In Progress 🚧</h3>
+            <ul className="list-disc pl-6 mt-2">
+              <li>Registry for tool publishing and discovery</li>
+              <li>Improved error handling and logging</li>
+              <li>Tool composition mechanisms</li>
+              <li>Alternative hosting options beyond ValTown</li>
+            </ul>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-semibold text-primary-600">Planned 📋</h3>
+            <ul className="list-disc pl-6 mt-2">
+              <li>Additional protocol bridges (LangChain, LlamaIndex)</li>
+              <li>Enhanced flow editor with more node types</li>
+              <li>Performance optimization for tool execution</li>
+              <li>Comprehensive documentation improvements</li>
+              <li>Community features (sharing, upvoting, automatic error rate calculation)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="resources" className="mb-10">
+        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Resources</h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div className="border rounded p-5">
+            <h3 className="text-lg font-semibold text-primary-600">Documentation</h3>
+            <p className="mt-2 text-sm">
+              Comprehensive guides for getting started with BLAH, creating tools, and using the CLI.
+            </p>
+            <div className="mt-4">
+              <a href="/docs" className="text-primary-600 hover:text-primary-800 font-medium">View Documentation →</a>
+            </div>
+          </div>
+          
+          <div className="border rounded p-5">
+            <h3 className="text-lg font-semibold text-primary-600">Playground</h3>
+            <p className="mt-2 text-sm">
+              Interactive web interface for testing and configuring BLAH tools.
+            </p>
+            <div className="mt-4">
+              <a href="/playground" className="text-primary-600 hover:text-primary-800 font-medium">Try the Playground →</a>
+            </div>
+          </div>
+          
+          <div className="border rounded p-5">
+            <h3 className="text-lg font-semibold text-primary-600">Registry</h3>
+            <p className="mt-2 text-sm">
+              Browse, search, and discover AI tools in the public BLAH registry.
+            </p>
+            <div className="mt-4">
+              <a href="/registry" className="text-primary-600 hover:text-primary-800 font-medium">Explore the Registry →</a>
+            </div>
+          </div>
+          
+          <div className="border rounded p-5">
+            <h3 className="text-lg font-semibold text-primary-600">GitHub Repository</h3>
+            <p className="mt-2 text-sm">
+              View the source code, contribute to the project, and report issues.
+            </p>
+            <div className="mt-4">
+              <a href="https://github.com/thomasdavis/blah" className="text-primary-600 hover:text-primary-800 font-medium">Visit GitHub →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="project-status" className="mb-10 bg-yellow-50 p-6 rounded-lg border border-yellow-200">
+        <h2 className="text-xl font-bold text-yellow-700">Project Status: POC Mode</h2>
+        <p className="mt-2">
+          BLAH is currently in "EXTREME POC MODE" - it's being actively developed and the API and schema
+          may change without notice. The core functionality is working, but expect frequent updates and improvements.
         </p>
-        <ul>
-          <li><code>start</code>: Entry point for the flow</li>
-          <li><code>end</code>: Exit point for the flow</li>
-          <li><code>ai_agent</code>: AI agent node that can process information</li>
-          <li><code>decision</code>: Decision node that routes the flow based on conditions</li>
-          <li><code>action</code>: Action node that performs a specific task</li>
-          <li><code>input</code>: Node that collects input from users</li>
-          <li><code>output</code>: Node that provides output to users</li>
-        </ul>
       </section>
 
-      <section id="protocol-bridges" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Protocol Bridges</h2>
-        <p>
-          @blahai/cli serves as a bridge between different AI tool protocols, allowing tools built for one protocol 
-          to be used with systems that support another. The core of the project is a flexible architecture that 
-          supports multiple protocol implementations:
-        </p>
-
-        <h3 className="text-xl font-semibold mt-6">Protocol Support</h3>
-        <ol>
-          <li>
-            <strong>Model Context Protocol (MCP)</strong>
-            <ul>
-              <li>Complete implementation of the MCP specification</li>
-              <li>Uses StdioServerTransport for bidirectional communication with MCP clients</li>
-              <li>Implements JSON-RPC for standardized request/response handling</li>
-              <li>Supports dynamic tool discovery and listing</li>
-              <li>Compatible with Claude Desktop, Claude Code, Cursor, Cline, Windsurf, and other MCP clients</li>
-            </ul>
-          </li>
-          <li>
-            <strong>Simple Language and Object Protocol (SLOP)</strong>
-            <ul>
-              <li>Full support for the SLOP specification</li>
-              <li>Fetches and integrates tools from SLOP endpoints</li>
-              <li>Handles sub-tool patterns (parentTool_subTool)</li>
-              <li>Provides automatic conversion between SLOP and MCP formats</li>
-            </ul>
-          </li>
-        </ol>
-      </section>
-
-      <section id="mcp-integration" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">MCP Integration</h2>
-        <p>BLAH works with any system that supports the Model Context Protocol:</p>
-        <ul>
-          <li>Claude Desktop</li>
-          <li>Claude Code (CLI)</li>
-          <li>Cursor</li>
-          <li>Cline</li>
-          <li>Windsurf</li>
-          <li>Other MCP-compatible clients</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-6">Integration Features</h3>
-        <ul>
-          <li><strong>Stdio Transport</strong>: Communicates with MCP clients using standard input/output</li>
-          <li><strong>JSON-RPC Protocol</strong>: Uses standardized JSON-RPC for request/response handling</li>
-          <li><strong>Tool Discovery</strong>: Supports dynamic tool discovery and listing</li>
-          <li><strong>Tool Execution</strong>: Handles tool calls with proper error handling and response formatting</li>
-          <li><strong>Logging</strong>: Provides detailed logging for debugging and monitoring</li>
-        </ul>
-      </section>
-
-      <section id="slop-integration" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">SLOP Integration</h2>
-        <p>Connects with systems that implement the Simple Language and Object Protocol:</p>
-        <ul>
-          <li>SLOP servers and endpoints</li>
-          <li>AI systems that use SLOP for tool execution</li>
-          <li>Custom SLOP implementations</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-6">SLOP Features</h3>
-        <ul>
-          <li><strong>HTTP Transport</strong>: Communicates with SLOP endpoints via HTTP</li>
-          <li><strong>Tool Discovery</strong>: Fetches available tools from SLOP endpoints</li>
-          <li><strong>Sub-tool Support</strong>: Handles nested tool patterns (parentTool_subTool)</li>
-          <li><strong>Protocol Translation</strong>: Converts between SLOP and MCP formats seamlessly</li>
-        </ul>
-      </section>
-
-      <section id="advanced-features" className="mb-12">
-        <h2 className="text-2xl font-bold text-primary-700 border-b pb-2">Advanced Features</h2>
-
-        <h3 className="text-xl font-semibold mt-6">Multi-Protocol Architecture</h3>
-        <p>The CLI is built on a flexible architecture that supports multiple protocols:</p>
-        <ul>
-          <li><strong>Protocol Detection</strong>: Automatically detects which protocol to use based on tool configuration</li>
-          <li><strong>Protocol Translation</strong>: Seamlessly translates between different protocol formats</li>
-          <li><strong>Extensible Design</strong>: Easily add support for new protocols through the handler system</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-6">ValTown Integration</h3>
-        <p>The CLI provides seamless integration with ValTown:</p>
-        <ul>
-          <li><strong>Remote Tool Execution</strong>: Tools can be executed on ValTown's serverless platform</li>
-          <li><strong>Fallback Mechanism</strong>: Uses ValTown as a fallback when local commands aren't available</li>
-          <li><strong>Username Configuration</strong>: Uses VALTOWN_USERNAME from environment variables or config</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-6">Protocol Server Nesting</h3>
-        <p>The CLI supports nesting protocol servers:</p>
-        <ul>
-          <li><strong>Server Discovery</strong>: Detects when a tool is another protocol server</li>
-          <li><strong>Tool Forwarding</strong>: Forwards tool requests to nested servers</li>
-          <li><strong>Response Processing</strong>: Processes and formats responses from nested servers</li>
-        </ul>
-
-        <h3 className="text-xl font-semibold mt-6">SLOP Tool Integration</h3>
-        <p>The CLI provides comprehensive support for SLOP tools:</p>
-        <ul>
-          <li><strong>SLOP Endpoint Discovery</strong>: Automatically discovers tools from SLOP endpoints</li>
-          <li><strong>Sub-tool Support</strong>: Handles SLOP sub-tool patterns (parentTool_subTool)</li>
-          <li><strong>Tool Conversion</strong>: Converts SLOP tools to MCP-compatible format</li>
-          <li><strong>Error Handling</strong>: Provides robust error handling for SLOP-specific issues</li>
-        </ul>
-      </section>
+      <div className="text-center mt-10 mb-6">
+        <p className="text-lg font-medium text-primary-700">Build Logical Agents, Humanely</p>
+      </div>
     </div>
   );
 }
