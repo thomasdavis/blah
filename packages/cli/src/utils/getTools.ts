@@ -196,6 +196,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
                               fullTools.push({
                                 name: `${tool.name.toUpperCase()}_${toolIndex + 1}_${mcpTool.name}`,
                                 originalName: mcpTool.name,
+                                bridge: tool.bridge,
                                 command: tool.command ?? "No master command",
                                 description: mcpTool.description || `Tool from ${tool.name}`,
                                 inputSchema: mcpTool.inputSchema || {}
@@ -277,6 +278,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
                 return {
                   name: `${tool.sourceToolName || 'slop'}_${tool.name || 'unnamed'}`,
                   description: tool.description || 'No description provided',
+                  bridge: tool.bridge,
                   slop: tool.slopUrl, // Keep the original SLOP URL for later use
                   sourceToolName: tool.sourceToolName,
                   originalSlopToolName: tool.name,
@@ -320,6 +322,6 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
   // Ensure we always return an array, even if everything failed
   const result = Array.isArray(fullTools) ? fullTools : [];
-  logger.info('Returning final tools list', { toolCount: result.length });
+  logger.info('Returning final tools list', { toolCount: result.length, tools: result});
   return result;
 }
