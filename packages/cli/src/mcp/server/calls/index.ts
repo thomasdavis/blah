@@ -3,7 +3,7 @@ import { handleSlopCall } from './slop-handler.js';
 import { handleSourceCall } from './valtown-handler.js';
 import { handleLocalCall } from './local-handler.js';
 import { handleUriCall } from './uri-handler.js';
-import { getTools } from "../../../utils/config-loader.js";
+import { getTools } from '../../../utils/getTools.js';
 
 // Create a logger for this module
 const logger = createLogger('mcp-calls');
@@ -23,27 +23,7 @@ export async function handleToolCall(
   const toolName = request.params.name;
   logger.info(`Handling tool call: ${toolName}`);
   
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log("zzzzzzzzz");
-  console.log({request});
-  console.log("cccccccccccccccc");
-  console.log("cccccccccccccccc");
-  console.log("cccccccccccccccc");
-  console.log("cccccccccccccccc");
-  console.log("cccccccccccccccc");
+
   console.log(JSON.stringify(blahConfig, undefined, 4));
   const tools = await getTools(configPath);
   console.log("TTTT");

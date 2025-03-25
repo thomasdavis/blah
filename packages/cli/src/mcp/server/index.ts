@@ -1,7 +1,6 @@
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import fetch from "node-fetch";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import express from 'express';
 import cors from 'cors';
@@ -11,10 +10,8 @@ import {
   ListResourcesRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import path from 'path';
-import fs from 'fs';
-import { execSync } from 'child_process';
-import { getConfig, getTools } from "../../utils/config-loader.js";
+import { getConfig } from "../../utils/getConfig.js";
+import { getTools } from "../../utils/getTools.js";
 import { log, logError, logSection, logStep } from "../simulator/logger.js";
 import { getSlopToolsFromManifest } from "../../slop/index.js";
 

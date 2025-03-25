@@ -7,7 +7,7 @@ import { McpMessage, McpTool, McpToolRequest, McpToolContent, McpToolResult, Sim
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import { loadBlahConfig } from '../../utils/config-loader.js';
+import { loadBlahConfig } from '../../utils/getConfig.js';
 import { generateObject, generateText } from 'ai';
 import { z } from 'zod';
 

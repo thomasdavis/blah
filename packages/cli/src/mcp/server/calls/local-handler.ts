@@ -1,7 +1,6 @@
 import { createLogger } from '../../../utils/logger.js';
-import { getTools } from '../../../utils/config-loader.js';
+import { getTools } from '../../../utils/getTools.js';
 import { execSync } from 'child_process';
-import fetch from 'node-fetch';
 
 // Create a logger for this module
 const logger = createLogger('local-handler');

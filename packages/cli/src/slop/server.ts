@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import chalk from 'chalk';
 import { createLogger } from '../utils/logger.js';
-import { getTools } from '../utils/config-loader.js';
+import { getTools } from '../utils/getTools.js';
 import { handleToolCall } from '../mcp/server/calls/index.js';
 
 // Create a logger for this module
