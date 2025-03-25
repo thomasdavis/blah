@@ -514,14 +514,32 @@ export async function getTools(config: string | Record<string, any>): Promise<an
                         } else {
                           logger.warn(`No tools found from MCP server: ${tool.name}`);
                         }
+                        
+                        // Close the transport to properly terminate the process
+                        logger.info(`Closing MCP server connection for: ${tool.name}`);
+                        transport.close();
                         resolve();
                       } catch (innerError) {
                         logger.error(`Error getting tools from MCP server: ${innerError}`);
+                        // Close the transport even if an error occurs
+                        try {
+                          logger.info(`Closing MCP server connection after error for: ${tool.name}`);
+                          transport.close();
+                        } catch (closeError) {
+                          logger.error(`Error closing transport: ${closeError}`);
+                        }
                         reject(innerError);
                       }
                     })
                     .catch((err) => {
                       logger.error(`Connection error to MCP server: ${err}`);
+                      // Close the transport on connection error
+                      try {
+                        logger.info(`Closing MCP server connection after connection error for: ${tool.name}`);
+                        transport.close();
+                      } catch (closeError) {
+                        logger.error(`Error closing transport: ${closeError}`);
+                      }
                       reject(err);
                     });
                 });
