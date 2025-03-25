@@ -1,3 +1,8 @@
+Ideas TODO
+
+- [ ] BLAH should have a way to log to your device so you know why it won't start or a certain mcp server won't run inside of an editor/client
+- [ ] make a valtown example where `blah slop start` is called on an inline blah.config that loads the jsonresume mcp server over slop
+
 # @blahai/cli - Barely Logical Agent Host
 
 A comprehensive CLI tool for building, testing, and deploying AI tools across multiple protocols. This package provides a complete implementation with support for both Model Context Protocol (MCP) and Simple Language and Object Protocol (SLOP), enabling seamless integration with various AI systems and tools.
@@ -112,13 +117,15 @@ The server supports:
 When started in SSE mode, the server exposes the following endpoints:
 
 **MCP Standard Endpoints:**
+
 - `/sse` - Official MCP SSE connection endpoint
 - `/messages` - Message handling for MCP SSE communication
 
 **Custom Endpoints:**
+
 - `/events` - Custom SSE event stream for real-time updates
 - `/tools` - List all available tools (including both regular and SLOP tools)
-- `/config` - Access the current configuration 
+- `/config` - Access the current configuration
 - `/health` - Health check endpoint
 
 For detailed examples of how to test and interact with the SSE server, see the [MCP SSE Server Testing Guide](#mcp-sse-server-testing-guide) section below.
@@ -151,10 +158,12 @@ The `slop` command group provides access to Simple Language and Object Protocol 
 Starts a SLOP server that exposes all tools from your configuration via HTTP endpoints.
 
 Options:
+
 - `-c, --config <path>` - Path to a blah.json configuration file (local path or URL)
 - `--port <number>` - Port to run the SLOP server on (default: 5000)
 
 The server exposes the following endpoints:
+
 - `GET /tools` - Lists all available tools in SLOP format
 - `GET /models` - Lists available models (default model)
 - `POST /tools/:toolName` - Execute a specific tool
@@ -166,6 +175,7 @@ The server exposes the following endpoints:
 Lists all SLOP tools from the manifest or a specific SLOP server.
 
 Options:
+
 - `-c, --config <path>` - Path to a blah.json configuration file (local path or URL)
 - `-u, --url <url>` - Directly query a SLOP server URL for tools
 - `-m, --manifest-only` - Only show tools defined in the manifest without fetching from endpoints
@@ -175,6 +185,7 @@ Options:
 Lists all models available from SLOP servers defined in the manifest or from a specific URL.
 
 Options:
+
 - `-c, --config <path>` - Path to a blah.json configuration file (local path or URL)
 - `-u, --url <url>` - Directly query a SLOP server URL for models
 
@@ -612,10 +623,12 @@ blah mcp start --sse --config path/to/blah.json
 When running in SSE mode, the server exposes:
 
 **MCP Standard Endpoints:**
+
 - `/sse` - SSE connection endpoint for MCP clients
 - `/messages` - JSON-RPC message endpoint for MCP communication
 
 **Custom Endpoints:**
+
 - `/events` - Custom SSE event stream for real-time updates
 - `/tools` - List available tools with metadata
 - `/config` - Access the current configuration
@@ -650,18 +663,18 @@ curl -X POST http://localhost:4200/messages \
 
 ```javascript
 // Connect to custom event stream
-const eventSource = new EventSource('http://localhost:4200/events');
-eventSource.addEventListener('connected', (event) => {
-  console.log('Connected:', event.data);
+const eventSource = new EventSource("http://localhost:4200/events");
+eventSource.addEventListener("connected", (event) => {
+  console.log("Connected:", event.data);
 });
-eventSource.addEventListener('tools-updated', (event) => {
-  console.log('Tools updated:', JSON.parse(event.data));
+eventSource.addEventListener("tools-updated", (event) => {
+  console.log("Tools updated:", JSON.parse(event.data));
 });
 
 // Get tools via custom endpoint
-fetch('http://localhost:4200/tools')
-  .then(response => response.json())
-  .then(data => console.log('Tools:', data.tools));
+fetch("http://localhost:4200/tools")
+  .then((response) => response.json())
+  .then((data) => console.log("Tools:", data.tools));
 ```
 
 ### Using the Playground Client

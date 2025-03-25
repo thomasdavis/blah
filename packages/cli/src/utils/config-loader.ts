@@ -426,7 +426,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
         
         try {
           // Check if this is an MCP server
-          const isMcpServer = tool.command?.includes('npx') || tool.command?.includes('npm run');
+          const isMcpServer = tool.bridge === "mcp" || tool.command?.includes('npx') || tool.command?.includes('npm run');
           logger.info('Checking for MCP server', { 
             toolName: tool.name, 
             isMcpServer,
@@ -441,7 +441,7 @@ export async function getTools(config: string | Record<string, any>): Promise<an
               const configArg = typeof config === 'string' ? config : './blah.json';
               const listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": ${index}}' | ${envString} ${tool.command} -- --config ${configArg}`;
               
-              logger.info('Executing MCP tools list command', { toolName: tool.name });
+              logger.info('Executing MCP tools list command', { toolName: tool.name, command: tool.command });
               
               // Set a timeout for command execution
               const listToolsCommandOutput = execSync(listToolsCommandTorun, { 
