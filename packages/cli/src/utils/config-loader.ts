@@ -441,13 +441,44 @@ export async function getTools(config: string | Record<string, any>): Promise<an
               const configArg = typeof config === 'string' ? config : './blah.json';
               // const listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": ${index}}' | ${envString} ${tool.command} -- --config ${configArg}`;
 
-
-              const mcpServer = spawn(`${tool.command}`, ["--config", configArg], {
-                stdio: ["pipe", "pipe", process.stderr] // connect stdin and stdout
+              // Parse the command string into command and arguments
+              const commandParts = tool.command.split(' ');
+              const command = commandParts[0]; // 'uv'
+              const args = commandParts.slice(1).concat(["--config", configArg]);
+              
+              // Create environment variables from the config
+              // Convert process.env to Record<string, string> by removing any undefined values
+              const spawnEnv: Record<string, string> = {};
+              
+              // First add all process.env values that are defined
+              Object.entries(process.env).forEach(([key, value]) => {
+                if (value !== undefined) {
+                  spawnEnv[key] = value;
+                }
               });
+              
+              // Then add the config env values
+              if (blahConfig.env && typeof blahConfig.env === 'object') {
+                logger.info('Adding environment variables from config');
+                Object.entries(blahConfig.env).forEach(([key, value]) => {
+                  spawnEnv[key] = String(value);
+                });
+              }
+              
+              logger.info(`Creating MCP client transport with command: ${command} and args: ${args.join(' ')}`);
 
-              // Create a transport that wraps the child process's stdout and stdin
-              const transport = new StdioClientTransport(mcpServer.stdout, mcpServer.stdin);
+              // Create a transport using the command and arguments
+              const transport = new StdioClientTransport({
+                command: command,
+                args: args,
+                env: spawnEnv,
+                stderr: process.stderr
+              });
+              
+              // Add error handler for the transport
+              transport.onerror = (err) => {
+                logger.error(`MCP transport error: ${err.message}`);
+              };
 
               // Instantiate the MCP client with basic client info
               const client = new Client(
