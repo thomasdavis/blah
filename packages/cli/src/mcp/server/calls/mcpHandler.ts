@@ -150,7 +150,7 @@ export async function mcpHandler(
       
       // Extract the output from the response
       output = JSON.stringify(response);
-      logger.info('Tool call completed', { outputLength: output.length });
+      logger.info('Tool call completed', { outputLength: output.length, output });
     } catch (error) {
       logger.error(`Error calling tool via MCP: ${error}`);
       throw error;
