@@ -322,6 +322,6 @@ export async function getTools(config: string | Record<string, any>): Promise<an
 
   // Ensure we always return an array, even if everything failed
   const result = Array.isArray(fullTools) ? fullTools : [];
-  logger.info('Returning final tools list', { toolCount: result.length, tools: result});
+  logger.info('Returning final tools list', { toolCount: result.length });
   return result;
 }

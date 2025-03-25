@@ -121,12 +121,20 @@ export async function mcpHandler(
       command: command,
       args: args,
       env: spawnEnv,
-      stderr: process.stderr
+      stdio: process.stderr
     });
     
-    // Add error handler for the transport
+    // Add comprehensive logging for all transport events
     transport.onerror = (err: Error) => {
-      logger.error(`MCP transport error: ${err.message}`);
+      logger.error('MCP transport error:', { error: err, message: err.message, stack: err.stack });
+    };
+
+    transport.onmessage = (data: any) => {
+      logger.info('MCP transport message received:', { data });
+    };
+
+    transport.onclose = () => {
+      logger.info('MCP transport connection closed');
     };
 
     // Instantiate the MCP client with basic client info
@@ -142,6 +150,9 @@ export async function mcpHandler(
       await client.connect(transport);
       logger.info(`Connected to MCP server via stdio for tool: ${request.params.name}`);
       
+      // log out the arguments being called
+      logger.info('Calling tool via MCP', { toolName: request.params.name, arguments: request.params.arguments });
+
       // Call the tool with the provided arguments
       const response = await client.callTool({
         name: tool.originalName || request.params.name,
