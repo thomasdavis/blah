@@ -2,7 +2,7 @@ import { createLogger } from '../../../utils/logger.js';
 import fetch from 'node-fetch';
 
 // Create a logger for this module
-const logger = createLogger('uri-handler');
+const logger = createLogger('uriHandler');
 
 /**
  * Handles a tool call for URI-based tools
@@ -10,7 +10,7 @@ const logger = createLogger('uri-handler');
  * @param blahConfig The loaded BLAH configuration
  * @returns Object indicating if the call was handled and the result
  */
-export async function handleUriCall(
+export async function uriHandler(
   request: any,
   blahConfig: any
 ): Promise<{ handled: boolean; result?: any }> {

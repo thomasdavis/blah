@@ -2,7 +2,7 @@ import { createLogger } from '../../../utils/logger.js';
 import fetch from 'node-fetch';
 
 // Create a logger for this module
-const logger = createLogger('source-handler');
+const logger = createLogger('valtownHandler');
 
 /**
  * Handles a tool call using a source URL
@@ -10,7 +10,7 @@ const logger = createLogger('source-handler');
  * @param configPath Path to the configuration file
  * @returns The result of the tool call
  */
-export async function handleSourceCall(
+export async function valtownHandler(
   request: any,
   configPath: string,
   tool: any

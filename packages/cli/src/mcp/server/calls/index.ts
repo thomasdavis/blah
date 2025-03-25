@@ -1,8 +1,8 @@
 import { createLogger } from '../../../utils/logger.js';
-import { handleSlopCall } from './slop-handler.js';
-import { handleSourceCall } from './valtown-handler.js';
+import { slopHandler } from './slopHandler.js';
+import { valtownHandler } from './valtownHandler.js';
 import { mcpHandler } from './mcpHandler.js';
-import { handleUriCall } from './uri-handler.js';
+import { uriHandler } from './uriHandler.js';
 import { getTools } from '../../../utils/getTools.js';
 
 // Create a logger for this module
@@ -86,7 +86,7 @@ export async function handleToolCall(
             logger.info(`Created sub-tool config for SLOP handler`, { slopConfig });
           }
           
-          const slopResult = await handleSlopCall(request, slopConfig);
+          const slopResult = await slopHandler(request, slopConfig);
           return {
             content: [{
               type: "text",
@@ -107,7 +107,7 @@ export async function handleToolCall(
       case "uri":
         logger.info(`Routing tool '${toolName}' to URI handler`);
         try {
-          const uriResult = await handleUriCall(request, toolConfig);
+          const uriResult = await uriHandler(request, toolConfig);
           if (uriResult.handled) {
             return uriResult.result;
           }
@@ -132,7 +132,7 @@ export async function handleToolCall(
       case "valtown":
         logger.info(`Routing tool '${toolName}' to Source/ValTown handler`);
         try {
-          return await handleSourceCall(request, configPath, toolConfig);
+          return await valtownHandler(request, configPath, toolConfig);
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           logger.error(`Error in Source handler for tool '${toolName}': ${errorMessage}`);
@@ -147,7 +147,7 @@ export async function handleToolCall(
       case "mcp":
         logger.info(`Routing tool '${toolName}' to MCP handler`);
         try {
-          return await handleLocalCall(request, configPath, blahConfig);
+          return await mcpHandler(request, configPath, blahConfig);
         } catch (error) {
           const errorMessage = error instanceof Error ? error.message : String(error);
           logger.error(`Error in MCP handler for tool '${toolName}': ${errorMessage}`);
@@ -164,7 +164,7 @@ export async function handleToolCall(
         if (toolConfig?.slop || toolConfig?.slopUrl) {
           logger.info(`Tool '${toolName}' has slop properties, routing to SLOP handler`);
           try {
-            const slopResult = await handleSlopCall(request, toolConfig);
+            const slopResult = await slopHandler(request, toolConfig);
             return {
               content: [{
                 type: "text",
@@ -184,7 +184,7 @@ export async function handleToolCall(
         } else if (toolConfig?.source) {
           logger.info(`Tool '${toolName}' has source property, routing to Source handler`);
           try {
-            return await handleSourceCall(request, configPath, toolConfig);
+            return await valtownHandler(request, configPath, toolConfig);
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             logger.error(`Error in inferred Source handler for tool '${toolName}': ${errorMessage}`);
@@ -199,7 +199,7 @@ export async function handleToolCall(
           // As a last resort, try the local handler
           logger.info(`No bridge specified for tool '${toolName}', trying local handler as fallback`);
           try {
-            return await handleLocalCall(request, configPath, blahConfig);
+            return await mcpHandler(request, configPath, blahConfig);
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : String(error);
             logger.error(`Error in fallback local handler for tool '${toolName}': ${errorMessage}`);

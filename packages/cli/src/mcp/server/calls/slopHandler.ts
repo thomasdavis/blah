@@ -1,9 +1,8 @@
 import { createLogger } from '../../../utils/logger.js';
-import { getSlopToolsFromManifest } from '../../../slop/index.js';
 import fetch from 'node-fetch';
 
 // Create a logger for this module
-const logger = createLogger('slop-handler');
+const logger = createLogger('slopHandler');
 
 /**
  * Handles a tool call for SLOP tools
@@ -11,20 +10,14 @@ const logger = createLogger('slop-handler');
  * @param blahConfig The loaded BLAH configuration
  * @returns Object containing the result
  */
-export async function handleSlopCall(
+export async function slopHandler(
   request: any,
   slopConfig: any
 ): Promise<{ result: any }> {
   logger.info('Checking if tool is a SLOP tool', { toolName: request.params.name });
   
-  logger.info('Entering handleSlopCall for tool', { toolName: request.params.name });
+  logger.info('Entering slopHandler for tool', { toolName: request.params.name });
   
-  console.log("fggggggg");
-  console.log("fggggggg");
-  console.log("fggggggg");
-  console.log("fggggggg");
-  console.log("fggggggg");
-  console.log({slopConfig, request  });
 
   // First check if the tool configuration was passed from the index.ts file
 
