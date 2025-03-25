@@ -2,52 +2,197 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;600;700;900&display=swap');
+
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-rgb: 248, 250, 252;
+  --background-rgb: 255, 255, 255;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
+  font-family: 'Inter', sans-serif;
 }
 
+h1, h2, h3, h4, h5, h6, .font-black {
+  font-family: 'Archivo Black', sans-serif;
+}
+
+/* Custom animations */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(-1deg); }
+  50% { transform: translateY(-10px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(-1deg); }
+}
+
+@keyframes wiggle {
+  0% { transform: rotate(-1deg); }
+  50% { transform: rotate(1deg); }
+  100% { transform: rotate(-1deg); }
+}
+
+@keyframes shadowPulse {
+  0% { box-shadow: 5px 5px 0px 0px rgba(0,0,0,1); }
+  50% { box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.8); }
+  100% { box-shadow: 5px 5px 0px 0px rgba(0,0,0,1); }
+}
+
+@keyframes borderColorPulse {
+  0% { border-color: #000; }
+  50% { border-color: #222; }
+  100% { border-color: #000; }
+}
+
+/* Apply animations */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-wiggle {
+  animation: wiggle 6s ease-in-out infinite;
+}
+
+.animate-shadow-pulse {
+  animation: shadowPulse 4s ease-in-out infinite;
+}
+
+.animate-border-pulse {
+  animation: borderColorPulse 4s ease-in-out infinite;
+}
+
+/* Neobrutalism styling for prose content */
 .prose h1 {
-  @apply text-3xl font-bold mt-8 mb-4;
+  @apply text-4xl font-black mt-8 mb-4 rotate-[-0.5deg] inline-block bg-brand-300 px-4 py-1 border-4 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0)];
 }
 
 .prose h2 {
-  @apply text-2xl font-semibold mt-6 mb-3;
+  @apply text-3xl font-black mt-10 mb-6 text-black;
 }
 
 .prose h3 {
-  @apply text-xl font-medium mt-4 mb-2;
+  @apply text-2xl font-black mt-8 mb-4 text-black;
 }
 
 .prose p {
-  @apply my-4;
+  @apply my-5 text-lg leading-relaxed;
 }
 
 .prose ul {
-  @apply list-disc pl-5 my-4;
+  @apply my-6 space-y-3;
+}
+
+.prose ul li {
+  @apply flex items-start;
+}
+
+.prose ul li::before {
+  content: "";
+  @apply inline-block w-3 h-3 bg-black mr-3 mt-2 flex-shrink-0;
 }
 
 .prose ol {
-  @apply list-decimal pl-5 my-4;
+  @apply list-decimal pl-5 my-6 space-y-3 font-medium;
 }
 
 .prose code {
-  @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono;
+  @apply bg-gray-800 text-gray-200 border-2 border-black px-2 py-1 font-mono rounded-sm;
 }
 
 .prose pre {
-  @apply bg-gray-800 text-white p-4 rounded-lg my-4 overflow-x-auto;
+  @apply border-3 border-black bg-gray-900 my-8 overflow-x-auto rounded-none shadow-[6px_6px_0px_0px_rgba(0,0,0)];
+}
+
+.prose pre code {
+  @apply bg-transparent border-0 px-0 py-0 text-gray-200 shadow-none;
 }
 
 .prose a {
-  @apply text-blue-600 hover:text-blue-800 underline;
+  @apply text-black font-bold bg-secondary-200 px-2 border-2 border-black hover:bg-secondary-300 hover:-translate-y-1 transition-all no-underline inline-block;
 }
 
 .prose blockquote {
-  @apply border-l-4 border-gray-300 pl-4 italic my-4;
+  @apply border-l-4 border-black pl-4 my-6 bg-brand-100 p-4;
+}
+
+/* Specific neobrutalism utility classes */
+.neo-border {
+  @apply border-3 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0)];
+}
+
+.neo-border-animated {
+  @apply border-3 border-black;
+  animation: shadowPulse 4s ease-in-out infinite;
+}
+
+.neo-box {
+  @apply border-3 border-black bg-white p-4 shadow-[5px_5px_0px_0px_rgba(0,0,0)] transition-all hover:-translate-y-1;
+}
+
+.neo-btn {
+  @apply border-3 border-black bg-brand-300 px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0)] hover:-translate-y-1 hover:shadow-[4px_6px_0px_0px_rgba(0,0,0)] transition-all;
+}
+
+.neo-success-btn {
+  @apply border-3 border-black bg-success-300 px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0)] hover:-translate-y-1 hover:shadow-[4px_6px_0px_0px_rgba(0,0,0)] transition-all;
+}
+
+.neo-danger-btn {
+  @apply border-3 border-black bg-danger-300 px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0)] hover:-translate-y-1 hover:shadow-[4px_6px_0px_0px_rgba(0,0,0)] transition-all;
+}
+
+.neo-secondary-btn {
+  @apply border-3 border-black bg-secondary-300 px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0)] hover:-translate-y-1 hover:shadow-[4px_6px_0px_0px_rgba(0,0,0)] transition-all;
+}
+
+/* Custom utility classes */
+.rotate-hover {
+  @apply transition-transform duration-300;
+}
+.rotate-hover:hover {
+  @apply rotate-0 -translate-y-1;
+}
+
+/* Highlight box */
+.highlight-box {
+  @apply relative overflow-hidden;
+}
+.highlight-box::before {
+  content: "";
+  @apply absolute bottom-0 left-0 w-full h-[6px] bg-brand-300 border-t-2 border-black transform scale-x-0 origin-bottom-right transition-transform duration-300;
+}
+.highlight-box:hover::before {
+  @apply transform scale-x-100 origin-bottom-left;
+}
+
+/* Fix for Tailwind border width */
+.border-3 {
+  border-width: 3px;
+}
+
+/* Custom scrollbar for code blocks */
+pre::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: #2d3748;
+  border-left: 2px solid black;
+  border-bottom: 2px solid black;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: #718096;
+  border: 2px solid #1a202c;
+}
+
+pre::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* For Firefox */
+pre {
+  scrollbar-width: thin;
+  scrollbar-color: #718096 #2d3748;
 }
