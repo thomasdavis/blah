@@ -9,7 +9,7 @@ import { getTools } from '../../../utils/getTools.js';
 const logger = createLogger('mcp-calls');
 
 /**
- * Handles a tool call request by routing it to the appropriate handler
+ * Handles a tool call request by routing it to the appropriate handler based on the bridge property
  * @param request The tool call request
  * @param configPath Path to the configuration file
  * @param blahConfig The loaded BLAH configuration
@@ -23,16 +23,9 @@ export async function handleToolCall(
   const toolName = request.params.name;
   logger.info(`Handling tool call: ${toolName}`);
   
-
-  console.log(JSON.stringify(blahConfig, undefined, 4));
+  // Get all available tools
   const tools = await getTools(configPath);
-  console.log("TTTT");
-  console.log("TTTT");
-  console.log("TTTT");
-  console.log("TTTT");
-  console.log("TTTT");
-  console.log(JSON.stringify(tools, undefined, 4));
-
+  logger.info(`Retrieved ${tools?.length || 0} tools from config`);
 
   try {
     // Log the request parameters for debugging
@@ -40,135 +33,185 @@ export async function handleToolCall(
       name: toolName,
       arguments: request.params.arguments
     });
-    // First, check if the tool exists in the blahConfig and has a slop property
-    logger.info(`Checking for tool: ${toolName}`, {
-      blahConfigHasTools: !!blahConfig?.tools,
-      toolCount: blahConfig?.tools?.length || 0,
-      allToolNames: blahConfig?.tools?.map((t: any) => t.name) || []
-    });
     
-    // Check if it's a direct tool with a slop property
-    let toolConfig = tools?.find((tool: any) => 
-      tool.name === toolName && (tool.slop || tool.slopUrl)
-    );
+    // Find the tool configuration by name
+    const foundTool = tools?.find((t: any) => t.name === toolName);
     
-    console.log({ toolConfig });
-
-
-    // If the tool has a slop property, use the SLOP handler
-    if (toolConfig?.slop) {
-      logger.info(`Tool '${toolName}' is a SLOP tool, using SLOP handler`);
-      
-      logger.info(`Passing tool config to SLOP handler:`, { toolConfig });
-      
-      try {
-        const slopResult = await handleSlopCall(request, toolConfig);
-        
-        return {
-          content: [{
-            type: "text",
-            text: JSON.stringify(slopResult)
-          }]
-        };
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        logger.error(`Error in SLOP handler for tool '${toolName}': ${errorMessage}`);
-        return {
-          content: [{
-            type: "text",
-            text: `Error calling SLOP tool '${toolName}': ${errorMessage}`
-          }]
-        };
-      }
-
-
-    }
-
-
-
-
-    
-    // Before trying other handlers, check if this is a SLOP tool by name pattern
-    // Many SLOP tools follow the pattern: parentTool_subTool
-    if (toolName.includes('_')) {
+    // Check if this is a sub-tool (format: parentTool_subTool)
+    let parentTool = null;
+    if (toolName.includes('_') && !foundTool) {
       const parts = toolName.split('_');
       const parentToolName = parts[0];
-      const subToolName = parts.slice(1).join('_');
       
-      logger.info(`Checking if ${toolName} is a SLOP sub-tool with parent: ${parentToolName}`);
-      
-      // Check if the parent tool exists and has a slop property
-      const parentTool = blahConfig?.tools?.find((tool: any) => 
-        tool.name === parentToolName && (tool.slop || tool.slopUrl)
-      );
-      
-      if (parentTool) {
-        logger.info(`Found parent tool with slop/slopUrl: ${parentToolName}`, {
-          hasSlop: !!parentTool.slop,
-          hasSlopUrl: !!parentTool.slopUrl
-        });
-        
-        // Create a tool config for the sub-tool
-        const subToolConfig = {
-          ...parentTool,
-          name: toolName,
-          isSubTool: true,
-          baseToolName: parentToolName,
-          subToolName: subToolName
-        };
-        
-        // Ensure it has a slopUrl property
-        if (subToolConfig.slop && !subToolConfig.slopUrl) {
-          subToolConfig.slopUrl = subToolConfig.slop;
-        }
-        
-        logger.info(`Created sub-tool config for ${toolName}`, { subToolConfig });
-        
-        // Create a modified request with the tool configuration
-        const modifiedRequest = {
-          ...request,
-          toolConfig: subToolConfig
-        };
-        
-        // Try to handle it with the SLOP handler
+      // Find the parent tool
+      parentTool = tools?.find((t: any) => t.name === parentToolName);
+      logger.info(`Checking for parent tool: ${parentToolName}`, { 
+        foundParent: !!parentTool,
+        parentBridge: parentTool?.bridge
+      });
+    }
+    
+    if (!foundTool && !parentTool) {
+      logger.warn(`Tool not found: ${toolName}`);
+      return {
+        content: [{
+          type: "text",
+          text: `Tool '${toolName}' was not found in the configuration. No results available.`
+        }]
+      };
+    }
+    
+    // Use the tool or parent tool for bridge determination
+    const toolConfig = foundTool || parentTool;
+    const bridge = toolConfig?.bridge;
+    
+    logger.info(`Tool '${toolName}' has bridge type: ${bridge || 'undefined'}`);
+    
+    // Route the request based on the bridge property
+    switch (bridge) {
+      case "slop":
+        logger.info(`Routing tool '${toolName}' to SLOP handler`);
         try {
-          logger.info(`Attempting to handle ${toolName} with SLOP handler`);
-          const slopResult = await handleSlopCall(modifiedRequest, blahConfig);
-          
-          if (slopResult.handled) {
-            logger.info(`Tool call handled by SLOP handler: ${toolName}`);
-            return slopResult.result;
+          // If it's a sub-tool, create a modified config
+          let slopConfig = toolConfig;
+          if (parentTool && !foundTool) {
+            const subToolName = toolName.split('_').slice(1).join('_');
+            slopConfig = {
+              ...parentTool,
+              name: toolName,
+              isSubTool: true,
+              baseToolName: parentTool.name,
+              subToolName: subToolName
+            };
+            logger.info(`Created sub-tool config for SLOP handler`, { slopConfig });
           }
           
-          logger.error(`SLOP handler failed to handle tool '${toolName}' despite being a SLOP sub-tool`);
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : String(error);
-          logger.error(`Error in SLOP handler for sub-tool '${toolName}': ${errorMessage}`);
+          const slopResult = await handleSlopCall(request, slopConfig);
           return {
             content: [{
               type: "text",
-              text: `Error calling SLOP sub-tool '${toolName}': ${errorMessage}`
+              text: JSON.stringify(slopResult)
+            }]
+          };
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.error(`Error in SLOP handler for tool '${toolName}': ${errorMessage}`);
+          return {
+            content: [{
+              type: "text",
+              text: `Error calling SLOP tool '${toolName}': ${errorMessage}`
             }]
           };
         }
-      }
+        
+      case "uri":
+        logger.info(`Routing tool '${toolName}' to URI handler`);
+        try {
+          const uriResult = await handleUriCall(request, toolConfig);
+          if (uriResult.handled) {
+            return uriResult.result;
+          }
+          return {
+            content: [{
+              type: "text",
+              text: `URI handler could not process tool '${toolName}'. No results available.`
+            }]
+          };
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.error(`Error in URI handler for tool '${toolName}': ${errorMessage}`);
+          return {
+            content: [{
+              type: "text",
+              text: `Error calling URI tool '${toolName}': ${errorMessage}`
+            }]
+          };
+        }
+        
+      case "source":
+      case "valtown":
+        logger.info(`Routing tool '${toolName}' to Source/ValTown handler`);
+        try {
+          return await handleSourceCall(request, configPath, toolConfig);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.error(`Error in Source handler for tool '${toolName}': ${errorMessage}`);
+          return {
+            content: [{
+              type: "text",
+              text: `Error calling Source tool '${toolName}': ${errorMessage}`
+            }]
+          };
+        }
+        
+      case "mcp":
+        logger.info(`Routing tool '${toolName}' to MCP handler`);
+        try {
+          return await handleLocalCall(request, configPath, blahConfig);
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : String(error);
+          logger.error(`Error in MCP handler for tool '${toolName}': ${errorMessage}`);
+          return {
+            content: [{
+              type: "text",
+              text: `Error calling MCP tool '${toolName}': ${errorMessage}`
+            }]
+          };
+        }
+        
+      default:
+        // If no bridge is specified, try to infer from other properties for backward compatibility
+        if (toolConfig?.slop || toolConfig?.slopUrl) {
+          logger.info(`Tool '${toolName}' has slop properties, routing to SLOP handler`);
+          try {
+            const slopResult = await handleSlopCall(request, toolConfig);
+            return {
+              content: [{
+                type: "text",
+                text: JSON.stringify(slopResult)
+              }]
+            };
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            logger.error(`Error in inferred SLOP handler for tool '${toolName}': ${errorMessage}`);
+            return {
+              content: [{
+                type: "text",
+                text: `Error calling inferred SLOP tool '${toolName}': ${errorMessage}`
+              }]
+            };
+          }
+        } else if (toolConfig?.source) {
+          logger.info(`Tool '${toolName}' has source property, routing to Source handler`);
+          try {
+            return await handleSourceCall(request, configPath, toolConfig);
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            logger.error(`Error in inferred Source handler for tool '${toolName}': ${errorMessage}`);
+            return {
+              content: [{
+                type: "text",
+                text: `Error calling inferred Source tool '${toolName}': ${errorMessage}`
+              }]
+            };
+          }
+        } else {
+          // As a last resort, try the local handler
+          logger.info(`No bridge specified for tool '${toolName}', trying local handler as fallback`);
+          try {
+            return await handleLocalCall(request, configPath, blahConfig);
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            logger.error(`Error in fallback local handler for tool '${toolName}': ${errorMessage}`);
+            return {
+              content: [{
+                type: "text",
+                text: `Error calling fallback for tool '${toolName}': ${errorMessage}`
+              }]
+            };
+          }
+        }
     }
-    
-    // For local configurations, first check if it's a URI tool
-    const uriResult = await handleUriCall(request, blahConfig);
-    if (uriResult.handled) {
-      return uriResult.result;
-    }
-    
-    // Check if the tool has a source property
-    const foundTool = tools?.find((t: any) => t.name === toolName);
-    if (foundTool && foundTool.source) {
-      // Use the source handler for tools with a source property
-      return await handleSourceCall(request, configPath, foundTool);
-    }
-    
-    // Finally, try to handle it as a local tool
-    return await handleLocalCall(request, configPath, blahConfig);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logger.error(`Error handling tool call: ${errorMessage}`, error);
