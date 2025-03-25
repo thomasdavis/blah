@@ -1,5 +1,13 @@
 import { existsSync, readFileSync } from 'fs';
 import * as path from 'path';
+import { validateBlahManifest } from './validator.js';
+import axios from 'axios';
+import { execSync, spawn } from 'child_process';
+import { createLogger } from './logger.js';
+import { getSlopToolsFromManifest, fetchToolsFromSlopEndpoints } from '../slop/index.js';
+import { compileFlowsToTools } from './flow-processor.js';
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { Client } from "@modelcontextprotocol/sdk/client";
 
 function convertArgumentsToSchema(args: Array<{ name: string; description: string; type: string }>) {
   const properties: Record<string, any> = {};
@@ -16,14 +24,6 @@ function convertArgumentsToSchema(args: Array<{ name: string; description: strin
     properties
   };
 }
-import { validateBlahManifest } from './validator.js';
-import axios from 'axios';
-import fs from 'fs';
-import { tool } from 'ai';
-import { execSync } from 'child_process';
-import { createLogger } from './logger.js';
-import { getSlopToolsFromManifest, fetchToolsFromSlopEndpoints } from '../slop/index.js';
-import { compileFlowsToTools } from './flow-processor.js';
 
 // Create a logger for this module
 const logger = createLogger('config-loader');
@@ -439,54 +439,64 @@ export async function getTools(config: string | Record<string, any>): Promise<an
             
             try {
               const configArg = typeof config === 'string' ? config : './blah.json';
-              const listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": ${index}}' | ${envString} ${tool.command} -- --config ${configArg}`;
-              
-              logger.info('Executing MCP tools list command', { toolName: tool.name, command: tool.command });
-              
-              // Set a timeout for command execution
-              const listToolsCommandOutput = execSync(listToolsCommandTorun, { 
-                encoding: 'utf8',
-                timeout: 10000 // 10 second timeout
+              // const listToolsCommandTorun = `echo '{"jsonrpc": "2.0", "method": "tools/list", "params": {}, "id": ${index}}' | ${envString} ${tool.command} -- --config ${configArg}`;
+
+
+              const mcpServer = spawn(`${tool.command}`, ["--config", configArg], {
+                stdio: ["pipe", "pipe", process.stderr] // connect stdin and stdout
               });
-              
-              // Try to find and parse the JSON response
-              const lines = listToolsCommandOutput.split('\n');
-              let jsonStr = '';
-              
-              for (const line of lines) {
-                if (line.trim().startsWith('{') && line.includes('"result"') && line.includes('"jsonrpc"')) {
-                  jsonStr = line.trim();
-                  break;
-                }
-              }
-              
-              if (!jsonStr) {
-                logger.warn(`No JSON response from MCP server: ${tool.name}`);
-                continue; // Skip this tool and move to the next
-              }
-              
+
+              // Create a transport that wraps the child process's stdout and stdin
+              const transport = new StdioClientTransport(mcpServer.stdout, mcpServer.stdin);
+
+              // Instantiate the MCP client with basic client info
+              const client = new Client(
+                { name: "example-client", version: "1.0.0" },
+                { capabilities: {} }
+              );
+
+              // Connect the client to the server over stdio and get mcpTools
               try {
-                const listToolsResponse = JSON.parse(jsonStr);
-                const mcpTools = listToolsResponse?.result?.tools || [];
-                
-                if (Array.isArray(mcpTools) && mcpTools.length > 0) {
-                  logger.info(`Found ${mcpTools.length} tools from MCP server: ${tool.name}`);
-                  
-                  mcpTools.forEach((mcpTool: any, toolIndex: number) => {
-                    if (mcpTool && typeof mcpTool === 'object' && mcpTool.name) {
-                      fullTools.push({
-                        name: `${tool.name.toUpperCase()}_${toolIndex + 1}_${mcpTool.name}`,
-                        originalName: mcpTool.name,
-                        command: tool.command ?? "No master command",
-                        description: mcpTool.description || `Tool from ${tool.name}`,
-                        inputSchema: mcpTool.inputSchema || {}
-                      });
-                    }
-                  });
-                }
-              } catch (jsonError) {
-                logger.error(`Error parsing JSON from MCP server: ${tool.name}`, jsonError);
-                // Continue with next tool
+                await new Promise<void>((resolve, reject) => {
+                  client.connect(transport)
+                    .then(async () => {
+                      logger.info(`Connected to MCP server via stdio: ${tool.name}`);
+                      try {
+                        // Get the available tools using the client
+                        const mcpToolsResponse = await client.listTools();
+                        const mcpTools = mcpToolsResponse?.tools || [];
+                        
+                        if (Array.isArray(mcpTools) && mcpTools.length > 0) {
+                          logger.info(`Found ${mcpTools.length} tools from MCP server: ${tool.name}`);
+                          
+                          mcpTools.forEach((mcpTool: any, toolIndex: number) => {
+                            if (mcpTool && typeof mcpTool === 'object' && mcpTool.name) {
+                              fullTools.push({
+                                name: `${tool.name.toUpperCase()}_${toolIndex + 1}_${mcpTool.name}`,
+                                originalName: mcpTool.name,
+                                command: tool.command ?? "No master command",
+                                description: mcpTool.description || `Tool from ${tool.name}`,
+                                inputSchema: mcpTool.inputSchema || {}
+                              });
+                            }
+                          });
+                        } else {
+                          logger.warn(`No tools found from MCP server: ${tool.name}`);
+                        }
+                        resolve();
+                      } catch (innerError) {
+                        logger.error(`Error getting tools from MCP server: ${innerError}`);
+                        reject(innerError);
+                      }
+                    })
+                    .catch((err) => {
+                      logger.error(`Connection error to MCP server: ${err}`);
+                      reject(err);
+                    });
+                });
+              } catch (error) {
+                logger.error(`Failed to process MCP server: ${error}`);
+                continue; // Skip this tool and move to the next
               }
             } catch (execError) {
               logger.error(`Error executing MCP server command for: ${tool.name}`, execError);
