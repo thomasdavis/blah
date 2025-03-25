@@ -1,11 +1,10 @@
 import { createLogger } from '../../../utils/logger.js';
 import { getTools } from '../../../utils/getTools.js';
-import { execSync } from 'child_process';
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 // Create a logger for this module
-const logger = createLogger('local-handler');
+const logger = createLogger('mcpHandler');
 
 /**
  * Handles a tool call for local command execution
@@ -14,7 +13,7 @@ const logger = createLogger('local-handler');
  * @param blahConfig The loaded BLAH configuration
  * @returns The result of the tool call
  */
-export async function handleLocalCall(
+export async function mcpHandler(
   request: any,
   configPath: string,
   blahConfig: any

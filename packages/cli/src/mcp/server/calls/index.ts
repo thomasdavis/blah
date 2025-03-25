@@ -1,7 +1,7 @@
 import { createLogger } from '../../../utils/logger.js';
 import { handleSlopCall } from './slop-handler.js';
 import { handleSourceCall } from './valtown-handler.js';
-import { handleLocalCall } from './local-handler.js';
+import { mcpHandler } from './mcpHandler.js';
 import { handleUriCall } from './uri-handler.js';
 import { getTools } from '../../../utils/getTools.js';
 
