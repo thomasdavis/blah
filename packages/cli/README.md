@@ -1,5 +1,7 @@
 [![](https://dcbadge.limes.pink/api/server/Ap5dqEWe)](https://discord.gg/Ap5dqEWe)
 
+Because these docs are just mashed together and mostly AI generated I also asked OpenAI 4.5 Deep Research to summarise everything thus far done which can be found here https://gist.github.com/thomasdavis/3827a1647533e488c107e64aefa54831
+
 # @blahai/cli - Barely Logical Agent Host
 
 A comprehensive CLI tool for building, testing, and deploying AI tools across multiple protocols. This package provides a complete implementation with support for both Model Context Protocol (MCP) and Simple Language and Object Protocol (SLOP), enabling seamless integration with various AI systems and tools.
