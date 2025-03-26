@@ -1,10 +1,4 @@
-Ideas TODO
-
-- [ ] BLAH should have a way to log to your device so you know why it won't start or a certain mcp server won't run inside of an editor/client
-- [ ] make a valtown example where `blah slop start` is called on an inline blah.config that loads the jsonresume mcp server over slop
-- [ ] still need to add env to tools instead of one master env for the schema
-- [ ] when using flows we should add an array called blah_logs: []
-- [ ] we should use spawn instead of execSync later
+[![](https://dcbadge.limes.pink/api/server/Ap5dqEWe)](https://discord.gg/Ap5dqEWe)
 
 # @blahai/cli - Barely Logical Agent Host
 
@@ -29,6 +23,14 @@ cd blah
 pnpm install
 pnpm run build
 ```
+Ideas TODO
+
+- [ ] BLAH should have a way to log to your device so you know why it won't start or a certain mcp server won't run inside of an editor/client
+- [ ] make a valtown example where `blah slop start` is called on an inline blah.config that loads the jsonresume mcp server over slop
+- [ ] still need to add env to tools instead of one master env for the schema
+- [ ] when using flows we should add an array called blah_logs: []
+- [ ] we should use spawn instead of execSync later
+
 
 ### Environment Setup
 
