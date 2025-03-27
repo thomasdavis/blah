@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.78.0
+
+### Minor Changes
+
+- f3eb4f8: asd
+
 ## 0.77.0
 
 ### Minor Changes
