@@ -265,7 +265,8 @@ h3 {
 
 .spotlight-input {
   width: 100%;
-  padding: 8px 12px; /* Increased padding */
+  padding: 8px 12px;
+  padding-right: 70px; /* Increased space for two icons */
   font-size: 13px;
   font-family: "MS Sans Serif", Arial, sans-serif;
   border-width: 2px;
@@ -278,6 +279,40 @@ h3 {
 .spotlight-input:focus {
   outline: 1px dotted #000000;
   outline-offset: -4px;
+}
+
+/* Spotlight icons container */
+.spotlight-icon-container {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+/* Spotlight icon - Windows 98 button style */
+.spotlight-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--win98-text);
+  cursor: pointer;
+  background-color: var(--win98-button-face);
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.spotlight-icon:active {
+  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
+}
+
+.help-icon {
+  font-weight: bold;
 }
 
 .spotlight-icon {
