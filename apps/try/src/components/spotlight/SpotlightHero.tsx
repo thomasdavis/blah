@@ -1,14 +1,18 @@
 "use client";
-
 import { Spotlight } from './Spotlight';
+import type { ReactElement } from 'react';
 
-export function SpotlightHero() {
+interface SpotlightHeroProps {
+  onResultClick?: () => void;
+}
+
+export function SpotlightHero({ onResultClick }: SpotlightHeroProps): ReactElement {
   return (
     <div className="spotlight-hero">
       <div className="spotlight-hero-content">
         <h1 className="spotlight-hero-title">TRY</h1>
         <p className="spotlight-hero-subtitle">Try something new</p>
-        <Spotlight />
+        <Spotlight onResultClick={onResultClick} />
       </div>
     </div>
   );

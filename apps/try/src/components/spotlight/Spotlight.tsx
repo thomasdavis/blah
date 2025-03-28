@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import { SearchResults } from './SearchResults';
+import type { ReactElement } from 'react';
 
 type SpotlightSettingsProps = {
   isOpen: boolean;
   onClose: () => void;
 };
 
-function SpotlightSettings({ isOpen, onClose }: SpotlightSettingsProps) {
+function SpotlightSettings({ isOpen, onClose }: SpotlightSettingsProps): ReactElement | null {
   if (!isOpen) return null;
 
   return (
@@ -39,7 +40,11 @@ function SpotlightSettings({ isOpen, onClose }: SpotlightSettingsProps) {
   );
 }
 
-export function Spotlight() {
+interface SpotlightProps {
+  onResultClick?: () => void;
+}
+
+export function Spotlight({ onResultClick }: SpotlightProps): ReactElement {
   const [query, setQuery] = useState('');
   const [showSettings, setShowSettings] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -78,6 +83,12 @@ export function Spotlight() {
     // Hide settings and results when toggling help
     setShowSettings(false);
     setShowResults(false);
+  };
+
+  const handleResultClick = () => {
+    if (onResultClick) {
+      onResultClick();
+    }
   };
 
   return (
@@ -121,7 +132,11 @@ export function Spotlight() {
             isOpen={showSettings} 
             onClose={() => setShowSettings(false)} 
           />
-          <SearchResults query={query} visible={showResults} />
+          <SearchResults 
+            query={query} 
+            visible={showResults} 
+            onResultClick={handleResultClick}
+          />
         </div>
       </form>
       {showHelp && !showResults && !showSettings && (
