@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface TermsOfServiceProps {
   onAccept: () => void;
@@ -13,15 +12,16 @@ export function TermsOfService({ onAccept }: TermsOfServiceProps) {
   };
 
   return (
-    <div className="terms-of-service-container">
-      <div className="terms-of-service-window">
-        <div className="terms-of-service-title">
-          Terms of Service
+    <div className="terms-container">
+      <div className="window">
+        <div className="title-bar">
+          <span>BLAH - Terms of Service</span>
+          <button className="close-btn" onClick={handleAccept}>✕</button>
         </div>
-        <div className="terms-of-service-content">
+        <div className="window-body">
           <h2>BLAH Project Terms and Conditions</h2>
           
-          <div className="terms-of-service-text">
+          <div className="terms-content">
             <p>Welcome to the TRY interface for BLAH (Barely Logical Agent Host). By using this software, you agree to the following terms:</p>
             
             <h3>1. Open Source License</h3>
@@ -38,10 +38,13 @@ export function TermsOfService({ onAccept }: TermsOfServiceProps) {
             
             <h3>5. Community Standards</h3>
             <p>When participating in the community, please be respectful of others and follow the project's code of conduct.</p>
+            
+            <h3>6. Decentralization</h3>
+            <p>BLAH is committed to decentralization. No single entity controls the platform, and we encourage a distributed network of participants.</p>
           </div>
-        </div>
-        <div className="terms-of-service-buttons">
-          <button onClick={handleAccept} className="btn btn-primary">Accept</button>
+          <div className="terms-buttons">
+            <button onClick={handleAccept} className="accept-btn">Accept</button>
+          </div>
         </div>
       </div>
     </div>

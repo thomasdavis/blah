@@ -37,6 +37,7 @@ export function SearchResults({ query, visible, onResultClick }: SearchResultsPr
   }
 
   const handleClick = () => {
+    // Make sure we call the onResultClick function when a search result is clicked
     if (onResultClick) {
       onResultClick();
     }
