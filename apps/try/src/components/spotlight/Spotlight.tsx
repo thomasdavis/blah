@@ -73,7 +73,7 @@ export function Spotlight() {
           <input
             type="text"
             className="spotlight-input"
-            placeholder="SEARCH BLAH TOOLS & SERVERS..."
+            placeholder="Search BLAH tools & servers..."
             value={query}
             onChange={handleInputChange}
             onFocus={handleInputFocus}
