@@ -5,12 +5,12 @@ export function Footer() {
     <footer className="footer">
       <div className="footer-content">
         <div>
-          &copy; {new Date().getFullYear()} BLAH - <span className="highlighted">BARELY LOGICAL AGENT HOST</span>
+          &copy; {new Date().getFullYear()} TRY - <span className="highlighted">Experimental Interface</span>
         </div>
         <div className="footer-links">
-          <a href="/terms" className="footer-link">TERMS</a>
-          <a href="/privacy" className="footer-link">PRIVACY</a>
-          <a href="/contact" className="footer-link">CONTACT</a>
+          <a href="/terms" className="footer-link">📋 Terms</a>
+          <a href="/privacy" className="footer-link">🔒 Privacy</a>
+          <a href="/contact" className="footer-link">📧 Contact</a>
         </div>
       </div>
     </footer>

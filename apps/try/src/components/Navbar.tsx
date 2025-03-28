@@ -6,17 +6,17 @@ export function Navbar() {
   return (
     <header className="navbar">
       <Link href="/" className="navbar-logo">
-        BLAH
+        TRY
       </Link>
       <nav className="navbar-nav">
         <Link href="/" className="nav-link active">
-          SEARCH
+          🔍 Search
         </Link>
         <Link href="/docs" className="nav-link">
-          DOCS
+          📄 Docs
         </Link>
         <Link href="/about" className="nav-link">
-          ABOUT
+          ℹ️ About
         </Link>
         <a 
           href="https://github.com/blahai/blah" 
@@ -24,7 +24,7 @@ export function Navbar() {
           rel="noopener noreferrer" 
           className="nav-link"
         >
-          GITHUB
+          📦 GitHub
         </a>
       </nav>
     </header>
