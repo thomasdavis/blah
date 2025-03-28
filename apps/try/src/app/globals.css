@@ -29,7 +29,7 @@
   --transition-slow: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   
-  /* Retro computing theme variables */
+  /* Retro computing theme variables - exact match to reference */
   --retro-bg: #6e8c8d;
   --retro-window: #a2b5b5;
   --retro-border: #d0d0d0;
@@ -38,12 +38,14 @@
   --retro-title-end: #6d7f82;
   --retro-accent: #ffb6c1;
   --retro-accent-glow: #ff9db3;
+  --retro-accent-glow-2: #ffa5b0;
   --retro-subtitle: #cde3d6;
   --retro-subtitle-glow: #a5d3c0;
   --retro-input-bg: #c8d8d8;
   --retro-input-inner: #eef6f6;
   --retro-button: #ccdede;
   --retro-button-hover: #dfeeee;
+  --retro-text: #444;
 }
 
 /* Dark mode with modern colors */
@@ -375,13 +377,12 @@ h3 {
 
 /* Spotlight container */
 .spotlight-container {
-  max-width: 400px;
   width: 90%;
-  margin: 0 auto 40px;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .spotlight-input-wrapper {
-  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -396,32 +397,23 @@ h3 {
   border: none;
   outline: none;
   padding: 10px;
-  width: 100%;
+  flex: 1;
   font-size: 14px;
   background-color: var(--retro-input-inner);
-  color: #444;
+  color: var(--retro-text);
   font-family: monospace;
 }
 
-.spotlight-icon {
+.search-btn {
   border: none;
   background: var(--retro-button);
   font-size: 16px;
   padding: 0 10px;
   cursor: pointer;
   box-shadow: inset 1px 1px #fff, inset -1px -1px #888;
-  position: absolute;
-  right: 4px;
-  top: 50%;
-  transform: translateY(-50%);
-  height: calc(100% - 8px);
-  width: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.spotlight-icon:hover {
+.search-btn:hover {
   background-color: var(--retro-button-hover);
 }
 
@@ -434,44 +426,33 @@ h3 {
   min-height: 100vh;
   text-align: center;
   background-color: var(--retro-bg);
-  position: relative;
-  transition: min-height 0.5s ease-in-out;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* When content is visible, allow the hero section to shrink */
-.content-visible .spotlight-hero {
-  min-height: auto;
-  padding: 50px 20px;
+  margin: 0;
 }
 
 .spotlight-hero-content {
-  max-width: 500px;
-  width: 100%;
-  background-color: var(--retro-window);
+  width: 500px;
   border: 2px solid var(--retro-border);
+  background-color: var(--retro-window);
   box-shadow: 4px 4px 0 var(--retro-shadow);
   position: relative;
 }
 
-/* Retro title bar */
 .spotlight-hero-content::before {
   content: "BLAH - Search";
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: auto;
-  padding: 6px 10px;
   background: linear-gradient(to right, var(--retro-title-start), var(--retro-title-end));
   color: white;
+  padding: 6px 10px;
   font-weight: bold;
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-family: monospace;
   font-size: 14px;
-  border: none;
 }
 
 .spotlight-hero-content::after {
@@ -485,18 +466,20 @@ h3 {
   padding: 0 6px;
   font-weight: bold;
   font-size: 14px;
-  color: #000;
+}
+
+.spotlight-hero-window-body {
+  text-align: center;
+  padding: 40px 20px;
 }
 
 .spotlight-hero-title {
   font-size: 48px;
-  font-weight: bold;
   color: var(--retro-accent);
-  text-shadow: 0 0 8px var(--retro-accent-glow), 0 0 20px var(--retro-accent);
+  text-shadow: 0 0 8px var(--retro-accent-glow), 0 0 20px var(--retro-accent-glow-2);
   margin: 0;
-  margin-top: 40px;
+  font-weight: bold;
   letter-spacing: 2px;
-  text-transform: uppercase;
 }
 
 .spotlight-hero-subtitle {
@@ -507,13 +490,119 @@ h3 {
   font-weight: normal;
 }
 
-.spotlight-hero-description {
+/* Search results styling */
+.search-results {
+  background-color: white;
+  border: 1px solid var(--retro-border);
+  box-shadow: 3px 3px 0 rgba(68, 68, 68, 0.5);
+  margin-top: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  width: 100%;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+}
+
+.search-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--retro-border);
+  font-size: 12px;
+  font-weight: bold;
+  background-color: var(--retro-input-bg);
+}
+
+.search-results-count {
+  font-size: 11px;
+  padding: 2px 6px;
+  background-color: var(--retro-window);
+  color: var(--retro-text);
+  border: 1px solid var(--retro-border);
+}
+
+.search-results-list {
+  padding: 0;
+}
+
+.search-result-item {
+  display: flex;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--retro-border);
+  cursor: pointer;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background-color: var(--retro-input-bg);
+}
+
+.search-result-icon {
+  font-size: 16px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.search-result-content {
+  flex: 1;
+}
+
+.search-result-title {
+  font-size: 12px;
+  font-weight: bold;
+  margin: 0 0 4px 0;
+  color: var(--retro-text);
+}
+
+.search-result-description {
+  font-size: 11px;
+  color: #666;
+  margin: 0;
+}
+
+/* Help section */
+.spotlight-examples {
+  margin-top: 20px;
+  text-align: left;
+  width: 100%;
+}
+
+.spotlight-examples h3 {
+  color: var(--retro-text);
+  margin-bottom: 12px;
   font-size: 14px;
-  color: var(--text-primary);
-  margin-bottom: 30px;
-  max-width: 85%;
-  margin-left: auto;
-  margin-right: auto;
+  border-bottom: 1px solid var(--retro-border);
+  padding-bottom: 6px;
+}
+
+.spotlight-example-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.spotlight-example-cards .card {
+  cursor: pointer;
+  background-color: var(--retro-window);
+  padding: 10px 12px;
+  border: 1px solid var(--retro-border);
+  box-shadow: 2px 2px 0 rgba(68, 68, 68, 0.5);
+}
+
+.spotlight-example-cards .card:hover {
+  background-color: var(--retro-input-inner);
+}
+
+.spotlight-example-cards .card strong {
+  color: var(--retro-text);
+  font-weight: bold;
 }
 
 /* Content container */
@@ -687,426 +776,184 @@ h3 {
   padding-right: 20px; /* Increased padding */
 }
 
-/* Spotlight specific styles - Windows 98 inspired with more padding */
-.spotlight-container {
-  max-width: 600px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.spotlight-input-wrapper {
-  position: relative;
-  margin-bottom: 20px; /* Increased margin */
-}
-
-.spotlight-input {
-  width: 100%;
-  padding: 8px 12px;
-  padding-right: 70px; /* Increased space for two icons */
-  font-size: 13px;
-  font-family: "MS Sans Serif", Arial, sans-serif;
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
-  border-radius: 0;
-  background-color: #ffffff;
-}
-
-.spotlight-input:focus {
-  outline: 1px dotted #000000;
-  outline-offset: -4px;
-}
-
-/* Spotlight icons container */
-.spotlight-icon-container {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+/* Retro app container */
+.retro-app {
+  min-height: 100vh;
+  background-color: var(--retro-bg);
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Spotlight icon - Windows 98 button style */
-.spotlight-icon {
-  width: 20px;
-  height: 20px;
-  color: var(--win98-text);
-  cursor: pointer;
-  background-color: var(--win98-button-face);
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
+/* Retro navbar */
+.retro-navbar {
+  background-color: var(--retro-window);
+  border-bottom: 2px solid var(--retro-border);
+  box-shadow: 0 2px 4px var(--retro-shadow);
+  padding: 8px 16px;
+  transition: opacity 0.3s ease;
 }
 
-.spotlight-icon:active {
-  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
+.retro-navbar.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
-.help-icon {
-  font-weight: bold;
+.retro-navbar.visible {
+  opacity: 1;
 }
 
-.spotlight-icon {
-  position: absolute;
-  right: 10px; /* Adjusted for more padding */
-  top: 50%;
-  transform: translateY(-50%);
-  width: 20px; /* Slightly larger */
-  height: 20px; /* Slightly larger */
-  color: var(--win98-text);
-  cursor: pointer;
-  background-color: var(--win98-button-face);
-  border-width: 2px; /* Deeper bevel */
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.spotlight-icon:active {
-  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
-}
-
-.spotlight-settings-dropdown {
-  right: 0;
-  top: 100%;
-  margin-top: 4px;
-}
-
-/* Spotlight Hero styles - Windows 98 inspired with more padding */
-.spotlight-hero {
+/* Retro main content */
+.retro-main-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh; /* Ensure it takes the full viewport height initially */
-  text-align: center;
-  background-color: var(--win98-bg);
-  position: relative;
-  transition: min-height 0.5s ease-in-out; /* Smooth transition for height changes */
+  justify-content: flex-start;
+  padding: 20px;
 }
 
-/* When content is visible, allow the hero section to shrink */
-.content-visible .spotlight-hero {
-  min-height: auto;
-  padding: 50px 20px;
-}
-
-.spotlight-hero-content {
-  max-width: 800px;
+/* Retro content container */
+.retro-content {
   width: 100%;
-  background-color: var(--win98-surface);
-  padding: 30px; /* Increased padding */
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  /* Add Windows 98 title bar */
-  position: relative;
+  max-width: 800px;
+  margin-top: 30px;
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-/* Windows 98 title bar */
-.spotlight-hero-content::before {
-  content: "BLAH - Search";
-  position: absolute;
-  top: -22px;
-  left: -2px;
-  right: -2px;
-  height: 20px;
-  background-color: var(--win98-title-active);
-  color: white;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  padding: 0 6px; /* Slightly more padding */
-  font-size: 12px;
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) #000000 var(--win98-border-light);
+.retro-content.hidden {
+  opacity: 0;
+  transform: translateY(-20px);
+  pointer-events: none;
+  height: 0;
+  overflow: hidden;
 }
 
-.spotlight-hero-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--win98-primary);
-  margin-top: 10px;
-  margin-bottom: 12px; /* More space */
-  text-transform: uppercase;
+.retro-content.visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.spotlight-hero-subtitle {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--win98-text);
-  margin-bottom: 20px; /* More space */
-}
-
-.spotlight-hero-description {
-  font-size: 13px;
-  color: var(--win98-text);
+/* Retro window styling */
+.retro-window {
+  background-color: var(--retro-window);
+  border: 2px solid var(--retro-border);
+  box-shadow: 4px 4px 0 var(--retro-shadow);
   margin-bottom: 30px;
-  max-width: 85%;
-  margin-left: auto;
-  margin-right: auto;
+  position: relative;
 }
 
-.spotlight-examples {
-  margin-top: 35px; /* More space */
-  text-align: left;
-  width: 100%;
-}
-
-.spotlight-examples h3 {
-  color: var(--win98-text);
-  margin-bottom: 16px; /* More space */
+.retro-window-title {
+  background: linear-gradient(to right, var(--retro-title-start), var(--retro-title-end));
+  color: white;
+  padding: 6px 10px;
+  font-weight: bold;
+  font-family: monospace;
   font-size: 14px;
-  border-bottom: 1px solid var(--win98-border-dark);
-  padding-bottom: 6px; /* More padding */
+  position: relative;
 }
 
-.spotlight-example-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px; /* More space between cards */
-  margin-top: 16px;
-}
-
-.spotlight-example-cards .card {
+.retro-window-title::after {
+  content: "✕";
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  background: #ccc;
+  border: 1px solid #999;
   cursor: pointer;
-  background-color: var(--win98-surface);
-  padding: 14px; /* More padding */
-}
-
-/* Strong emphasis in cards */
-.spotlight-example-cards .card strong {
-  color: var(--win98-primary);
-}
-
-/* Navbar styles - Windows 98 menu bar */
-.navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 32px; /* Increased height for more padding */
-  padding: 0 8px; /* More horizontal padding */
-  background-color: var(--win98-surface);
-  border-bottom: 1px solid var(--win98-border-dark);
-}
-
-.navbar-logo {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--win98-primary);
-  text-decoration: none;
-  margin-left: 12px; /* More space */
-}
-
-.navbar-nav {
-  display: flex;
-  align-items: center;
-  height: 100%;
-}
-
-.nav-link {
-  color: var(--win98-text);
-  text-decoration: none;
-  font-size: 12px;
-  padding: 8px 14px; /* Much more padding */
-  position: relative;
-  height: 100%;
-  display: inline-flex;
-  align-items: center;
-}
-
-.nav-link:hover {
-  background-color: var(--win98-primary);
-  color: white;
-}
-
-.nav-link.active {
-  color: var(--win98-text);
-  border-width: 2px; /* Deeper bevel */
-  border-style: solid;
-  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
-  background-color: var(--win98-surface);
-}
-
-/* Footer styles - Windows 98 status bar */
-.footer {
-  background-color: var(--win98-surface);
-  padding: 8px 12px; /* More padding to match navbar */
-  border-top: 1px solid var(--win98-border-light);
-  border-bottom: 1px solid var(--win98-border-dark);
-  margin-top: auto;
-}
-
-.footer-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
-  margin: 0 auto;
-  font-size: 12px;
-}
-
-.footer-links {
-  display: flex;
-  gap: 20px; /* More space between links */
-}
-
-.footer-link {
-  color: var(--win98-text);
-  text-decoration: none;
-}
-
-.footer-link:hover {
-  text-decoration: underline;
-  color: var(--win98-primary);
-}
-
-/* Windows 98 highlighted text */
-.highlighted {
-  background-color: var(--win98-primary);
-  color: white;
-  padding: 0 4px; /* More padding */
-}
-
-/* Terms of Service styles - Windows 98 window */
-.terms-of-service-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 100;
-}
-
-.terms-of-service-window {
-  width: 90%;
-  max-width: 600px;
-  background-color: var(--win98-surface);
-  border-width: 3px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  position: relative;
-  z-index: 101;
-}
-
-.terms-of-service-title {
-  background-color: var(--win98-title-active);
-  color: white;
-  padding: 4px 8px;
+  padding: 0 6px;
   font-weight: bold;
-  font-size: 12px;
-  border-bottom: 2px solid var(--win98-border-dark);
-}
-
-.terms-of-service-content {
-  padding: 20px;
-  max-height: 60vh;
-  overflow-y: auto;
-  background-color: white;
-}
-
-.terms-of-service-text {
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.terms-of-service-text h3 {
-  margin-top: 16px;
   font-size: 14px;
 }
 
-.terms-of-service-buttons {
-  padding: 16px;
-  display: flex;
-  justify-content: flex-end;
-  background-color: var(--win98-surface);
-  border-top: 2px solid var(--win98-border-light);
-}
-
-/* Community Info styles */
-.community-info-container {
-  padding: 30px 20px;
-  margin-bottom: 40px;
-}
-
-.community-info-window {
-  max-width: 800px;
-  margin: 0 auto;
-  background-color: var(--win98-surface);
-  border-width: 3px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  position: relative;
-}
-
-.community-info-title {
-  background-color: var(--win98-title-active);
-  color: white;
-  padding: 4px 8px;
-  font-weight: bold;
-  font-size: 12px;
-  border-bottom: 2px solid var(--win98-border-dark);
-}
-
-.community-info-content {
+.retro-window-content {
   padding: 20px;
-  background-color: white;
 }
 
-.community-links {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+/* Retro features section */
+.retro-features {
+  display: flex;
+  flex-direction: column;
   gap: 20px;
-  margin-top: 24px;
 }
 
-.community-link-item {
-  display: flex;
-  gap: 16px;
-  padding: 16px;
-  background-color: var(--win98-surface);
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
+/* Retro footer */
+.retro-footer {
+  background-color: var(--retro-window);
+  border-top: 2px solid var(--retro-border);
+  padding: 10px 20px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--retro-text);
+  transition: opacity 0.3s ease;
 }
 
-.emoji {
-  font-size: 24px;
+.retro-footer.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
-/* BLAH Alert popup */
-.blah-alert {
+.retro-footer.visible {
+  opacity: 1;
+}
+
+/* Retro dark mode toggle */
+.retro-dark-mode-toggle {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: var(--retro-button);
+  border: 2px solid var(--retro-border);
+  box-shadow: 2px 2px 0 var(--retro-shadow);
+  padding: 5px 10px;
+  cursor: pointer;
+  z-index: 100;
+  font-size: 16px;
+}
+
+.retro-dark-mode-toggle:hover {
+  background-color: var(--retro-button-hover);
+}
+
+/* Retro alert */
+.retro-alert {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: var(--win98-surface);
-  border-width: 3px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  padding: 15px 25px;
-  font-weight: bold;
-  font-size: 16px;
+  background-color: var(--retro-window);
+  border: 2px solid var(--retro-border);
+  box-shadow: 4px 4px 0 var(--retro-shadow);
+  padding: 10px 20px;
   z-index: 1000;
-  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
-  animation: slideIn 0.3s ease-out, fadeOut 0.3s ease-in 2.7s forwards;
-  pointer-events: none; /* Allow clicks to pass through */
+  animation: retro-slide-in 0.3s ease-out, retro-fade-out 0.3s ease-in 2.7s forwards;
 }
 
-/* Animation for BLAH alert */
-@keyframes slideIn {
+.retro-alert-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.retro-alert-icon {
+  background-color: var(--retro-accent);
+  color: white;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.retro-alert-text {
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--retro-text);
+}
+
+@keyframes retro-slide-in {
   from {
     transform: translateX(100%);
     opacity: 0;
@@ -1117,183 +964,13 @@ h3 {
   }
 }
 
-@keyframes fadeOut {
+@keyframes retro-fade-out {
   from {
     opacity: 1;
   }
   to {
     opacity: 0;
   }
-}
-
-/* Feature cards styles - Windows 98 window style with more padding */
-.feature-cards-section {
-  padding: 50px 0; /* More vertical padding */
-  background-color: var(--win98-bg);
-  position: relative;
-}
-
-.feature-section-title {
-  text-align: center;
-  margin-bottom: 35px; /* More space */
-  font-size: 20px;
-  color: var(--win98-text);
-  position: relative;
-  padding: 6px 14px; /* More padding */
-  background-color: var(--win98-surface);
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  display: inline-block;
-}
-
-.feature-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 24px; /* More space between cards */
-}
-
-.feature-card {
-  background-color: var(--win98-surface);
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  border-radius: 0;
-  padding: 24px 20px; /* More padding */
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-/* Windows 98 title bar for each feature card */
-.feature-card::before {
-  content: attr(data-title);
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background-color: var(--win98-title-active);
-  color: white;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  padding: 0 6px; /* More padding */
-  font-size: 12px;
-}
-
-.feature-card .feature-content {
-  margin-top: 28px; /* More space for the title bar */
-}
-
-.feature-icon {
-  font-size: 28px;
-  margin-bottom: 20px; /* More space */
-  width: 45px; /* Slightly larger */
-  height: 45px; /* Slightly larger */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: auto;
-  margin-right: auto;
-  background-color: var(--win98-bg);
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-}
-
-.feature-title {
-  font-size: 14px;
-  font-weight: 700;
-  margin-bottom: 14px; /* More space */
-  color: var(--win98-text);
-}
-
-.feature-description {
-  font-size: 12px;
-  color: var(--win98-text);
-  line-height: 1.5;
-}
-
-/* Search results styles - Windows 98 list view with more padding */
-.search-results {
-  background-color: white;
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
-  margin-top: 6px; /* More space */
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.search-results-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px; /* More padding */
-  border-bottom: 1px solid var(--win98-border-dark);
-  font-size: 12px;
-  font-weight: 700;
-  background-color: var(--win98-surface);
-}
-
-.search-results-count {
-  font-size: 11px;
-  padding: 2px 6px; /* More padding */
-  background-color: var(--win98-surface);
-  color: var(--win98-text);
-  border-width: 2px; /* Deeper bevel */
-  border-style: solid;
-  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
-}
-
-.search-results-list {
-  padding: 0;
-}
-
-.search-result-item {
-  display: flex;
-  padding: 8px 10px; /* More padding */
-  border-bottom: 1px solid var(--win98-border-dark);
-  cursor: pointer;
-}
-
-.search-result-item:last-child {
-  border-bottom: none;
-}
-
-.search-result-item:hover {
-  background-color: var(--win98-primary);
-  color: white;
-}
-
-.search-result-item:hover .search-result-title,
-.search-result-item:hover .search-result-description {
-  color: white;
-}
-
-.search-result-icon {
-  font-size: 16px;
-  margin-right: 12px; /* More space */
-  display: flex;
-  align-items: center;
-}
-
-.search-result-content {
-  flex: 1;
-}
-
-.search-result-title {
-  font-size: 12px;
-  font-weight: 700;
-  margin: 0 0 4px 0; /* More space */
-  color: var(--win98-text);
-}
-
-.search-result-description {
-  font-size: 11px;
-  color: var(--win98-text-muted);
-  margin: 0;
 }
 
 @media (max-width: 768px) {
@@ -1315,6 +992,10 @@ h3 {
   
   .spotlight-examples {
     margin-top: 24px;
+  }
+  
+  .retro-features {
+    flex-direction: column;
   }
   
   .footer-content {

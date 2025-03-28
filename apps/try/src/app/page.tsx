@@ -103,16 +103,10 @@ export default function Home(): ReactElement {
 
   return (
     <>
-      {/* Custom cursor overlay */}
-      <div ref={cursorRef} className="custom-cursor" />
-      
-      <main 
-        className={`min-h-screen flex flex-col ${contentVisible ? 'content-visible' : ''} ${isDarkMode ? 'dark-theme' : 'light-theme'}`} 
-        onClick={handleInteraction}
-      >
+      <main className={`retro-app ${isDarkMode ? 'dark-mode' : ''}`} onClick={handleInteraction}>
         {/* Dark mode toggle */}
         <button 
-          className="dark-mode-toggle" 
+          className="retro-dark-mode-toggle" 
           onClick={(e) => {
             e.stopPropagation();
             toggleDarkMode();
@@ -122,62 +116,60 @@ export default function Home(): ReactElement {
           {isDarkMode ? '☀️' : '🌙'}
         </button>
         
-        {/* Navbar with enhanced fade-in and parallax effect */}
-        <div 
-          className={`navbar-container transition-all duration-700 ease-out transform ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}`}
-        >
+        {/* Navbar with retro styling */}
+        <div className={`retro-navbar ${contentVisible ? 'visible' : 'hidden'}`}>
           <Navbar />
         </div>
         
-        <div className="w-full flex-grow relative">
-          {/* Background gradient effect */}
-          <div className="background-gradient"></div>
+        <div className="retro-main-content">
+          {/* SpotlightHero with retro computing theme */}
+          <SpotlightHero onResultClick={handleSearchResultClick} />
           
-          {/* 3D layered effect for depth */}
-          <div className="layer-effect"></div>
-          
-          {/* SpotlightHero with enhanced spotlight effect */}
-          <div className="spotlight-container">
-            <SpotlightHero onResultClick={handleSearchResultClick} />
-          </div>
-          
-          {/* Content below SpotlightHero with staggered animation */}
-          <div className={`content-container transition-all duration-800 ease-out ${contentVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95 h-0 overflow-hidden'}`}>
-            {/* Show Terms of Service with card morphism effect */}
+          {/* Content below SpotlightHero */}
+          <div className={`retro-content ${contentVisible ? 'visible' : 'hidden'}`}>
+            {/* Show Terms of Service */}
             {showTerms && !termsAccepted && (
-              <div className="terms-container morphism-card">
-                <TermsOfService onAccept={handleTermsAccept} />
+              <div className="retro-window terms-window">
+                <div className="retro-window-title">Terms of Service</div>
+                <div className="retro-window-content">
+                  <TermsOfService onAccept={handleTermsAccept} />
+                </div>
               </div>
             )}
             
-            {/* Show Features with bento grid layout */}
+            {/* Show Features */}
             {showFeatures && (
-              <div className="features-section">
-                <div className="bento-grid">
-                  <FeatureCards />
+              <div className="retro-features">
+                <div className="retro-window features-window">
+                  <div className="retro-window-title">Features</div>
+                  <div className="retro-window-content">
+                    <FeatureCards />
+                  </div>
                 </div>
-                <div className="community-section">
-                  <CommunityInfo />
+                
+                <div className="retro-window community-window">
+                  <div className="retro-window-title">Community</div>
+                  <div className="retro-window-content">
+                    <CommunityInfo />
+                  </div>
                 </div>
               </div>
             )}
           </div>
         </div>
         
-        {/* Footer with enhanced fade-in and parallax effect */}
-        <div 
-          className={`footer-container transition-all duration-700 ease-out transform ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
-        >
+        {/* Footer with retro styling */}
+        <div className={`retro-footer ${contentVisible ? 'visible' : 'hidden'}`}>
           <Footer />
         </div>
       </main>
       
-      {/* BLAH Alert - modernized with morphism effect */}
+      {/* BLAH Alert - retro styled */}
       {showBlahAlert && (
-        <div className="blah-alert morphism-card">
-          <div className="alert-content">
-            <span className="alert-icon">✨</span>
-            <span className="alert-text">BLAH</span>
+        <div className="retro-alert">
+          <div className="retro-alert-content">
+            <span className="retro-alert-icon">!</span>
+            <span className="retro-alert-text">BLAH</span>
           </div>
         </div>
       )}

@@ -10,9 +10,11 @@ export function SpotlightHero({ onResultClick }: SpotlightHeroProps): ReactEleme
   return (
     <div className="spotlight-hero">
       <div className="spotlight-hero-content">
-        <h1 className="spotlight-hero-title">TRY</h1>
-        <p className="spotlight-hero-subtitle">Try something new</p>
-        <Spotlight onResultClick={onResultClick} />
+        <div className="spotlight-hero-window-body">
+          <h1 className="spotlight-hero-title">TRY</h1>
+          <p className="spotlight-hero-subtitle">Try something new</p>
+          <Spotlight onResultClick={onResultClick} />
+        </div>
       </div>
     </div>
   );
