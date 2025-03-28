@@ -222,6 +222,76 @@ importers:
         specifier: ^5.4.2
         version: 5.8.2
 
+  apps/try:
+    dependencies:
+      '@blahai/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@blahai/schema':
+        specifier: workspace:*
+        version: link:../../packages/schema
+      '@monaco-editor/react':
+        specifier: ^4.7.0
+        version: 4.7.0(monaco-editor@0.52.2)(react-dom@18.3.0)(react@18.3.0)
+      '@repo/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
+      marked:
+        specifier: ^9.1.5
+        version: 9.1.5
+      next:
+        specifier: ^14.0.4
+        version: 14.2.0(react-dom@18.3.0)(react@18.3.0)
+      react:
+        specifier: ^18.2.0
+        version: 18.3.0
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.0(react@18.3.0)
+      react-syntax-highlighter:
+        specifier: ^15.5.0
+        version: 15.5.0(react@18.3.0)
+      uuid:
+        specifier: ^9.0.1
+        version: 9.0.1
+    devDependencies:
+      '@repo/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@repo/typescript-config':
+        specifier: workspace:*
+        version: link:../../packages/typescript-config
+      '@types/node':
+        specifier: ^20.10.4
+        version: 20.17.24
+      '@types/react':
+        specifier: ^18.2.45
+        version: 18.3.0
+      '@types/react-dom':
+        specifier: ^18.2.18
+        version: 18.3.0
+      '@types/react-syntax-highlighter':
+        specifier: ^15.5.11
+        version: 15.5.11
+      '@types/uuid':
+        specifier: ^9.0.7
+        version: 9.0.8
+      autoprefixer:
+        specifier: ^10.4.16
+        version: 10.4.19(postcss@8.5.3)
+      postcss:
+        specifier: ^8.4.32
+        version: 8.5.3
+      tailwindcss:
+        specifier: ^3.3.6
+        version: 3.4.1
+      typescript:
+        specifier: ^5.3.3
+        version: 5.8.2
+
   apps/web:
     dependencies:
       '@blahai/cli':
@@ -2126,6 +2196,19 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
+  /@monaco-editor/react@4.7.0(monaco-editor@0.52.2)(react-dom@18.3.0)(react@18.3.0):
+    resolution: {integrity: sha512-cyzXQCtO47ydzxpQtCGSQGOC8Gk3ZUeBXFAxD+CWXYFo5OqZyZUonFl0DwUlTyAfRHntBfw2p3w4s9R6oe1eCA==}
+    peerDependencies:
+      monaco-editor: '>= 0.25.0 < 1'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    dependencies:
+      '@monaco-editor/loader': 1.5.0
+      monaco-editor: 0.52.2
+      react: 18.3.0
+      react-dom: 18.3.0(react@18.3.0)
+    dev: false
+
   /@next/env@14.0.4:
     resolution: {integrity: sha512-irQnbMLbUNQpP1wcE5NstJtbuA/69kRfzBrpAD7Gsn8zm/CY6YQYc3HQBz8QPxwISG26tIm5afvvVbu508oBeQ==}
     dev: false
@@ -3488,7 +3571,7 @@ packages:
   /@types/react-syntax-highlighter@15.5.11:
     resolution: {integrity: sha512-ZqIJl+Pg8kD+47kxUjvrlElrraSUrYa4h0dauY/U/FTUuprSCqvUj+9PNQNQzVc6AJgIWUUxn87/gqsMHNbRjw==}
     dependencies:
-      '@types/react': 18.2.45
+      '@types/react': 18.3.0
     dev: true
 
   /@types/react@18.2.45:
@@ -4125,7 +4208,6 @@ packages:
       picocolors: 1.1.1
       postcss: 8.5.3
       postcss-value-parser: 4.2.0
-    dev: false
 
   /available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
@@ -8963,6 +9045,19 @@ packages:
       lowlight: 1.20.0
       prismjs: 1.30.0
       react: 18.2.0
+      refractor: 3.6.0
+    dev: false
+
+  /react-syntax-highlighter@15.5.0(react@18.3.0):
+    resolution: {integrity: sha512-+zq2myprEnQmH5yw6Gqc8lD55QHnpKaU8TOcFeC/Lg/MQSs8UknEA0JC4nTZGFAXC2J2Hyj/ijJ7NlabyPi2gg==}
+    peerDependencies:
+      react: '>= 0.14.0'
+    dependencies:
+      '@babel/runtime': 7.26.10
+      highlight.js: 10.7.3
+      lowlight: 1.20.0
+      prismjs: 1.30.0
+      react: 18.3.0
       refractor: 3.6.0
     dev: false
 
