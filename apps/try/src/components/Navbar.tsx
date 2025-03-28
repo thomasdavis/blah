@@ -1,3 +1,5 @@
+"use client";
+
 import Link from 'next/link';
 
 export function Navbar() {
@@ -8,13 +10,13 @@ export function Navbar() {
       </Link>
       <nav className="navbar-nav">
         <Link href="/" className="nav-link active">
-          Search
+          SEARCH
         </Link>
         <Link href="/docs" className="nav-link">
-          Docs
+          DOCS
         </Link>
         <Link href="/about" className="nav-link">
-          About
+          ABOUT
         </Link>
         <a 
           href="https://github.com/blahai/blah" 
@@ -22,7 +24,7 @@ export function Navbar() {
           rel="noopener noreferrer" 
           className="nav-link"
         >
-          GitHub
+          GITHUB
         </a>
       </nav>
     </header>

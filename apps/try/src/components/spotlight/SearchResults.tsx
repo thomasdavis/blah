@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 
 interface SearchResultProps {
@@ -40,33 +42,33 @@ export function SearchResults({ query, visible }: SearchResultsProps) {
   const getResults = () => {
     if (query.includes('weather')) {
       return [
-        { title: 'weather-tool', description: 'Gets current weather information for a location', type: 'tool' as const },
-        { title: 'weather-api-server', description: 'MCP server that connects to weather APIs', type: 'server' as const },
-        { title: 'How to use weather tools', description: 'Documentation on implementing weather capabilities', type: 'doc' as const }
+        { title: 'WEATHER-TOOL', description: 'Gets current weather information for a location', type: 'tool' as const },
+        { title: 'WEATHER-API-SERVER', description: 'MCP server that connects to weather APIs', type: 'server' as const },
+        { title: 'HOW TO USE WEATHER TOOLS', description: 'Documentation on implementing weather capabilities', type: 'doc' as const }
       ];
     }
     
     if (query.includes('mcp') || query.includes('server')) {
       return [
-        { title: 'blah mcp start', description: 'Command to start a local MCP server', type: 'command' as const },
-        { title: 'Remote MCP Setup', description: 'Guide to setting up a remote MCP server on Cloudflare', type: 'doc' as const },
-        { title: 'example-mcp-server', description: 'A sample MCP server with common tools', type: 'server' as const }
+        { title: 'BLAH MCP START', description: 'Command to start a local MCP server', type: 'command' as const },
+        { title: 'REMOTE MCP SETUP', description: 'Guide to setting up a remote MCP server on Cloudflare', type: 'doc' as const },
+        { title: 'EXAMPLE-MCP-SERVER', description: 'A sample MCP server with common tools', type: 'server' as const }
       ];
     }
     
     if (query.includes('cloudflare')) {
       return [
-        { title: 'cloudflare-deploy', description: 'Tool to deploy MCP servers to Cloudflare Workers', type: 'tool' as const },
-        { title: 'blah deploy cloudflare', description: 'Command to deploy your BLAH setup to Cloudflare', type: 'command' as const },
-        { title: 'Cloudflare MCP Guide', description: 'Detailed documentation on Cloudflare integration', type: 'doc' as const }
+        { title: 'CLOUDFLARE-DEPLOY', description: 'Tool to deploy MCP servers to Cloudflare Workers', type: 'tool' as const },
+        { title: 'BLAH DEPLOY CLOUDFLARE', description: 'Command to deploy your BLAH setup to Cloudflare', type: 'command' as const },
+        { title: 'CLOUDFLARE MCP GUIDE', description: 'Detailed documentation on Cloudflare integration', type: 'doc' as const }
       ];
     }
     
     // Default results
     return [
-      { title: 'Search Helper', description: 'Try searching for specific tools, servers, or commands', type: 'doc' as const },
-      { title: 'Popular Tools', description: 'Browse the most used tools in the BLAH ecosystem', type: 'tool' as const },
-      { title: 'Getting Started', description: 'Documentation to help you start with BLAH', type: 'doc' as const }
+      { title: 'SEARCH HELPER', description: 'Try searching for specific tools, servers, or commands', type: 'doc' as const },
+      { title: 'POPULAR TOOLS', description: 'Browse the most used tools in the BLAH ecosystem', type: 'tool' as const },
+      { title: 'GETTING STARTED', description: 'Documentation to help you start with BLAH', type: 'doc' as const }
     ];
   };
 
@@ -75,8 +77,8 @@ export function SearchResults({ query, visible }: SearchResultsProps) {
   return (
     <div className="search-results">
       <div className="search-results-header">
-        <span>Results for "{query}"</span>
-        <div className="search-results-count">{results.length} results</div>
+        <span>RESULTS FOR "{query.toUpperCase()}"</span>
+        <div className="search-results-count">{results.length} RESULTS</div>
       </div>
       <div className="search-results-list">
         {results.map((result, index) => (

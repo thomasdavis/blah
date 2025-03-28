@@ -1,3 +1,5 @@
+"use client";
+
 import { Spotlight } from './Spotlight';
 
 export function SpotlightHero() {
@@ -7,7 +9,7 @@ export function SpotlightHero() {
         <h1 className="spotlight-hero-title">BLAH</h1>
         <p className="spotlight-hero-subtitle">Barely Logical Agent Host</p>
         <p className="spotlight-hero-description">
-          The universal protocol adapter for AI agent tools
+          The universal protocol adapter for AI agent tools - unifying the fragmented world of AI
         </p>
         <Spotlight />
       </div>

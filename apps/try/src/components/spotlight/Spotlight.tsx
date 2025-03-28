@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from 'react';
 import { SearchResults } from './SearchResults';
 
@@ -71,7 +73,7 @@ export function Spotlight() {
           <input
             type="text"
             className="spotlight-input"
-            placeholder="Search BLAH tools, MCP servers, or enter a command..."
+            placeholder="SEARCH BLAH TOOLS & SERVERS..."
             value={query}
             onChange={handleInputChange}
             onFocus={handleInputFocus}
