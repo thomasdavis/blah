@@ -103,42 +103,16 @@ export function Spotlight({ onResultClick }: SpotlightProps): ReactElement {
             onChange={handleInputChange}
             onFocus={handleInputFocus}
           />
-          <div 
-            className="spotlight-icon-container"
+          <button 
+            type="submit"
+            className="spotlight-icon search-btn"
+            title="Search"
           >
-            <div 
-              className="spotlight-icon help-icon"
-              onClick={toggleHelp}
-              title="Help"
-            >
-              ?
-            </div>
-            <div 
-              className="spotlight-icon settings-icon"
-              onClick={() => {
-                setShowSettings(!showSettings);
-                // Hide results and help if showing settings
-                if (!showSettings) {
-                  setShowResults(false);
-                  setShowHelp(false);
-                }
-              }}
-              title="Search settings"
-            >
-              ⚙️
-            </div>
-          </div>
-          <SpotlightSettings 
-            isOpen={showSettings} 
-            onClose={() => setShowSettings(false)} 
-          />
-          <SearchResults 
-            query={query} 
-            visible={showResults} 
-            onResultClick={handleResultClick}
-          />
+            🔍
+          </button>
         </div>
       </form>
+      
       {showHelp && !showResults && !showSettings && (
         <div className="spotlight-examples">
           <h3>Try searching for:</h3>
@@ -167,6 +141,12 @@ export function Spotlight({ onResultClick }: SpotlightProps): ReactElement {
           </div>
         </div>
       )}
+      
+      <SearchResults 
+        query={query} 
+        visible={showResults} 
+        onResultClick={handleResultClick}
+      />
     </div>
   );
 }

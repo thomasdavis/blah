@@ -1,170 +1,236 @@
-/* PrecisionCore Design System - Windows 98 Inspired Edition with Custom Colors */
+/* PrecisionCore Design System - Modern 2025 Edition */
 
 :root {
-  /* Less corporate, more interesting color palette while maintaining Windows 98 style */
-  --win98-bg: #c0c0c0;
-  --win98-surface: #d4d0c8;
-  --win98-text: #000000;
-  --win98-text-muted: #333333;
-  --win98-primary: #9b2335;     /* Deep red instead of corporate blue */
-  --win98-primary-dark: #7a1c2a;
-  --win98-secondary: #00847c;   /* Teal variant */
-  --win98-accent: #4b3b85;      /* Purple - for accents */
-  --win98-primary-text: #ffffff;
-  --win98-border: #808080;
-  --win98-border-light: #ffffff;
-  --win98-border-dark: #404040;
-  --win98-error: #ff0000;
-  --win98-success: #008000;
-  --win98-warning: #a86032;     /* Warm orange-brown */
-  --win98-info: #4464ad;        /* Muted blue */
-  --win98-window-bg: #ffffff;
-  --win98-button-face: #d4d0c8;
-  --win98-title-active: #9b2335;  /* Match primary color */
-  --win98-title-inactive: #808080;
+  /* Modern vibrant color palette for 2025 */
+  --bg-primary: #f8f9fa;
+  --bg-secondary: #ffffff;
+  --text-primary: #121212;
+  --text-secondary: #4a4a4a;
+  --text-muted: #6c757d;
+  --primary: #3388FF;          /* Vibrant blue as primary color */
+  --primary-dark: #2970d6;
+  --primary-light: #5ea1ff;
+  --secondary: #7209b7;        /* Rich purple as secondary color */
+  --accent: #00c2a8;           /* Teal as accent */
+  --gradient-start: #4361ee;
+  --gradient-end: #7209b7;
+  --success: #2ecc71;
+  --warning: #f39c12;
+  --error: #e74c3c;
+  --info: #3498db;
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 16px;
+  --box-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.05);
+  --box-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --box-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease-out;
+  --transition-slow: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  
+  /* Retro computing theme variables */
+  --retro-bg: #6e8c8d;
+  --retro-window: #a2b5b5;
+  --retro-border: #d0d0d0;
+  --retro-shadow: #444;
+  --retro-title-start: #8ba0a2;
+  --retro-title-end: #6d7f82;
+  --retro-accent: #ffb6c1;
+  --retro-accent-glow: #ff9db3;
+  --retro-subtitle: #cde3d6;
+  --retro-subtitle-glow: #a5d3c0;
+  --retro-input-bg: #c8d8d8;
+  --retro-input-inner: #eef6f6;
+  --retro-button: #ccdede;
+  --retro-button-hover: #dfeeee;
 }
 
-/* Dark mode preserved but with more interesting colors */
-.dark {
-  --win98-bg: #3a3a3a;
-  --win98-surface: #4a4a4a;
-  --win98-text: #ffffff;
-  --win98-text-muted: #cccccc;
-  --win98-primary: #c13c4e;     /* Lighter red for dark mode */
-  --win98-primary-dark: #9b2335;
-  --win98-secondary: #00a39a;   /* Brighter teal for dark mode */
-  --win98-accent: #6c58b8;      /* Brighter purple for dark mode */
-  --win98-primary-text: #ffffff;
-  --win98-border: #6e6e6e;
-  --win98-border-light: #808080;
-  --win98-border-dark: #2a2a2a;
+/* Dark mode with modern colors */
+.dark-theme, .dark-mode {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --text-primary: #f8f9fa;
+  --text-secondary: #e0e0e0;
+  --text-muted: #a0a0a0;
+  --primary: #5ea1ff;          /* Lighter blue for dark mode */
+  --primary-dark: #3388FF;
+  --primary-light: #8ab9ff;
+  --secondary: #9d4edd;        /* Lighter purple for dark mode */
+  --accent: #00e6c3;           /* Brighter teal for dark mode */
+  --gradient-start: #4361ee;
+  --gradient-end: #9d4edd;
+  --box-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --box-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --box-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-/* Typography with Windows 98 influence */
+/* Modern Typography */
 body {
-  font-family: "MS Sans Serif", "Segoe UI", Arial, sans-serif;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--win98-text);
-  background-color: var(--win98-bg);
+  font-family: var(--font-family);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
   margin: 0;
   padding: 0;
-  cursor: default;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   font-weight: 700;
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 h1 {
-  font-size: 24px;
-  margin-bottom: 16px;
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
 }
 
 h2 {
-  font-size: 20px;
-  margin-bottom: 12px;
+  font-size: 2.5rem;
+  margin-bottom: 1.25rem;
+  color: var(--text-primary);
 }
 
 h3 {
-  font-size: 16px;
-  margin-bottom: 8px;
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
 }
 
-/* Layout and spacing - increased padding */
+/* Modern Layout and spacing */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: 0 20px; /* Increased padding */
+  padding: 0 2rem;
 }
 
-/* Button styles - Windows 98 style with deeper bevels */
+/* Modern Button styles */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: normal;
-  padding: 6px 12px; /* Increased padding */
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  border-radius: 0;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--border-radius-md);
   cursor: pointer;
   position: relative;
-  background-color: var(--win98-button-face);
-  color: var(--win98-text);
+  background-color: var(--primary);
+  color: white;
   text-transform: none;
+  transition: all var(--transition-fast);
+  box-shadow: var(--box-shadow-sm);
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
 }
 
 .btn:hover {
-  background-color: var(--win98-button-face);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-md);
 }
 
-/* Classic Windows 98 button active state */
+.btn:hover::before {
+  transform: translateX(100%);
+}
+
 .btn:active {
-  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
-  padding: 7px 11px 5px 13px; /* Shift content to show pressed state */
+  transform: translateY(1px);
+  box-shadow: var(--box-shadow-sm);
 }
 
 .btn-primary {
-  background-color: var(--win98-primary);
-  border-color: #bf5566 var(--win98-primary-dark) var(--win98-primary-dark) #bf5566;
-  color: var(--win98-primary-text);
-}
-
-.btn-primary:active {
-  border-color: var(--win98-primary-dark) #bf5566 #bf5566 var(--win98-primary-dark);
+  background-color: var(--primary);
+  color: white;
 }
 
 .btn-secondary {
-  background-color: var(--win98-button-face);
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  color: var(--win98-text);
+  background-color: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
 }
 
-/* Input styles - Windows 98 with deeper inset */
+.btn-secondary:hover {
+  background-color: rgba(51, 136, 255, 0.1);
+}
+
+/* Modern Input styles */
 .input {
   width: 100%;
-  padding: 5px 8px; /* Increased padding */
-  font-size: 12px;
-  font-family: "MS Sans Serif", Arial, sans-serif;
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-dark) var(--win98-border-light) var(--win98-border-light) var(--win98-border-dark);
-  border-radius: 0;
-  color: var(--win98-text);
-  background-color: #ffffff;
-  box-shadow: inset 1px 1px 2px var(--win98-border-dark); /* Deeper inset shadow */
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-family: var(--font-family);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: var(--border-radius-md);
+  color: var(--text-primary);
+  background-color: var(--bg-secondary);
+  transition: all var(--transition-fast);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--win98-primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(51, 136, 255, 0.2);
 }
 
 .input::placeholder {
-  color: var(--win98-text-muted);
+  color: var(--text-muted);
 }
 
-/* Card styles - Windows 98 window style with deeper bevels */
-.card {
-  background-color: var(--win98-surface);
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  border-radius: 0;
-  padding: 12px; /* Increased padding */
+.dark-theme .input, .dark-mode .input {
+  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
 }
 
-.card:hover {
-  background-color: #dbd9d4;
+/* Modern Card styles with morphism */
+.card, .morphism-card {
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow-md);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Dropdown styles - Windows 98 menu style */
+.dark-theme .card, .dark-theme .morphism-card,
+.dark-mode .card, .dark-mode .morphism-card {
+  background-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.card:hover, .morphism-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--box-shadow-lg);
+}
+
+/* Modern Dropdown styles */
 .dropdown {
   position: relative;
   display: inline-block;
@@ -173,31 +239,401 @@ h3 {
 .dropdown-content {
   display: none;
   position: absolute;
-  min-width: 160px;
-  padding: 2px 0;
-  background-color: var(--win98-surface);
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--win98-border-light) var(--win98-border-dark) var(--win98-border-dark) var(--win98-border-light);
-  border-radius: 0;
-  z-index: 1;
+  min-width: 200px;
+  padding: 0.5rem 0;
+  background-color: var(--bg-secondary);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+  z-index: 10;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .dropdown-content.show {
   display: block;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .dropdown-item {
   display: block;
-  padding: 5px 14px; /* Increased padding */
-  color: var(--win98-text);
+  padding: 0.75rem 1.25rem;
+  color: var(--text-primary);
   text-decoration: none;
   cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
 .dropdown-item:hover {
-  background-color: var(--win98-primary);
-  color: var(--win98-primary-text);
+  background-color: rgba(51, 136, 255, 0.1);
+  color: var(--primary);
+}
+
+.dark-theme .dropdown-content,
+.dark-mode .dropdown-content {
+  background-color: rgba(30, 30, 30, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom cursor */
+.custom-cursor {
+  position: fixed;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(51, 136, 255, 0.2) 0%, rgba(51, 136, 255, 0) 70%);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 9999;
+  transition: width 0.3s, height 0.3s, background 0.3s;
+  mix-blend-mode: difference;
+}
+
+/* Dark mode toggle */
+.dark-mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  border: none;
+  box-shadow: var(--box-shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 100;
+  transition: all var(--transition-normal);
+}
+
+.dark-mode-toggle:hover {
+  transform: rotate(15deg);
+}
+
+.dark-theme .dark-mode-toggle,
+.dark-mode .dark-mode-toggle {
+  background-color: var(--bg-secondary);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Background gradient and layer effects */
+.background-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at top right, rgba(67, 97, 238, 0.1), transparent 50%),
+              radial-gradient(circle at bottom left, rgba(114, 9, 183, 0.1), transparent 50%);
+  z-index: -2;
+  opacity: 0.7;
+}
+
+.dark-theme .background-gradient,
+.dark-mode .background-gradient {
+  background: radial-gradient(circle at top right, rgba(67, 97, 238, 0.2), transparent 50%),
+              radial-gradient(circle at bottom left, rgba(114, 9, 183, 0.2), transparent 50%);
+  opacity: 0.5;
+}
+
+.layer-effect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%233388ff' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+  z-index: -1;
+  opacity: 0.5;
+}
+
+/* Bento grid layout */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+@media (min-width: 768px) {
+  .bento-grid {
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: minmax(200px, auto);
+  }
+  
+  .bento-grid > div:first-child {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+}
+
+/* Spotlight container */
+.spotlight-container {
+  max-width: 400px;
+  width: 90%;
+  margin: 0 auto 40px;
+}
+
+.spotlight-input-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid var(--retro-border);
+  background-color: var(--retro-input-bg);
+  box-shadow: inset 2px 2px #fff, inset -2px -2px #888;
+  padding: 4px;
+  width: 100%;
+}
+
+.spotlight-input {
+  border: none;
+  outline: none;
+  padding: 10px;
+  width: 100%;
+  font-size: 14px;
+  background-color: var(--retro-input-inner);
+  color: #444;
+  font-family: monospace;
+}
+
+.spotlight-icon {
+  border: none;
+  background: var(--retro-button);
+  font-size: 16px;
+  padding: 0 10px;
+  cursor: pointer;
+  box-shadow: inset 1px 1px #fff, inset -1px -1px #888;
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: calc(100% - 8px);
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spotlight-icon:hover {
+  background-color: var(--retro-button-hover);
+}
+
+/* Spotlight Hero styles - Retro computing inspired */
+.spotlight-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  background-color: var(--retro-bg);
+  position: relative;
+  transition: min-height 0.5s ease-in-out;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* When content is visible, allow the hero section to shrink */
+.content-visible .spotlight-hero {
+  min-height: auto;
+  padding: 50px 20px;
+}
+
+.spotlight-hero-content {
+  max-width: 500px;
+  width: 100%;
+  background-color: var(--retro-window);
+  border: 2px solid var(--retro-border);
+  box-shadow: 4px 4px 0 var(--retro-shadow);
+  position: relative;
+}
+
+/* Retro title bar */
+.spotlight-hero-content::before {
+  content: "BLAH - Search";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: auto;
+  padding: 6px 10px;
+  background: linear-gradient(to right, var(--retro-title-start), var(--retro-title-end));
+  color: white;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: monospace;
+  font-size: 14px;
+  border: none;
+}
+
+.spotlight-hero-content::after {
+  content: "✕";
+  position: absolute;
+  top: 6px;
+  right: 10px;
+  background: #ccc;
+  border: 1px solid #999;
+  cursor: pointer;
+  padding: 0 6px;
+  font-weight: bold;
+  font-size: 14px;
+  color: #000;
+}
+
+.spotlight-hero-title {
+  font-size: 48px;
+  font-weight: bold;
+  color: var(--retro-accent);
+  text-shadow: 0 0 8px var(--retro-accent-glow), 0 0 20px var(--retro-accent);
+  margin: 0;
+  margin-top: 40px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.spotlight-hero-subtitle {
+  margin: 12px 0 30px;
+  font-size: 20px;
+  color: var(--retro-subtitle);
+  text-shadow: 0 0 2px var(--retro-subtitle-glow);
+  font-weight: normal;
+}
+
+.spotlight-hero-description {
+  font-size: 14px;
+  color: var(--text-primary);
+  margin-bottom: 30px;
+  max-width: 85%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Content container */
+.content-container {
+  padding: 2rem 0;
+}
+
+/* Terms container */
+.terms-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Features section */
+.features-section {
+  padding: 2rem 0;
+}
+
+/* Community section */
+.community-section {
+  margin-top: 3rem;
+}
+
+/* Navbar container */
+.navbar-container {
+  width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.8);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .navbar-container,
+.dark-mode .navbar-container {
+  background-color: rgba(18, 18, 18, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Footer container */
+.footer-container {
+  width: 100%;
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.8);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .footer-container,
+.dark-mode .footer-container {
+  background-color: rgba(18, 18, 18, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* BLAH Alert */
+.blah-alert {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  padding: 1rem 1.5rem;
+  background-color: var(--bg-secondary);
+  color: var(--primary);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--box-shadow-md);
+  z-index: 1000;
+  animation: slideIn 0.5s ease forwards, fadeOut 0.5s ease 2.5s forwards;
+  display: flex;
+  align-items: center;
+}
+
+.alert-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.alert-icon {
+  font-size: 1.25rem;
+}
+
+.alert-text {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Terms accepted animation */
+.terms-accepted-animation {
+  animation: pulse 1s ease-in-out;
+}
+
+@keyframes pulse {
+  0% {
+    background-color: var(--bg-primary);
+  }
+  50% {
+    background-color: rgba(51, 136, 255, 0.1);
+  }
+  100% {
+    background-color: var(--bg-primary);
+  }
 }
 
 /* Utility classes */

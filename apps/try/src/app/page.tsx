@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { SpotlightHero } from '@/components/spotlight/SpotlightHero';
@@ -15,13 +15,42 @@ export default function Home(): ReactElement {
   const [showFeatures, setShowFeatures] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [contentVisible, setContentVisible] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const cursorRef = useRef<HTMLDivElement>(null);
   
-  // Check if terms have been accepted on component mount
+  // Check if terms have been accepted and dark mode preference on component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const accepted = localStorage.getItem('termsAccepted') === 'true';
       setTermsAccepted(accepted);
+      
+      // Check for dark mode preference
+      const darkModePreference = localStorage.getItem('darkMode') === 'true';
+      setIsDarkMode(darkModePreference);
+      if (darkModePreference) {
+        document.documentElement.classList.add('dark-mode');
+      }
     }
+  }, []);
+
+  // Custom cursor effect
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (cursorRef.current) {
+        // Add a slight delay for a smoother effect
+        setTimeout(() => {
+          if (cursorRef.current) {
+            cursorRef.current.style.left = `${e.clientX}px`;
+            cursorRef.current.style.top = `${e.clientY}px`;
+          }
+        }, 50);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   const handleTermsAccept = () => {
@@ -29,13 +58,19 @@ export default function Home(): ReactElement {
     setTermsAccepted(true);
     setShowFeatures(true);
     setShowTerms(false);
+    
+    // Add a subtle animation when terms are accepted
+    document.documentElement.classList.add('terms-accepted-animation');
+    setTimeout(() => {
+      document.documentElement.classList.remove('terms-accepted-animation');
+    }, 1000);
   };
 
   const handleInteraction = () => {
     if (!showBlahAlert) {
       setShowBlahAlert(true);
       
-      // Hide alert after 3 seconds
+      // Hide alert after 3 seconds with a more elegant fade out
       setTimeout(() => {
         setShowBlahAlert(false);
       }, 3000);
@@ -43,7 +78,7 @@ export default function Home(): ReactElement {
   };
 
   const handleSearchResultClick = () => {
-    // First make content visible with fade effect
+    // First make content visible with enhanced fade effect
     setContentVisible(true);
     
     // Only show terms if they haven't been accepted yet
@@ -53,46 +88,97 @@ export default function Home(): ReactElement {
       setShowFeatures(true);
     }
   };
+  
+  const toggleDarkMode = () => {
+    const newDarkModeState = !isDarkMode;
+    setIsDarkMode(newDarkModeState);
+    localStorage.setItem('darkMode', newDarkModeState.toString());
+    
+    if (newDarkModeState) {
+      document.documentElement.classList.add('dark-mode');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+    }
+  };
 
   return (
     <>
-      <main className={`min-h-screen flex flex-col ${contentVisible ? 'content-visible' : ''}`} onClick={handleInteraction}>
-        {/* Navbar with fade-in effect when content becomes visible */}
-        <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+      {/* Custom cursor overlay */}
+      <div ref={cursorRef} className="custom-cursor" />
+      
+      <main 
+        className={`min-h-screen flex flex-col ${contentVisible ? 'content-visible' : ''} ${isDarkMode ? 'dark-theme' : 'light-theme'}`} 
+        onClick={handleInteraction}
+      >
+        {/* Dark mode toggle */}
+        <button 
+          className="dark-mode-toggle" 
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleDarkMode();
+          }}
+          aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
+        
+        {/* Navbar with enhanced fade-in and parallax effect */}
+        <div 
+          className={`navbar-container transition-all duration-700 ease-out transform ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-6'}`}
+        >
           <Navbar />
         </div>
         
-        <div className="w-full flex-grow">
-          {/* SpotlightHero is always visible */}
-          <SpotlightHero onResultClick={handleSearchResultClick} />
+        <div className="w-full flex-grow relative">
+          {/* Background gradient effect */}
+          <div className="background-gradient"></div>
           
-          {/* Content below SpotlightHero fades in only after interaction */}
-          <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
-            {/* Show Terms of Service only after search result interaction and if not yet accepted */}
+          {/* 3D layered effect for depth */}
+          <div className="layer-effect"></div>
+          
+          {/* SpotlightHero with enhanced spotlight effect */}
+          <div className="spotlight-container">
+            <SpotlightHero onResultClick={handleSearchResultClick} />
+          </div>
+          
+          {/* Content below SpotlightHero with staggered animation */}
+          <div className={`content-container transition-all duration-800 ease-out ${contentVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95 h-0 overflow-hidden'}`}>
+            {/* Show Terms of Service with card morphism effect */}
             {showTerms && !termsAccepted && (
-              <TermsOfService onAccept={handleTermsAccept} />
+              <div className="terms-container morphism-card">
+                <TermsOfService onAccept={handleTermsAccept} />
+              </div>
             )}
             
-            {/* Show Features only after terms are accepted */}
+            {/* Show Features with bento grid layout */}
             {showFeatures && (
-              <>
-                <FeatureCards />
-                <CommunityInfo />
-              </>
+              <div className="features-section">
+                <div className="bento-grid">
+                  <FeatureCards />
+                </div>
+                <div className="community-section">
+                  <CommunityInfo />
+                </div>
+              </div>
             )}
           </div>
         </div>
         
-        {/* Footer with fade-in effect when content becomes visible */}
-        <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+        {/* Footer with enhanced fade-in and parallax effect */}
+        <div 
+          className={`footer-container transition-all duration-700 ease-out transform ${contentVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+        >
           <Footer />
         </div>
       </main>
       
-      {/* BLAH Alert - moved outside main content flow */}
+      {/* BLAH Alert - modernized with morphism effect */}
       {showBlahAlert && (
-        <div className="blah-alert">
-          BLAH
+        <div className="blah-alert morphism-card">
+          <div className="alert-content">
+            <span className="alert-icon">✨</span>
+            <span className="alert-text">BLAH</span>
+          </div>
         </div>
       )}
     </>

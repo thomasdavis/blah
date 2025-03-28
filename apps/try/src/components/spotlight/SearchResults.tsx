@@ -43,17 +43,26 @@ export function SearchResults({ query, visible, onResultClick }: SearchResultsPr
   };
 
   return (
-    <div className="spotlight-results">
-      {results.map(result => (
-        <div 
-          key={result.id} 
-          className="spotlight-result-item"
-          onClick={handleClick}
-        >
-          <div className="spotlight-result-title">{result.title}</div>
-          <div className="spotlight-result-description">{result.description}</div>
-        </div>
-      ))}
+    <div className="search-results">
+      <div className="search-results-header">
+        <span>Search Results</span>
+        <span className="search-results-count">{results.length} items</span>
+      </div>
+      <div className="search-results-list">
+        {results.map(result => (
+          <div 
+            key={result.id} 
+            className="search-result-item"
+            onClick={handleClick}
+          >
+            <div className="search-result-icon">🔍</div>
+            <div className="search-result-content">
+              <div className="search-result-title">{result.title}</div>
+              <div className="search-result-description">{result.description}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
