@@ -55,44 +55,46 @@ export default function Home(): ReactElement {
   };
 
   return (
-    <main className={`min-h-screen flex flex-col ${contentVisible ? 'content-visible' : ''}`} onClick={handleInteraction}>
-      {/* Navbar with fade-in effect when content becomes visible */}
-      <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
-        <Navbar />
-      </div>
-      
-      <div className="w-full flex-grow">
-        {/* SpotlightHero is always visible */}
-        <SpotlightHero onResultClick={handleSearchResultClick} />
-        
-        {/* Content below SpotlightHero fades in only after interaction */}
-        <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
-          {/* Show Terms of Service only after search result interaction and if not yet accepted */}
-          {showTerms && !termsAccepted && (
-            <TermsOfService onAccept={handleTermsAccept} />
-          )}
-          
-          {/* Show Features only after terms are accepted */}
-          {showFeatures && (
-            <>
-              <FeatureCards />
-              <CommunityInfo />
-            </>
-          )}
+    <>
+      <main className={`min-h-screen flex flex-col ${contentVisible ? 'content-visible' : ''}`} onClick={handleInteraction}>
+        {/* Navbar with fade-in effect when content becomes visible */}
+        <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <Navbar />
         </div>
         
-        {/* BLAH Alert */}
-        {showBlahAlert && (
-          <div className="blah-alert">
-            BLAH
+        <div className="w-full flex-grow">
+          {/* SpotlightHero is always visible */}
+          <SpotlightHero onResultClick={handleSearchResultClick} />
+          
+          {/* Content below SpotlightHero fades in only after interaction */}
+          <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
+            {/* Show Terms of Service only after search result interaction and if not yet accepted */}
+            {showTerms && !termsAccepted && (
+              <TermsOfService onAccept={handleTermsAccept} />
+            )}
+            
+            {/* Show Features only after terms are accepted */}
+            {showFeatures && (
+              <>
+                <FeatureCards />
+                <CommunityInfo />
+              </>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+        
+        {/* Footer with fade-in effect when content becomes visible */}
+        <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+          <Footer />
+        </div>
+      </main>
       
-      {/* Footer with fade-in effect when content becomes visible */}
-      <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
-        <Footer />
-      </div>
-    </main>
+      {/* BLAH Alert - moved outside main content flow */}
+      {showBlahAlert && (
+        <div className="blah-alert">
+          BLAH
+        </div>
+      )}
+    </>
   );
 }
