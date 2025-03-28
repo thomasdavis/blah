@@ -14,17 +14,13 @@ export default function Home(): ReactElement {
   const [showBlahAlert, setShowBlahAlert] = useState(false);
   const [showFeatures, setShowFeatures] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
+  const [contentVisible, setContentVisible] = useState(false);
   
   // Check if terms have been accepted on component mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const accepted = localStorage.getItem('termsAccepted') === 'true';
       setTermsAccepted(accepted);
-      
-      // Only show features if terms have been accepted
-      if (accepted) {
-        setShowFeatures(true);
-      }
     }
   }, []);
 
@@ -47,30 +43,43 @@ export default function Home(): ReactElement {
   };
 
   const handleSearchResultClick = () => {
+    // First make content visible with fade effect
+    setContentVisible(true);
+    
     // Only show terms if they haven't been accepted yet
     if (!termsAccepted) {
       setShowTerms(true);
+    } else {
+      setShowFeatures(true);
     }
   };
 
   return (
-    <main className="min-h-screen flex flex-col" onClick={handleInteraction}>
-      <Navbar />
+    <main className={`min-h-screen flex flex-col ${contentVisible ? 'content-visible' : ''}`} onClick={handleInteraction}>
+      {/* Navbar with fade-in effect when content becomes visible */}
+      <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <Navbar />
+      </div>
+      
       <div className="w-full flex-grow">
+        {/* SpotlightHero is always visible */}
         <SpotlightHero onResultClick={handleSearchResultClick} />
         
-        {/* Show Terms of Service only after search result interaction and if not yet accepted */}
-        {showTerms && !termsAccepted && (
-          <TermsOfService onAccept={handleTermsAccept} />
-        )}
-        
-        {/* Show Features only after terms are accepted */}
-        {showFeatures && (
-          <>
-            <FeatureCards />
-            <CommunityInfo />
-          </>
-        )}
+        {/* Content below SpotlightHero fades in only after interaction */}
+        <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0 h-0 overflow-hidden'}`}>
+          {/* Show Terms of Service only after search result interaction and if not yet accepted */}
+          {showTerms && !termsAccepted && (
+            <TermsOfService onAccept={handleTermsAccept} />
+          )}
+          
+          {/* Show Features only after terms are accepted */}
+          {showFeatures && (
+            <>
+              <FeatureCards />
+              <CommunityInfo />
+            </>
+          )}
+        </div>
         
         {/* BLAH Alert */}
         {showBlahAlert && (
@@ -79,7 +88,11 @@ export default function Home(): ReactElement {
           </div>
         )}
       </div>
-      <Footer />
+      
+      {/* Footer with fade-in effect when content becomes visible */}
+      <div className={`transition-opacity duration-500 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+        <Footer />
+      </div>
     </main>
   );
 }
