@@ -28,7 +28,7 @@ const defaultTools = [
   }
 ];
 
-export async function startMCPServer(envKeys: Record<string, string>, blahConfig: string, command = 'npx -y @blahai/cli mcp start') {
+async function startMCPServer(envKeys: Record<string, string>, blahConfig: string, command = 'npx -y @blahai/cli mcp start') {
   // Check if there's an existing process and kill it
   if (mcpProcess) {
     mcpProcess.kill();
