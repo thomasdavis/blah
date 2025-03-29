@@ -5,8 +5,8 @@ import path from 'path';
 import { randomUUID } from 'crypto';
 
 // Store active MCP server process - export for other routes
-export let mcpProcess: ChildProcess | null = null;
-export let tempConfigPath: string | null = null;
+let mcpProcess: ChildProcess | null = null;
+let tempConfigPath: string | null = null;
 
 export async function POST(request: Request) {
   try {

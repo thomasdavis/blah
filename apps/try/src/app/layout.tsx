@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import React from 'react';
 
 export const metadata: Metadata = {
   title: 'Try BLAH',
@@ -7,10 +8,10 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode;
-}) {
+}): React.ReactElement {
   return (
     <html lang="en">
       <body className="bg-gray-50 min-h-screen">
