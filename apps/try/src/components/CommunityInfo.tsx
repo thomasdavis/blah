@@ -1,6 +1,7 @@
 "use client";
+import { FC } from 'react';
 
-export function CommunityInfo() {
+export const CommunityInfo: FC = () => {
   return (
     <div className="community-info-container">
       <div className="community-info-window">
