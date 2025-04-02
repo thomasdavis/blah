@@ -1,20 +1,3 @@
-TODO TO FINISH FULL POC
-
-- [ ] PROVIDERS
-- [ ] add provider option to blah.json
-  - [ ] add provider to cli
-  - [ ] if served it MUST try to run it from the provider
-
-Ideas
-
-- to run an mcp tool on a server function, we can use blah to serve it as SSE
-  https://github.com/cmsparks/mcp-bearer-auth-test/blob/main/src/index.ts#L57C9-L57C49
-
-Checkout this module to see how they proxy mcp to sse
-http://npmjs.com/package/mcp-remote
-
----
-
 BLAH - Barely Logical Agent Host
 https://github.com/thomasdavis/blah/tree/master/packages/cli (readme very rough, not entirely indicative of the project)
 (pre-alpha fully open source project, everything subject to change)
@@ -143,4 +126,29 @@ VERCEL | SSE | TWITTER | POST_TWEET
 
 ---
 
-In short, BLAH would love to be able to allow users to set Vercel as a `provider` and auth their accounts, and then run/proxy all/some of their tools(MCP servers etc) through Vercel compute.
+In short, BLAH would love to be able to allow users to set Vercel as a `provider` and auth their accounts, and then run/proxy all/some of their tools(MCP servers etc) through Vercel/Cloudflare compute.
+
+---
+
+TODO TO FINISH FULL POC
+
+- [ ] PROVIDERS
+- [ ] add provider option to blah.json
+  - [ ] add provider to cli
+  - [ ] if served it MUST try to run it from the provider
+
+Ideas
+
+- to run an mcp tool on a server function, we can use blah to serve it as SSE
+  https://github.com/cmsparks/mcp-bearer-auth-test/blob/main/src/index.ts#L57C9-L57C49
+
+Checkout this module to see how they proxy mcp to sse
+http://npmjs.com/package/mcp-remote
+
+2025-04-02 20:05:32.923 [warning] [server stderr] [666011] [Local→Remote] notifications/initialized
+2025-04-02 20:05:32.923 [warning] [server stderr] [666011] [Local→Remote] tools/list
+2025-04-02 20:05:32.936 [warning] [server stderr] [666011] [Remote→Local] 2
+2025-04-02 20:05:32.936 [info] Discovered 1 tools
+2025-04-02 20:05:32.936 [warning] Tool add does not have a description. Tools must be accurately described to be called
+2025-04-02 20:05:55.377 [warning] [server stderr] [666011] [Local→Remote] tools/call
+2025-04-02 20:05:55.378 [warning] [server stderr] [666011] [Remote→Local] 3
