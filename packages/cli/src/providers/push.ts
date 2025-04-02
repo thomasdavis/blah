@@ -97,6 +97,20 @@ export default app;
         observability: {
           enabled: true,
         },
+        migrations: [
+          {
+            new_sqlite_classes: ["MyMCP"],
+            tag: "v1"
+          }
+        ],
+        durable_objects: {
+          bindings: [
+            {
+              class_name: "MyMCP",
+              name: "MCP_OBJECT"
+            }
+          ]
+        },
         compatibility_flags: [
           "nodejs_compat"
         ],
