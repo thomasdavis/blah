@@ -134,9 +134,12 @@ BLAH wants to allow all of the things above to be abritary for the user
 
 e.g.
 
+```
 LOCAL | MCP | FIGMA | DRAW_BOX
 VERCEL | MCP | FIGMA | DRAW_CIRCLE
+CLOUDFLARE | MCP | SUPABASE | DRAW_CIRCLE
 VERCEL | SSE | TWITTER | POST_TWEET
+```
 
 ---
 
