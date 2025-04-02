@@ -12,6 +12,7 @@ import { sampleManifest } from '@blahai/schema';
 import chalk from 'chalk';
 import { getSlopToolsFromManifest, fetchSlopTools, fetchSlopModels, displaySlopTools, displaySlopModels, fetchToolsFromSlopEndpoints } from './slop/index.js';
 import { startSlopServer } from './slop/server.js';
+import providersPush from './providers/push.js';
 
 // Load environment variables from .env file
 config();
@@ -225,8 +226,12 @@ providerCommand
   .command('push')
   .description('Deploys all configured tools to their respective providers')
   .action(async (file, options) => {
-    console.log("Pushing providers")
-  });
+    console.log("Pushing providers");
+      const configPath = getConfigPath(options);
+      const config = await loadBlahConfig(configPath);
+      const result = await providersPush(configPath);
+      console.log('push', {result});
+    });
 
 program.addCommand(providerCommand);
 
