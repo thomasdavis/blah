@@ -5,6 +5,7 @@ import { compileFlowsToTools } from './flow-processor.js';
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { Client } from "@modelcontextprotocol/sdk/client";
 import { createLogger } from './logger.js';
+import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 
 function convertArgumentsToSchema(args: Array<{ name: string; description: string; type: string }>) {
   const properties: Record<string, any> = {};
@@ -160,7 +161,30 @@ export async function getTools(config: string | Record<string, any>): Promise<an
               
               // Handle if there is a provider 
               if (tool.provider) {
-                logger.info("Loading Tool with provider:", { provider: tool.provider });  
+                logger.info("Loading Tool with provider:", { provider: tool.provider });
+
+                const transport = new SSEClientTransport(new URL(`https://blah-cloudflare-mcp-brave_search.thomasalwyndavis.workers.dev/sse`));
+                
+              
+
+                // Instantiate the MCP client with basic client info
+                const client = new Client(
+                  { name: "example-client", version: "1.0.0" },
+                  { capabilities: { prompts: {}, resources: {}, tools: {} } }
+                );
+
+                await client.connect(transport);
+                console.log('🔌 Connected to MCP server via SSE');
+
+                // List tools via MCP protocol
+                const mcpTools = await client.listTools();
+                console.log('🛠  MCP Tools:', { tools: mcpTools.tools });
+
+                // Add MCP tools to fullTools
+                fullTools.push(...mcpTools.tools);
+
+                // close transport
+                transport.close();
               }
 
               if (!tool.provider) {
