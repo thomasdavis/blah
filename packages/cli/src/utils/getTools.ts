@@ -180,8 +180,18 @@ export async function getTools(config: string | Record<string, any>): Promise<an
                 const mcpTools = await client.listTools();
                 console.log('🛠  MCP Tools:', { tools: mcpTools.tools });
 
-                // Add MCP tools to fullTools
-                fullTools.push(...mcpTools.tools);
+                mcpTools.tools.forEach((mcpTool: any, toolIndex: number) => {
+                  if (mcpTool && typeof mcpTool === 'object' && mcpTool.name) {
+                    fullTools.push({
+                      name: `${tool.provider.toUpperCase()}_SSE_${tool.name.toUpperCase()}_${toolIndex + 1}_${mcpTool.name}`,
+                      originalName: mcpTool.name,
+                      bridge: tool.bridge,
+                      command: tool.command ?? "No master command",
+                      description: mcpTool.description || `Tool from ${tool.name}`,
+                      inputSchema: mcpTool.inputSchema || {}
+                    });
+                  }
+                });
 
                 // close transport
                 transport.close();
