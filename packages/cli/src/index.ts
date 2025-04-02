@@ -229,7 +229,7 @@ providerCommand
     console.log("Pushing providers");
       const configPath = getConfigPath(options);
       const config = await loadBlahConfig(configPath);
-      const result = await providersPush(configPath);
+      const result = await providersPush(config);
       console.log('push', {result});
     });
 
