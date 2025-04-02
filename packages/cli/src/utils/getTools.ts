@@ -155,94 +155,106 @@ export async function getTools(config: string | Record<string, any>): Promise<an
                   spawnEnv[key] = String(value);
                 });
               }
+
+              logger.info("Loading Tool", { tool });
               
-              logger.info(`Creating MCP client transport with command: ${command} and args: ${args.join(' ')}`);
+              // Handle if there is a provider 
+              if (tool.provider) {
+                logger.info("Loading Tool with provider:", { provider: tool.provider });  
+              }
 
-              // Create a transport using the command and arguments
-              const transport = new StdioClientTransport({
-                command: command,
-                args: args,
-                env: spawnEnv,
-                stderr: process.stderr
-              });
-              
-              // Add error handler for the transport
-              transport.onerror = (err) => {
-                logger.error(`MCP transport error: ${err.message}`);
-              };
+              if (!tool.provider) {
 
-              // Instantiate the MCP client with basic client info
-              const client = new Client(
-                { name: "example-client", version: "1.0.0" },
-                { capabilities: {} }
-              );
 
-              // Connect the client to the server over stdio and get mcpTools
-              try {
-                await new Promise<void>((resolve, reject) => {
-                  client.connect(transport)
-                    .then(async () => {
-                      logger.info(`Connected to MCP server via stdio: ${tool.name}`);
-                      try {
-                        // Get the available tools using the client
-                        const mcpToolsResponse = await client.listTools();
-                        const mcpTools = mcpToolsResponse?.tools || [];
-                        
-                        if (Array.isArray(mcpTools) && mcpTools.length > 0) {
-                          logger.info(`Found ${mcpTools.length} tools from MCP server: ${tool.name}`);
-                          
-                          mcpTools.forEach((mcpTool: any, toolIndex: number) => {
-                            if (mcpTool && typeof mcpTool === 'object' && mcpTool.name) {
-                              fullTools.push({
-                                name: `${tool.name.toUpperCase()}_${toolIndex + 1}_${mcpTool.name}`,
-                                originalName: mcpTool.name,
-                                bridge: tool.bridge,
-                                command: tool.command ?? "No master command",
-                                description: mcpTool.description || `Tool from ${tool.name}`,
-                                inputSchema: mcpTool.inputSchema || {}
-                              });
-                            }
-                          });
-                        } else {
-                          logger.warn(`No tools found from MCP server: ${tool.name}`);
-                        }
-                        
-                        // Close the transport to properly terminate the process
-                        logger.info(`Closing MCP server connection for: ${tool.name}`);
-                        transport.close();
-                        resolve();
-                      } catch (innerError) {
-                        logger.error(`Error getting tools from MCP server: ${innerError}`);
-                        // Close the transport even if an error occurs
+                logger.info(`Creating MCP client transport with command: ${command} and args: ${args.join(' ')}`);
+
+                // Create a transport using the command and arguments
+                const transport = new StdioClientTransport({
+                  command: command,
+                  args: args,
+                  env: spawnEnv,
+                  stderr: process.stderr
+                });
+                
+                // Add error handler for the transport
+                transport.onerror = (err) => {
+                  logger.error(`MCP transport error: ${err.message}`);
+                };
+
+                // Instantiate the MCP client with basic client info
+                const client = new Client(
+                  { name: "example-client", version: "1.0.0" },
+                  { capabilities: {} }
+                );
+
+                // Connect the client to the server over stdio and get mcpTools
+                try {
+                  await new Promise<void>((resolve, reject) => {
+                    client.connect(transport)
+                      .then(async () => {
+                        logger.info(`Connected to MCP server via stdio: ${tool.name}`);
                         try {
-                          logger.info(`Closing MCP server connection after error for: ${tool.name}`);
+                          // Get the available tools using the client
+                          const mcpToolsResponse = await client.listTools();
+                          const mcpTools = mcpToolsResponse?.tools || [];
+                          
+                          if (Array.isArray(mcpTools) && mcpTools.length > 0) {
+                            logger.info(`Found ${mcpTools.length} tools from MCP server: ${tool.name}`);
+                            
+                            mcpTools.forEach((mcpTool: any, toolIndex: number) => {
+                              if (mcpTool && typeof mcpTool === 'object' && mcpTool.name) {
+                                fullTools.push({
+                                  name: `LOCAL_${tool.name.toUpperCase()}_${toolIndex + 1}_${mcpTool.name}`,
+                                  originalName: mcpTool.name,
+                                  bridge: tool.bridge,
+                                  command: tool.command ?? "No master command",
+                                  description: mcpTool.description || `Tool from ${tool.name}`,
+                                  inputSchema: mcpTool.inputSchema || {}
+                                });
+                              }
+                            });
+                          } else {
+                            logger.warn(`No tools found from MCP server: ${tool.name}`);
+                          }
+                          
+                          // Close the transport to properly terminate the process
+                          logger.info(`Closing MCP server connection for: ${tool.name}`);
+                          transport.close();
+                          resolve();
+                        } catch (innerError) {
+                          logger.error(`Error getting tools from MCP server: ${innerError}`);
+                          // Close the transport even if an error occurs
+                          try {
+                            logger.info(`Closing MCP server connection after error for: ${tool.name}`);
+                            transport.close();
+                          } catch (closeError) {
+                            logger.error(`Error closing transport: ${closeError}`);
+                          }
+                          reject(innerError);
+                        }
+                      })
+                      .catch((err) => {
+                        logger.error(`Connection error to MCP server: ${err}`);
+                        // Close the transport on connection error
+                        try {
+                          logger.info(`Closing MCP server connection after connection error for: ${tool.name}`);
                           transport.close();
                         } catch (closeError) {
                           logger.error(`Error closing transport: ${closeError}`);
                         }
-                        reject(innerError);
-                      }
-                    })
-                    .catch((err) => {
-                      logger.error(`Connection error to MCP server: ${err}`);
-                      // Close the transport on connection error
-                      try {
-                        logger.info(`Closing MCP server connection after connection error for: ${tool.name}`);
-                        transport.close();
-                      } catch (closeError) {
-                        logger.error(`Error closing transport: ${closeError}`);
-                      }
-                      reject(err);
-                    });
-                });
-              } catch (error) {
-                logger.error(`Failed to process MCP server: ${error}`);
-                continue; // Skip this tool and move to the next
+                        reject(err);
+                      });
+                  });
+                } catch (error) {
+                  logger.error(`Failed to process MCP server: ${error}`);
+                  continue; // Skip this tool and move to the next
+                }
               }
             } catch (execError) {
               logger.error(`Error executing MCP server command for: ${tool.name}`, execError);
               // Continue with next tool
             }
+
           }
         } catch (toolError) {
           logger.error(`Error processing tool: ${tool.name}`, toolError);
@@ -319,6 +331,17 @@ export async function getTools(config: string | Record<string, any>): Promise<an
     logger.error('Error processing flows', flowError);
     // Continue with the tools we have so far
   }
+
+  fullTools.push({
+    name: 'dummy',
+    description: 'No description provided',
+    bridge: 'dummy',
+    slop: 'dummy',
+    sourceToolName: 'dummy',
+    originalSlopToolName: 'dummy',
+    arguments: [],
+    inputSchema: {}
+  });
 
   // Ensure we always return an array, even if everything failed
   const result = Array.isArray(fullTools) ? fullTools : [];

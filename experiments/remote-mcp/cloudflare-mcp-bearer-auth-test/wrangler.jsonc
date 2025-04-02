@@ -21,6 +21,12 @@
 			}
 		]
 	},
+	"kv_namespaces": [
+    {
+      "binding": "remote_mcp_server_oauth_kv",
+      "id": "c026d96699f44f1cb045b3061f2ae189"
+    }
+  ],
 	"observability": {
 		"enabled": true
 	},

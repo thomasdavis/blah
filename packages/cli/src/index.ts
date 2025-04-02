@@ -138,59 +138,11 @@ simulateCommand
     }
   });
 
-const toolsCommand = new Command('tools')
-toolsCommand
-  .description('List available tools')
-  .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
-  .action(async (options) => {
-    const configPath = getConfigPath(options);
-    try {
-      const tools = await getTools(configPath || './blah.json');
-      
-      if (tools.length === 0) {
-        console.log(chalk.red.bold('🔍 No tools found in the configuration'));
-        return;
-      }
 
-      // Create a fancy header
-      const header = '🛠  AVAILABLE TOOLS 🛠';
-      const gradient = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96C93D'].map(color => chalk.hex(color));
-      console.log('\n' + '═'.repeat(60));
-      console.log(gradient[0].bold(header.padStart((60 + header.length) / 2)));
-      console.log('═'.repeat(60) + '\n');
-
-      tools.forEach((tool, index) => {
-        // Tool name with fancy numbering and emoji
-        const toolEmoji = ['⚡️', '🔧', '🎯', '🔨', '⚙️'][index % 5];
-        console.log(chalk.hex('#FF6B6B').bold(`${toolEmoji} ${index + 1}. ${tool.name}`));
-
-        // Description with subtle formatting
-        const desc = tool.description || 'No description provided';
-        console.log(chalk.hex('#4ECDC4')('└─ ') + chalk.hex('#45B7D1')(desc) + '\n');
-
-        if (tool.inputSchema && tool.inputSchema.properties) {
-          console.log(chalk.hex('#96C93D').dim('   Parameters:'));
-          Object.entries(tool.inputSchema.properties).forEach(([paramName, paramInfo]: [string, any]) => {
-            const type = chalk.hex('#FFE66D').italic(`<${paramInfo.type || 'any'}>`);
-            console.log(`   ${chalk.hex('#4ECDC4')('•')} ${chalk.hex('#FF6B6B')(paramName)} ${type}`);
-            console.log(`     ${chalk.hex('#E0E0E0')(paramInfo.description || 'No description')}`);
-          });
-          console.log(); // Add spacing between tools
-        }
-        
-        console.log(chalk.gray('\n' + '-'.repeat(50)));
-      });
-    } catch (error) {
-      console.log(chalk.red('Error listing tools:'), error instanceof Error ? error.message : String(error));
-      // If there's an error, output an empty array as a fallback
-      console.log(JSON.stringify([]));
-    }
-  });
 
 // Add subcommands to mcp command
 mcpCommand.addCommand(startCommand);
 mcpCommand.addCommand(simulateCommand);
-mcpCommand.addCommand(toolsCommand);
 
 // Create the slop command with subcommands
 const slopCommand = new Command('slop');
@@ -403,9 +355,56 @@ program
     }
   });
 
+  program
+  .command('tools')
+  .description('List available tools')
+  .option('-c, --config <path>', 'Path to a blah.json configuration file (local path or URL)')
+  .action(async (options) => {
+    const configPath = getConfigPath(options);
+    try {
+      const tools = await getTools(configPath || './blah.json');
+      
+      if (tools.length === 0) {
+        console.log(chalk.red.bold('🔍 No tools found in the configuration'));
+        return;
+      }
 
-// Add the mcp command to the program
-program.addCommand(mcpCommand);
+      // Create a fancy header
+      const header = '🛠  AVAILABLE TOOLS 🛠';
+      const gradient = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96C93D'].map(color => chalk.hex(color));
+      console.log('\n' + '═'.repeat(60));
+      console.log(gradient[0].bold(header.padStart((60 + header.length) / 2)));
+      console.log('═'.repeat(60) + '\n');
+
+      tools.forEach((tool, index) => {
+        // Tool name with fancy numbering and emoji
+        const toolEmoji = ['⚡️', '🔧', '🎯', '🔨', '⚙️'][index % 5];
+        console.log(chalk.hex('#FF6B6B').bold(`${toolEmoji} ${index + 1}. ${tool.name}`));
+
+        // Description with subtle formatting
+        const desc = tool.description || 'No description provided';
+        console.log(chalk.hex('#4ECDC4')('└─ ') + chalk.hex('#45B7D1')(desc) + '\n');
+
+        if (tool.inputSchema && tool.inputSchema.properties) {
+          console.log(chalk.hex('#96C93D').dim('   Parameters:'));
+          Object.entries(tool.inputSchema.properties).forEach(([paramName, paramInfo]: [string, any]) => {
+            const type = chalk.hex('#FFE66D').italic(`<${paramInfo.type || 'any'}>`);
+            console.log(`   ${chalk.hex('#4ECDC4')('•')} ${chalk.hex('#FF6B6B')(paramName)} ${type}`);
+            console.log(`     ${chalk.hex('#E0E0E0')(paramInfo.description || 'No description')}`);
+          });
+          console.log(); // Add spacing between tools
+        }
+        
+        console.log(chalk.gray('\n' + '-'.repeat(50)));
+      });
+    } catch (error) {
+      console.log(chalk.red('Error listing tools:'), error instanceof Error ? error.message : String(error));
+      // If there's an error, output an empty array as a fallback
+      console.log(JSON.stringify([]));
+    }
+  });
+
+
 
 program
   .command('flows')
