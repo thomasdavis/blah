@@ -1,3 +1,20 @@
+TODO TO FINISH FULL POC
+
+- [ ] PROVIDERS
+- [ ] add provider option to blah.json
+  - [ ] add provider to cli
+  - [ ] if served it MUST try to run it from the provider
+
+Ideas
+
+- to run an mcp tool on a server function, we can use blah to serve it as SSE
+  https://github.com/cmsparks/mcp-bearer-auth-test/blob/main/src/index.ts#L57C9-L57C49
+
+Checkout this module to see how they proxy mcp to sse
+http://npmjs.com/package/mcp-remote
+
+---
+
 BLAH - Barely Logical Agent Host
 https://github.com/thomasdavis/blah/tree/master/packages/cli (readme very rough, not entirely indicative of the project)
 (pre-alpha fully open source project, everything subject to change)
@@ -96,8 +113,6 @@ So BLAH middleman's all your tools in any fashion you want, and it is responsibl
 
 ---
 
-So onto where I'd like to explore integrating with Vercel's new compute.
-
 BLAH allows to set a default provider or a provider per tool. By default the provider is just set to "local", which means all orchestration and proxying of tool requests are done locally.
 
 Though obviously a lot of people are looking towards hosting their tools/MCP servers for many reasons e.g. they don't have enough local resources to run the compute locally
@@ -110,8 +125,6 @@ I was going to build a prototype using Vercel functions, but they are obviously 
 - cpu only (no gpu)
 - no containers
 - not all languages
-
-BLAH doesn't need to have all the above requirements solved but it would be nice to understand which ones you will be aiming for so I can plan accordingly.
 
 ---
 
