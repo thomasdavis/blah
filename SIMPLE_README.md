@@ -136,6 +136,15 @@ TODO TO FINISH FULL POC
 - [ ] add provider option to blah.json
   - [ ] add provider to cli
   - [ ] if served it MUST try to run it from the provider
+- blah should install global, user space, workspace
+
+blah providers push
+//creates the tools with the full name CLOUDFLARE
+
+store the function name as
+BLAH_CLOUDFLARE_MCP_FIGMA_DRAW_BOX
+
+// we will need to dynamically setup a wrangler project and push it
 
 Ideas
 
@@ -144,6 +153,8 @@ Ideas
 
 Checkout this module to see how they proxy mcp to sse
 http://npmjs.com/package/mcp-remote
+
+Nice logs from remote-mcp
 
 2025-04-02 20:05:32.923 [warning] [server stderr] [666011] [Local→Remote] notifications/initialized
 2025-04-02 20:05:32.923 [warning] [server stderr] [666011] [Local→Remote] tools/list
