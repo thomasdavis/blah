@@ -38,16 +38,23 @@ export default async (config) => {
     await fs.writeFile(workerFilePath, workerCode);
     console.log(`Created Worker script: ${workerFilePath}`);
 
-    // Step 3: Create a minimal wrangler.toml in the temp folder
-    const wranglerConfig = `
-    name = "${workerName}"
-    main = "${workerName}.js"
-    compatibility_date = "2025-04-02"
-    `;
-
-    const wranglerFilePath = path.join(tempDir, 'wrangler.toml');
-    await fs.writeFile(wranglerFilePath, wranglerConfig);
-    console.log('Created wrangler.toml');
+    // Step 3: Create wrangler.jsonc in the temp folder
+    const wranglerConfig = {
+      $schema: "node_modules/wrangler/config-schema.json",
+      name: workerName,
+      main: workerFilePath,
+      compatibility_date: "2025-03-10",
+      observability: {
+        enabled: true,
+      },
+      assets: {
+        directory: "./static/",
+        binding: "ASSETS",
+      },
+    };
+    const wranglerFilePath = path.join(tempDir, 'wrangler.jsonc');
+    await fs.writeFile(wranglerFilePath, JSON.stringify(wranglerConfig, null, 2));
+    console.log('Created wrangler.jsonc');
 
     // Step 4: Deploy the Worker using Wrangler from the temp folder
     const { stdout, stderr } = await execPromise(`npx wrangler publish`, {
