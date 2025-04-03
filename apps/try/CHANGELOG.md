@@ -1,5 +1,12 @@
 # try
 
+## 0.0.11
+
+### Patch Changes
+
+- Updated dependencies [b01afe4]
+  - @blahai/cli@0.80.0
+
 ## 0.0.10
 
 ### Patch Changes

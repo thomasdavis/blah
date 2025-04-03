@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.80.0
+
+### Minor Changes
+
+- b01afe4: fixing mcp error
+
 ## 0.79.0
 
 ### Minor Changes
