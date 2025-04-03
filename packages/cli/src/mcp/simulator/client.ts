@@ -92,9 +92,9 @@ export async function startClient(configPath: string | undefined, config: Simula
   const isProduction = !fs.existsSync(path.resolve('src', 'mcp', 'server', 'start.ts'));
   
   if (isProduction) {
-    // When running from published package, use path relative to the current module
-    const currentDir = path.dirname(fileURLToPath(import.meta.url));
-    mcpEntryPath = path.resolve(currentDir, '../../server/start.ts');
+    // When running from published package, use path relative to the package root
+    const packageRoot = path.resolve(dirname, '..');
+    mcpEntryPath = path.resolve(packageRoot, 'dist/mcp/server/start.ts');
   } else {
     // When running from source
     mcpEntryPath = path.resolve('src', 'mcp', 'server', 'start.ts');

@@ -175,7 +175,7 @@ Nice logs from remote-mcp
 
 2025-04-02 20:05:32.923 [warning] [server stderr] [666011] [Local→Remote] notifications/initialized
 2025-04-02 20:05:32.923 [warning] [server stderr] [666011] [Local→Remote] tools/list
-2025-04-02 20:05:32.936 [warning] [server stderr] [666011] [Remote→Local] 2
+2025-04-02 20:05:32.936 [warning] [server stderr] [666011] [Remote→Local] kee2
 2025-04-02 20:05:32.936 [info] Discovered 1 tools
 2025-04-02 20:05:32.936 [warning] Tool add does not have a description. Tools must be accurately described to be called
 2025-04-02 20:05:55.377 [warning] [server stderr] [666011] [Local→Remote] tools/call
