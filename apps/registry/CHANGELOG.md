@@ -1,5 +1,12 @@
 # registry
 
+## 0.0.5
+
+### Patch Changes
+
+- Updated dependencies [3561ab7]
+  - @blahai/cli@0.79.0
+
 ## 0.0.4
 
 ### Patch Changes
