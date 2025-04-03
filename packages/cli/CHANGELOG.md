@@ -1,5 +1,11 @@
 # @blahai/cli
 
+## 0.102.0
+
+### Minor Changes
+
+- dea13a5: Finally a working build
+
 ## 0.80.0
 
 ### Minor Changes

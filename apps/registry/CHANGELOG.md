@@ -1,5 +1,12 @@
 # registry
 
+## 0.0.7
+
+### Patch Changes
+
+- Updated dependencies [dea13a5]
+  - @blahai/cli@0.102.0
+
 ## 0.0.6
 
 ### Patch Changes
