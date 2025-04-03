@@ -3,7 +3,7 @@ import { getConfig } from './getConfig.js';
 import { getSlopToolsFromManifest, fetchToolsFromSlopEndpoints } from '../slop/index.js';
 import { compileFlowsToTools } from './flow-processor.js';
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { Client } from "@modelcontextprotocol/sdk/client";
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { createLogger } from './logger.js';
 import { SSEClientTransport } from '@modelcontextprotocol/sdk/client/sse.js';
 

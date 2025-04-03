@@ -1,13 +1,7 @@
 {
   "name": "@blahai/cli",
-  "version": "0.80.0",
+  "version": "0.101.0",
   "type": "module",
-  "exports": {
-    ".": {
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
-    }
-  },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts && shx mkdir -p dist/mcp/server && shx cp src/mcp/server/start.ts dist/mcp/server/ && shx cp -r src/templates dist/templates",
     "watch": "tsup src/index.ts --format cjs,esm --dts --watch",
@@ -60,7 +54,7 @@
   "dependencies": {
     "@ai-sdk/openai": "^1.2.5",
     "@blahai/schema": "0.4.0",
-    "@modelcontextprotocol/sdk": "1.7.0",
+    "@modelcontextprotocol/sdk": "1.8.0",
     "ai": "^4.1.61",
     "axios": "^1.7.8",
     "boxen": "^7.1.1",
