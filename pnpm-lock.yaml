@@ -57,92 +57,6 @@ importers:
         specifier: 5.8.2
         version: 5.8.2
 
-  apps/docs:
-    dependencies:
-      '@blahai/schema':
-        specifier: workspace:*
-        version: link:../../packages/schema
-      '@repo/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-    devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
-
-  apps/playground:
-    dependencies:
-      '@blahai/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@blahai/schema':
-        specifier: workspace:*
-        version: link:../../packages/schema
-      '@monaco-editor/react':
-        specifier: ^4.7.0
-        version: 4.7.0(monaco-editor@0.52.2)(react-dom@18.2.0)(react@18.2.0)
-      '@repo/ai':
-        specifier: workspace:*
-        version: link:../../packages/ai
-      '@repo/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
-      marked:
-        specifier: ^9.1.5
-        version: 9.1.5
-      next:
-        specifier: ^14.0.4
-        version: 14.0.4(react-dom@18.2.0)(react@18.2.0)
-      react:
-        specifier: ^18.2.0
-        version: 18.2.0
-      react-dom:
-        specifier: ^18.2.0
-        version: 18.2.0(react@18.2.0)
-      react-syntax-highlighter:
-        specifier: ^15.5.0
-        version: 15.5.0(react@18.2.0)
-      uuid:
-        specifier: ^9.0.1
-        version: 9.0.1
-    devDependencies:
-      '@repo/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@repo/typescript-config':
-        specifier: workspace:*
-        version: link:../../packages/typescript-config
-      '@types/node':
-        specifier: ^20.10.4
-        version: 20.17.24
-      '@types/react':
-        specifier: ^18.2.45
-        version: 18.2.45
-      '@types/react-dom':
-        specifier: ^18.2.18
-        version: 18.2.18
-      '@types/react-syntax-highlighter':
-        specifier: ^15.5.11
-        version: 15.5.11
-      '@types/uuid':
-        specifier: ^9.0.7
-        version: 9.0.8
-      autoprefixer:
-        specifier: ^10.4.16
-        version: 10.4.17(postcss@8.5.3)
-      postcss:
-        specifier: ^8.4.32
-        version: 8.5.3
-      tailwindcss:
-        specifier: ^3.3.6
-        version: 3.4.1
-      typescript:
-        specifier: ^5.3.3
-        version: 5.8.2
-
   apps/registry:
     dependencies:
       '@blahai/cli':
@@ -513,6 +427,9 @@ importers:
 
   packages/example-mcp-server:
     dependencies:
+      '@hono/node-server':
+        specifier: ^1.5.0
+        version: 1.5.0
       '@modelcontextprotocol/sdk':
         specifier: ^1.7.0
         version: 1.7.0
@@ -2115,6 +2032,11 @@ packages:
     engines: {node: '>=14'}
     dev: false
 
+  /@hono/node-server@1.5.0:
+    resolution: {integrity: sha512-xMZW2tuHLdUtx5B28E5bsLazJe9NVU2z4QW/Xefgvg41U84r4L1mTxNutTMNwt6BrRujy7hs1aKyUpIuSqcXtQ==}
+    engines: {node: '>=18.14.1'}
+    dev: false
+
   /@humanfs/core@0.19.1:
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
     engines: {node: '>=18.18.0'}
@@ -2671,19 +2593,6 @@ packages:
     resolution: {integrity: sha512-hKoGSM+7aAc7eRTRjpqAZucPmoNOC4UUbknb/VNoTkEIkCPhqV8LfbsgM1webRM7S/z21eHEx9Fkwx8Z/C/+Xw==}
     dependencies:
       state-local: 1.0.7
-    dev: false
-
-  /@monaco-editor/react@4.7.0(monaco-editor@0.52.2)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-cyzXQCtO47ydzxpQtCGSQGOC8Gk3ZUeBXFAxD+CWXYFo5OqZyZUonFl0DwUlTyAfRHntBfw2p3w4s9R6oe1eCA==}
-    peerDependencies:
-      monaco-editor: '>= 0.25.0 < 1'
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-    dependencies:
-      '@monaco-editor/loader': 1.5.0
-      monaco-editor: 0.52.2
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /@monaco-editor/react@4.7.0(monaco-editor@0.52.2)(react-dom@18.3.0)(react@18.3.0):
