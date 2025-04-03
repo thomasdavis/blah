@@ -17,6 +17,12 @@ export async function DELETE(
       );
     }
     
+    if (!session.user.id) {
+      return NextResponse.json(
+        { error: 'Invalid user session' },
+        { status: 401 }
+      );
+    }
     const userId = parseInt(session.user.id);
     const keyId = parseInt(params.id);
     

@@ -8,7 +8,7 @@ import { prisma } from '@/lib/prisma';
 export default async function ApiKeysPage() {
   const session = await getSession();
   
-  if (!session || !session.user) {
+  if (!session?.user?.id) {
     redirect('/login');
   }
   

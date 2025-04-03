@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession, validateApiKey } from '@/lib/auth';
 import { publishTool } from '@/lib/db';
-import { validate as validateSemVer } from 'semver';
+import { valid as validateSemVer } from 'semver';
 import { NewTool, PublishResponse } from '@/lib/types';
 
 export async function POST(request: NextRequest) {

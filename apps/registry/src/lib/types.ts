@@ -7,7 +7,7 @@ export interface User {
 export interface Tool {
   id: number;
   name: string;
-  description: string;
+  description: string | null;
   created_at: string;
   author_name: string;
   author_id?: number;
@@ -44,12 +44,12 @@ export interface ApiKey {
 
 export interface NewTool {
   name: string;
-  description: string;
+  description: string | null;
   version: string;
   code: string;
   manifest: Record<string, any>;
   tags: string[];
-  providers?: Record<string, any>[];
+  providers?: { provider: string; config: any }[];
 }
 
 export interface PublishResponse {

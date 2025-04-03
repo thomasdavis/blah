@@ -15,6 +15,12 @@ export async function GET(request: NextRequest) {
       );
     }
     
+    if (!session.user.id) {
+      return NextResponse.json(
+        { error: 'Invalid user session' },
+        { status: 401 }
+      );
+    }
     const userId = parseInt(session.user.id);
     
     // Fetch user's API keys
@@ -51,6 +57,12 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    if (!session.user.id) {
+      return NextResponse.json(
+        { error: 'Invalid user session' },
+        { status: 401 }
+      );
+    }
     const userId = parseInt(session.user.id);
     const { name } = await request.json();
     
