@@ -38,3 +38,4 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+packages/cli/src/providers/vendors/modal/__pycache__/poc.cpython-310.pyc

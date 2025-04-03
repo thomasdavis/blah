@@ -17,13 +17,82 @@ export default async (config) => {
   // Process each tool sequentially to avoid race conditions with forEach
   for (const tool of toolsWithProvider) {
     const workerName = `blah-${tool.provider}-${tool.bridge}-${tool.name}`;
+
+    if (tool.provider === "local") {
+      continue;
+    }
+
+    if (tool.provider === 'modal') {
+      try {
+        const workerCode = `
+import sys
+
+import modal
+
+app = modal.App("example-hello-world")
+
+@app.function()
+def f(i):
+    if i % 2 == 0:
+        print("hello", i)
+    else:
+        print("world", i, file=sys.stderr)
+
+    return i * i
+
+@app.local_entrypoint()
+def main():
+    # run the function locally
+    print(f.local(1000))
+
+    # run the function remotely on Modal
+    print(f.remote(1000))
+
+    # run the function in parallel and remotely on Modal
+    total = 0
+    for ret in f.map(range(200)):
+        total += ret
+
+    print(total)      
+        `
+        logger.info("Modal provider not supported yet");
+        // Step 1: Set up the ~/.blah directory and a unique temp folder
+        const homeDir = os.homedir();
+        const blahDir = path.join(homeDir, '.blah');
+        const tempDir = path.join(blahDir, `worker-${Date.now()}`);
+
+        await fs.mkdir(blahDir, { recursive: true });
+        await fs.mkdir(tempDir);
+        console.log(`Created temp directory: ${tempDir}`);
+
+        // Step 2: Create the modal python script
+        const workerFilePath = path.join(tempDir, 'blah.py'); 
+        await fs.writeFile(workerFilePath, workerCode.trim());
+        console.log(`Created Modal Python Entrypoint: ${workerFilePath}`);
+
+        // Step 6: Deploy the Worker
+        const { stdout, stderr } = await execPromise(`modal deploy --name ${workerName} ${workerFilePath}`, {
+          cwd: tempDir,
+        });
+        if (stderr) throw new Error(`Modal error: ${stderr}`);
+        console.log(`Deployed Modal Container: ${stdout}`);
+
+        // Optional: Clean up
+        // await fs.rm(tempDir, { recursive: true, force: true });
+        // console.log(`Cleaned up: ${tempDir}`);
+      } catch (error) {
+        console.error('Error creating/deploying Modal Container:', error);
+      }
+      return false;
+  }
+
     const workerCode = `
 import { McpAgent } from "agents/mcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { Hono } from "hono";
-
-export const app = new Hono();
+import app from "@jsonresume/mcp";
+// export const app = new Hono();
 
 export class MyMCP extends McpAgent {
   server = new McpServer({
@@ -38,13 +107,13 @@ export class MyMCP extends McpAgent {
   }
 }
 
-app.get("/", async (c) => {
-  return c.text("MCP Remote Demo - Home");
-});
+// app.get("/", async (c) => {
+//   return c.text("MCP Remote Demo - Home");
+// });
 
-app.mount("/", (req, env, ctx) => {
-  return MyMCP.mount("/sse").fetch(req, env, ctx);
-});
+// app.mount("/", (req, env, ctx) => {
+//   return MyMCP.mount("/sse").fetch(req, env, ctx);
+// });
 
 export default app;
     `;
@@ -75,6 +144,7 @@ export default app;
           "zod": "^3.22.4",
           "agents": "^0.0.43", // Adjust if this is a real package
           "@modelcontextprotocol/sdk": "^1.7.0", // Adjust if this is the correct package
+          "@jsonresume/mcp": "^3.0.3"
         },
       };
       await fs.writeFile(

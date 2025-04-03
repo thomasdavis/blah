@@ -146,10 +146,24 @@ BLAH_CLOUDFLARE_MCP_FIGMA_DRAW_BOX
 
 // we will need to dynamically setup a wrangler project and push it
 
+Provider Limitations
+
+- Cloudflare
+  - JS only
+  - Official MCP Typescript SDK only supports express servers for mounted SSE
+  - Cloudflare workers only support Hono (for speed/edge location reasons)
+- Modal
+  - Pseudo Containers
+    - No custom images maybe?!?
+    - Python only
+
 Ideas
 
+- add a blah serve command
+  - starts a http server and writes out openapi docs or something
 - to run an mcp tool on a server function, we can use blah to serve it as SSE
   https://github.com/cmsparks/mcp-bearer-auth-test/blob/main/src/index.ts#L57C9-L57C49
+- run mcp servers in workers
 
 Checkout this module to see how they proxy mcp to sse
 http://npmjs.com/package/mcp-remote
