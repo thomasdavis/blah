@@ -1,7 +1,7 @@
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { nord } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-export function DocContent() {
+export function DocContent(): React.ReactElement {
   return (
     <div className="max-w-4xl mx-auto prose">
       <div className="text-center mb-24 relative">

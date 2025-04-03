@@ -168,6 +168,9 @@ Ideas
 Checkout this module to see how they proxy mcp to sse
 http://npmjs.com/package/mcp-remote
 
+Do this for collaboration
+https://containers.dev/
+
 Nice logs from remote-mcp
 
 2025-04-02 20:05:32.923 [warning] [server stderr] [666011] [Local→Remote] notifications/initialized

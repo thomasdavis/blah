@@ -10,7 +10,7 @@ export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}): React.ReactElement {
   return (
     <html lang="en">
       <body className="bg-white min-h-screen relative overflow-x-hidden">

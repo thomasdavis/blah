@@ -1,4 +1,4 @@
-export function Footer() {
+export function Footer(): React.ReactElement {
   return (
     <footer className="bg-white py-16 border-t-4 border-black mt-20 relative overflow-hidden">
       {/* Decorative elements */}

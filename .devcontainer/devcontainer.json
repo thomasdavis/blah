@@ -1,0 +1,27 @@
+{
+  "name": "Turborepo Dev Container",
+  "dockerFile": "Dockerfile",
+  "workspaceFolder": "/workspace",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20" 
+    }
+  },
+  "postCreateCommand": "pnpm install", 
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  },
+  "mounts": [
+    "source=turborepo_cache,target=/root/.cache,type=volume"
+  ],
+  "remoteUser": "node"
+}
+
