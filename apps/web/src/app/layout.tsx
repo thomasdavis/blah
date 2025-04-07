@@ -1,5 +1,6 @@
 import './globals.css';
 import type { Metadata } from 'next';
+import Team from './team/page';
 
 export const metadata: Metadata = {
   title: 'BLAH - Barely Logical Agent Host',
@@ -32,6 +33,7 @@ export default function RootLayout({
         
         <div className="relative z-10">
           {children}
+          <Team />
         </div>
       </body>
     </html>

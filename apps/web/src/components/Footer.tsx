@@ -44,6 +44,9 @@ export function Footer(): React.ReactElement {
             <a href="/playground" className="group block p-4 border-3 border-black bg-white shadow-[5px_5px_0px_0px_rgba(0,0,0)] transform transition-all hover:-translate-y-1 hover:shadow-[5px_8px_0px_0px_rgba(0,0,0)]">
               <p className="font-black text-lg group-hover:text-brand-600">Playground</p>
             </a>
+            <a href="/team" className="group block p-4 border-3 border-black bg-white shadow-[5px_5px_0px_0px_rgba(0,0,0)] transform transition-all hover:-translate-y-1 hover:shadow-[5px_8px_0px_0px_rgba(0,0,0)]">
+              <p className="font-black text-lg group-hover:text-brand-600">Team</p>
+            </a>
           </div>
           
           <div className="bg-secondary-300 px-8 py-4 border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0)] rotate-[-0.5deg] transform transition-transform hover:rotate-0 hover:-translate-y-1 relative">

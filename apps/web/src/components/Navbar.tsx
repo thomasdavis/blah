@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export function Navbar(): React.ReactElement {
   return (
     <nav className="bg-white border-b-4 border-black mb-12 sticky top-0 z-50 py-2">
@@ -43,6 +45,13 @@ export function Navbar(): React.ReactElement {
             <span className="absolute inset-0 w-0 bg-success-200 transition-all duration-300 ease-out group-hover:w-full"></span>
             <span className="relative">npm</span>
           </a>
+
+          <Link href="/team">
+            <a className="text-black font-bold bg-danger-300 px-4 py-2 border-3 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0)] transition-all hover:-translate-y-1 hover:shadow-[4px_6px_0px_0px_rgba(0,0,0)] relative overflow-hidden group">
+              <span className="absolute inset-0 w-0 bg-danger-200 transition-all duration-300 ease-out group-hover:w-full"></span>
+              <span className="relative">Team</span>
+            </a>
+          </Link>
         </div>
       </div>
     </nav>

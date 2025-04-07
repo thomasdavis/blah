@@ -767,6 +767,49 @@ blah mcp start`}
         </div>
         <p className="text-xl font-bold">Join us in building the infrastructure layer for tool interoperability</p>
       </div>
+
+      <section id="team" className="mb-32 p-10 border-4 border-black bg-white shadow-[12px_12px_0px_0px_rgba(0,0,0)] relative overflow-hidden">
+        <div className="absolute -right-12 -top-12 w-40 h-40 bg-brand-200 border-4 border-black rotate-12 z-0"></div>
+        <div className="absolute -left-8 -bottom-8 w-24 h-24 bg-secondary-100 border-3 border-black -rotate-12 z-0"></div>
+        
+        <div className="relative z-10">
+          <h2 className="text-4xl font-black text-black mb-8 inline-block bg-brand-100 px-6 py-2 border-3 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0)] rotate-[-0.5deg] transform hover:rotate-0 transition-transform">OUR TEAM</h2>
+          
+          <div className="space-y-8 relative z-10 max-w-3xl mx-auto">
+            <p className="text-xl font-medium leading-relaxed">
+              Meet the dedicated team behind BLAH. Our team is composed of talented individuals with diverse backgrounds and expertise, all working together to build the future of AI tool interoperability.
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                <h3 className="font-bold text-lg mb-2">Alice Johnson</h3>
+                <p className="text-gray-600 dark:text-gray-300">Project Manager</p>
+                <p className="text-gray-600 dark:text-gray-300">Alice is responsible for overseeing the project and ensuring that all milestones are met on time.</p>
+              </div>
+              <div className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                <h3 className="font-bold text-lg mb-2">Bob Smith</h3>
+                <p className="text-gray-600 dark:text-gray-300">Lead Developer</p>
+                <p className="text-gray-600 dark:text-gray-300">Bob leads the development team and is responsible for the overall architecture of the application.</p>
+              </div>
+              <div className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                <h3 className="font-bold text-lg mb-2">Charlie Brown</h3>
+                <p className="text-gray-600 dark:text-gray-300">UI/UX Designer</p>
+                <p className="text-gray-600 dark:text-gray-300">Charlie designs the user interfaces and ensures a great user experience.</p>
+              </div>
+              <div className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                <h3 className="font-bold text-lg mb-2">Dana White</h3>
+                <p className="text-gray-600 dark:text-gray-300">Backend Developer</p>
+                <p className="text-gray-600 dark:text-gray-300">Dana works on the server-side logic and database management.</p>
+              </div>
+              <div className="border rounded-lg p-6 hover:shadow-md transition-shadow">
+                <h3 className="font-bold text-lg mb-2">Eve Black</h3>
+                <p className="text-gray-600 dark:text-gray-300">Frontend Developer</p>
+                <p className="text-gray-600 dark:text-gray-300">Eve is responsible for implementing the visual elements that users interact with.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
