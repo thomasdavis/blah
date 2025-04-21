@@ -136,7 +136,10 @@ export async function getTools(config: string | Record<string, any>): Promise<an
               // Parse the command string into command and arguments
               const commandParts = tool.command.split(' ');
               const command = commandParts[0]; // 'uv'
-              const args = commandParts.slice(1).concat(["--config", configArg]);
+              
+              // @todo -  
+              // const args = commandParts.slice(1).concat(["--config", configArg]);
+              const args = commandParts.slice(1);
               
               // Create environment variables from the config
               // Convert process.env to Record<string, string> by removing any undefined values
@@ -198,7 +201,6 @@ export async function getTools(config: string | Record<string, any>): Promise<an
               }
 
               if (!tool.provider) {
-
 
                 logger.info(`Creating MCP client transport with command: ${command} and args: ${args.join(' ')}`);
 
