@@ -10,14 +10,15 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
-  font-family: var(--font-martel), serif;
+  font-family: var(--font-spectral), serif;
   font-weight: 400;
+  font-size: 1.25rem; /* 25% larger than the default 1rem */
   line-height: 1.6;
   letter-spacing: -0.01em;
 }
 
 h1, h2, h3, h4, h5, h6, .font-heading {
-  font-family: var(--font-chivo), sans-serif;
+  font-family: var(--font-manrope), sans-serif;
   font-weight: 700;
   letter-spacing: -0.03em;
   line-height: 1.2;
@@ -45,7 +46,7 @@ h5, h6 {
 }
 
 p {
-  @apply my-4 text-base md:text-lg;
+  @apply my-4 text-lg md:text-xl;
 }
 
 /* Subtle animations for typography focus */
@@ -72,7 +73,7 @@ p {
 }
 
 .prose p {
-  @apply my-5 text-base md:text-lg leading-relaxed;
+  @apply my-5 text-lg md:text-xl leading-relaxed;
 }
 
 .prose ul {
@@ -84,7 +85,7 @@ p {
 }
 
 .prose code {
-  @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 font-mono text-sm rounded border border-gray-300;
+  @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 font-mono text-base rounded border border-gray-300;
 }
 
 .prose pre {

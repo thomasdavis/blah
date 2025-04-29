@@ -16,7 +16,7 @@ export function Navbar(): React.ReactElement {
         
         <div className="flex gap-4">
           <a 
-            href="/docs" 
+            href="https://deepwiki.com/thomasdavis/blah/1-overview" 
             className="clean-btn hover-underline"
           >
             Docs
