@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@300;400;600;700;900&display=swap');
-
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
@@ -12,156 +10,125 @@
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-martel), serif;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
 }
 
-h1, h2, h3, h4, h5, h6, .font-black {
-  font-family: 'Archivo Black', sans-serif;
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-chivo), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
 }
 
-/* Custom animations */
-@keyframes float {
-  0% { transform: translateY(0px) rotate(-1deg); }
-  50% { transform: translateY(-10px) rotate(1deg); }
-  100% { transform: translateY(0px) rotate(-1deg); }
+/* Typography scale */
+h1 {
+  @apply text-4xl md:text-5xl lg:text-6xl mb-6 mt-12;
 }
 
-@keyframes wiggle {
-  0% { transform: rotate(-1deg); }
-  50% { transform: rotate(1deg); }
-  100% { transform: rotate(-1deg); }
+h2 {
+  @apply text-3xl md:text-4xl mb-5 mt-10;
 }
 
-@keyframes shadowPulse {
-  0% { box-shadow: 5px 5px 0px 0px rgba(0,0,0,1); }
-  50% { box-shadow: 6px 6px 0px 0px rgba(0,0,0,0.8); }
-  100% { box-shadow: 5px 5px 0px 0px rgba(0,0,0,1); }
+h3 {
+  @apply text-2xl md:text-3xl mb-4 mt-8;
 }
 
-@keyframes borderColorPulse {
-  0% { border-color: #000; }
-  50% { border-color: #222; }
-  100% { border-color: #000; }
+h4 {
+  @apply text-xl md:text-2xl mb-3 mt-6;
 }
 
-/* Apply animations */
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+h5, h6 {
+  @apply text-lg md:text-xl mb-2 mt-4;
 }
 
-.animate-wiggle {
-  animation: wiggle 6s ease-in-out infinite;
+p {
+  @apply my-4 text-base md:text-lg;
 }
 
-.animate-shadow-pulse {
-  animation: shadowPulse 4s ease-in-out infinite;
+/* Subtle animations for typography focus */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
 
-.animate-border-pulse {
-  animation: borderColorPulse 4s ease-in-out infinite;
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
 }
 
-/* Neobrutalism styling for prose content */
+/* Clean typography styling for prose content */
 .prose h1 {
-  @apply text-4xl font-black mt-8 mb-4 rotate-[-0.5deg] inline-block bg-brand-300 px-4 py-1 border-4 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0)];
+  @apply text-4xl md:text-5xl font-bold mt-8 mb-6 text-black;
 }
 
 .prose h2 {
-  @apply text-3xl font-black mt-10 mb-6 text-black;
+  @apply text-3xl md:text-4xl font-bold mt-10 mb-5 text-black;
 }
 
 .prose h3 {
-  @apply text-2xl font-black mt-8 mb-4 text-black;
+  @apply text-2xl md:text-3xl font-bold mt-8 mb-4 text-black;
 }
 
 .prose p {
-  @apply my-5 text-lg leading-relaxed;
+  @apply my-5 text-base md:text-lg leading-relaxed;
 }
 
 .prose ul {
-  @apply my-6 space-y-3;
-}
-
-.prose ul li {
-  @apply flex items-start;
-}
-
-.prose ul li::before {
-  content: "";
-  @apply inline-block w-3 h-3 bg-black mr-3 mt-2 flex-shrink-0;
+  @apply my-6 space-y-2 list-disc pl-5;
 }
 
 .prose ol {
-  @apply list-decimal pl-5 my-6 space-y-3 font-medium;
+  @apply list-decimal pl-5 my-6 space-y-2;
 }
 
 .prose code {
-  @apply bg-gray-800 text-gray-200 border-2 border-black px-2 py-1 font-mono rounded-sm;
+  @apply bg-gray-100 text-gray-800 px-1.5 py-0.5 font-mono text-sm rounded border border-gray-300;
 }
 
 .prose pre {
-  @apply border-3 border-black bg-gray-900 my-8 overflow-x-auto rounded-none shadow-[6px_6px_0px_0px_rgba(0,0,0)];
+  @apply bg-gray-100 border border-gray-300 my-6 p-4 overflow-x-auto rounded;
 }
 
 .prose pre code {
-  @apply bg-transparent border-0 px-0 py-0 text-gray-200 shadow-none;
+  @apply bg-transparent border-0 px-0 py-0 text-gray-800;
 }
 
 .prose a {
-  @apply text-black font-bold bg-secondary-200 px-2 border-2 border-black hover:bg-secondary-300 hover:-translate-y-1 transition-all no-underline inline-block;
+  @apply text-black font-bold border-b-2 border-black hover:bg-gray-100 transition-colors;
 }
 
 .prose blockquote {
-  @apply border-l-4 border-black pl-4 my-6 bg-brand-100 p-4;
+  @apply border-l-4 border-black pl-4 my-6 italic;
 }
 
-/* Specific neobrutalism utility classes */
-.neo-border {
-  @apply border-3 border-black shadow-[5px_5px_0px_0px_rgba(0,0,0)];
+/* Clean typography utility classes */
+.clean-border {
+  @apply border border-gray-300;
 }
 
-.neo-border-animated {
-  @apply border-3 border-black;
-  animation: shadowPulse 4s ease-in-out infinite;
+.clean-box {
+  @apply border border-gray-300 bg-white p-4 transition-all;
 }
 
-.neo-box {
-  @apply border-3 border-black bg-white p-4 shadow-[5px_5px_0px_0px_rgba(0,0,0)] transition-all hover:-translate-y-1;
+.clean-btn {
+  @apply border border-black bg-white px-4 py-2 font-bold hover:bg-gray-100 transition-all;
 }
 
-.neo-btn {
-  @apply border-3 border-black bg-brand-300 px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0)] hover:-translate-y-1 hover:shadow-[4px_6px_0px_0px_rgba(0,0,0)] transition-all;
+.clean-link {
+  @apply border-b-2 border-black font-bold hover:bg-gray-100 transition-colors;
 }
 
-.neo-success-btn {
-  @apply border-3 border-black bg-success-300 px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0)] hover:-translate-y-1 hover:shadow-[4px_6px_0px_0px_rgba(0,0,0)] transition-all;
+/* Clean typography utility classes */
+.hover-underline {
+  @apply relative;
 }
-
-.neo-danger-btn {
-  @apply border-3 border-black bg-danger-300 px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0)] hover:-translate-y-1 hover:shadow-[4px_6px_0px_0px_rgba(0,0,0)] transition-all;
-}
-
-.neo-secondary-btn {
-  @apply border-3 border-black bg-secondary-300 px-4 py-2 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0)] hover:-translate-y-1 hover:shadow-[4px_6px_0px_0px_rgba(0,0,0)] transition-all;
-}
-
-/* Custom utility classes */
-.rotate-hover {
-  @apply transition-transform duration-300;
-}
-.rotate-hover:hover {
-  @apply rotate-0 -translate-y-1;
-}
-
-/* Highlight box */
-.highlight-box {
-  @apply relative overflow-hidden;
-}
-.highlight-box::before {
+.hover-underline::after {
   content: "";
-  @apply absolute bottom-0 left-0 w-full h-[6px] bg-brand-300 border-t-2 border-black transform scale-x-0 origin-bottom-right transition-transform duration-300;
+  @apply absolute bottom-0 left-0 w-full h-0.5 bg-black transform scale-x-0 origin-bottom-right transition-transform duration-300;
 }
-.highlight-box:hover::before {
+.hover-underline:hover::after {
   @apply transform scale-x-100 origin-bottom-left;
 }
 
